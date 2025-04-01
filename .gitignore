@@ -1,0 +1,19 @@
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE and editor folders
+.vscode/
+.idea/
+
+# Backup files
+*.bak
+*.tmp
+*.swp
+
+# Database credentials or configs (if added)
+config.inc.php
+
+# Node modules (if used later)
+node_modules/
