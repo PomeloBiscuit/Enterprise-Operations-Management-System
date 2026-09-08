@@ -66,7 +66,7 @@ docker compose exec web bash scripts/smoke.sh
 ```
 
 它會驗證 SQLite schema／種子資料／外鍵級聯、時區、登入、bcrypt 雜湊、
-prepared statement 的 injection 探針、指定 `Act` 路由與直接開檔的支出追蹤頁、
+prepared statement 的 injection 探針與指定 `Act` 路由、
 Apache PHP 錯誤輸出與 Git 已追蹤檔衛生。測試中的刪除與清空都在 SQLite transaction
 內 rollback；injection 測試暫時新增的資料會在結束時移除。任一項失敗會以非 0 結束碼。
 
