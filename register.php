@@ -5,12 +5,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("
             INSERT INTO User (datechg, dateadd, name, id, pw, phone, phonem, email, enabled, open, status, limited)
-            VALUES (NOW(), NOW(), :name, :id, MD5(:pw), '', '', :email, 1, 1, 1, 2)
+            VALUES (datetime('now','localtime'), datetime('now','localtime'), :name, :id, :pw, '', '', :email, 1, 1, 1, 2)
         ");
         $stmt->execute([
             ':name'  => $_POST['name'],
             ':id'    => $_POST['id'],
-            ':pw'    => $_POST['pw'],
+            ':pw'    => password_hash($_POST['pw'], PASSWORD_DEFAULT),
             ':email' => $_POST['email']
         ]);
         header("Location: index.php");

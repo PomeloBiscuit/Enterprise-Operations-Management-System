@@ -64,25 +64,33 @@ if ($_SESSION["admlimit"] > 0) {
         }
     } else {
         try {
+            // 只有輸入了新密碼（且不是表單預設的 ****** 遮罩）才更新 pw 欄位，
+            // 否則沿用原本的雜湊 —— 避免每次編輯都把密碼重設掉。
+            $newPw = $_POST['pwa'] ?? '';
+            $updatePw = ($newPw !== '' && $newPw !== '******');
+
             $sql = "UPDATE User SET
-                datechg=NOW(),
+                datechg=datetime('now','localtime'),
                 name=:name,
-                id=:id,
-                pw=MD5(:pwa),
+                id=:id,"
+                . ($updatePw ? "\n                pw=:pwa," : "") . "
                 phone=:phone,
                 phonem=:phonem,
                 email=:email
                 WHERE prikey=:prikey";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
+            $params = [
                 ':name' => $_POST['name'],
                 ':id' => $_POST['id'],
-                ':pwa' => $_POST['pwa'],
                 ':phone' => $_POST['phone'],
                 ':phonem' => $_POST['phonem'],
                 ':email' => $_POST['email'],
                 ':prikey' => $EK
-            ]);
+            ];
+            if ($updatePw) {
+                $params[':pwa'] = password_hash($newPw, PASSWORD_DEFAULT);
+            }
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
         } catch (PDOException $e) {
             echo "<p>Error updating admin: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
