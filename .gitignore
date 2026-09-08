@@ -17,3 +17,8 @@ config.inc.php
 
 # Node modules (if used later)
 node_modules/
+
+# 內部作業文件（不對外公開，另行備份）
+CLAUDE.md
+docs/
+新專案開場指令.md
