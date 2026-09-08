@@ -1,5 +1,6 @@
 <?php
 require_once("config.inc.php"); // 確保包含資料庫連接配置
+require_once __DIR__ . '/auth.inc.php';
 
 if (empty($_POST["btemplogin"])) {
 ?>
@@ -158,7 +159,7 @@ body {
             $_SESSION["admclass"] = $user["class"] ?? null; // 設定 class（User 表無此欄，用 null 合併避免 PHP 8 未定義索引警告）
             $_SESSION["admlimit"] = $user["limited"];   // 設定 limited
 
-            if ($user["limited"] > 0) { // 權限大於 0
+            if (is_logged_in()) { // 已登入角色才可進入首頁；頁面權限另由具名守衛判斷
                 @header("Location: index.php?Act=150"); // 修改為跳轉至 case 150
             } else {    // 權限不足
                 @header("Location: ?error=權限不足，請聯絡管理員"); // 修改為跳轉至 case 150

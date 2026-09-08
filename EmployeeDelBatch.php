@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) { // 判斷是否有登入
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) { // 管理員與內部員工才可操作業務資料
     if (isset($_POST['selectedEmployees'])) { // 判斷是否有選擇員工
         $selectedEmployees = $_POST['selectedEmployees']; // 取得選擇的員工
         $resultsPerPage = $_POST['resultsPerPage'] ?? 5; // 預設顯示 5 筆

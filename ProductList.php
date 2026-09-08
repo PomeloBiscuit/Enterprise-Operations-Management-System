@@ -1,5 +1,6 @@
 <?php // ProductList.php 
-if ($_SESSION["admlimit"] > 0) { // 確認是否有權限
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資料
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC'; // 預設排序為 ASC
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc'; // 下一次排序的順序
     $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'ProductID'; // 預設排序欄位為 ProductID

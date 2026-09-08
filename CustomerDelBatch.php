@@ -1,5 +1,6 @@
 <?php // CustomerDelBatch.php
-if ($_SESSION["admlimit"] > 0) { // 管理員才能刪除
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) { // 僅管理員與內部員工可刪除
     if (isset($_POST['selectedCustomers'])) { // 若有選擇顧客
         $selectedCustomers = $_POST['selectedCustomers']; // 取得選擇的顧客
         $resultsPerPage = $_POST['resultsPerPage'] ?? 5; // 預設顯示 5 筆

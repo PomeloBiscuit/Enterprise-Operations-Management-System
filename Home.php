@@ -2,7 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_access_self()) {
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">

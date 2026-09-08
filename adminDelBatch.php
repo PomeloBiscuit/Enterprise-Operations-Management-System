@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_manage_users()) {
     if (isset($_POST['selectedUsers'])) {
         $selectedUsers = $_POST['selectedUsers'];
         $resultsPerPage = $_POST['resultsPerPage'] ?? 10; // 預設顯示 10 筆

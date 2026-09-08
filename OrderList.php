@@ -1,5 +1,6 @@
 <?php // OrderList.php
-if ($_SESSION["admlimit"] > 0) { // 判斷是否有登入
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資料
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC'; // 排序方式
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc'; // 下一個排序方式
     $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'OrderID'; // 排序欄位

@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) {
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
     $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');

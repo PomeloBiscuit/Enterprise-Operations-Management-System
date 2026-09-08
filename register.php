@@ -1,5 +1,6 @@
 <?php
 require_once("config.inc.php");
+require_once __DIR__ . '/auth.inc.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -9,13 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $stmt = $pdo->prepare("
             INSERT INTO User (datechg, dateadd, name, id, pw, phone, phonem, email, enabled, open, status, limited, party_type)
-            VALUES (datetime('now','localtime'), datetime('now','localtime'), :name, :id, :pw, '', '', :email, 1, 1, 1, 3, :party_type)
+            VALUES (datetime('now','localtime'), datetime('now','localtime'), :name, :id, :pw, '', '', :email, 1, 1, 1, :limited, :party_type)
         ");
         $stmt->execute([
             ':name'  => $_POST['name'],
             ':id'    => $_POST['id'],
             ':pw'    => password_hash($_POST['pw'], PASSWORD_DEFAULT),
             ':email' => $_POST['email'],
+            ':limited' => USER_LIMIT_EXTERNAL,
             ':party_type' => $partyType
         ]);
         header("Location: index.php");

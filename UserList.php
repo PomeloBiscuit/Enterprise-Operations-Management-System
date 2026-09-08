@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_manage_users()) {
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
     $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'prikey';

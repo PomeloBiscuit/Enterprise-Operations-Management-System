@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_manage_users()) {
     $EK = intval($_GET['EK']);
     $resultsPerPage = $_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5;
     if (empty($_POST['btadd'])) {

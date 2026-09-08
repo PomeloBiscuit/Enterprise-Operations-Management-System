@@ -1,5 +1,6 @@
 <?php
-     if ($_SESSION["admlimit"]>0) {
+     require_once __DIR__ . '/auth.inc.php';
+     if (can_view_business_data()) {
           if (empty($_POST['btadd'])) {
 
                echo "

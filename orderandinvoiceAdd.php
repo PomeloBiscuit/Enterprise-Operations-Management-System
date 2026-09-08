@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // 快照一律由外鍵指向的現行資料取得，不接受瀏覽器送來的名稱或編號。

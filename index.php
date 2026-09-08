@@ -2,6 +2,7 @@
 ob_start();
 session_start();
 require_once("config.inc.php");
+require_once __DIR__ . '/auth.inc.php';
 
 // 1) 移除原強制轉 int，改以直接取得 GET 參數
 $ActParam = $_GET["Act"] ?? 0;
@@ -11,6 +12,21 @@ if (!isset($_SESSION['admid'])) {
     $Act = ($ActParam == 160) ? 160 : "nologin";
 } else {
     $Act = intval($ActParam); // 若已登入再轉 int
+}
+
+// 以路由白名單封住沒有頁內權限檢查的 CRUD 頁面；新增角色不會因數字大小而自動取得權限。
+$userManagementActs = [110, 120, 130, 135, 140];
+$businessDataActs = [
+    200, 210, 220, 230, 240, 250, 260, 265, 270,
+    300, 320, 330, 335, 340, 350, 360, 370, 375, 380,
+    390, 400, 410, 415, 420, 430, 440, 450, 460,
+    470, 480, 490, 500, 510,
+];
+
+if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
+    $Act = 'forbidden';
+} elseif (in_array($Act, $businessDataActs, true) && !can_view_business_data()) {
+    $Act = 'forbidden';
 }
 ?>
 
@@ -72,13 +88,19 @@ if (!isset($_SESSION['admid'])) {
 <?php if (isset($_SESSION['admid'])): ?>    <!-- 判斷是否有登入 -->
     <nav>   <!-- 導覽列 -->
         <a href="logout.php">登出</a>    <!-- 登出 -->
+        <?php if (can_access_self()): ?>
         <a href="index.php?Act=100">個人資料</a>    <!-- 個人資料 -->  
         <a href="index.php?Act=150">Home</a>    <!-- 修改目標頁面 -->
+        <?php endif; ?>
+        <?php if (can_manage_users()): ?>
         <a href="index.php?Act=110">使用者列表</a>  <!-- 使用者列表 -->
+        <?php endif; ?>
+        <?php if (can_view_business_data()): ?>
         <a href="index.php?Act=350">員工列表</a>      <!-- 員工列表 -->
         <a href="index.php?Act=300">顧客列表</a>      <!-- 顧客列表 -->
         <a href="index.php?Act=390">貨物列表</a>    <!-- 貨物列表 -->
         <a href="index.php?Act=430">訂單列表</a>  <!-- 訂單列表 -->
+        <?php endif; ?>
     </nav>  
 <?php endif; ?> <!-- 結束判斷是否有登入 -->
 <main>  <!-- 主要內容 -->
@@ -101,28 +123,28 @@ if (!isset($_SESSION['admid'])) {
                 include("adminList.php");   
                 break;  
             case "120": //使用者編輯
-                if ($_SESSION["admlimit"] == 1 || ($_SESSION["admlimit"] == 2 && $_GET['EK'] == $_SESSION["admprikey"])) {
+                if (is_admin()) {
                     include("adminEdit.php");
                 } else {
                     echo "<p style='text-align:center; color:red;'>權限不足!</p>";
                 }
                 break;
             case "130": // 使用者刪除
-                if ($_SESSION["admlimit"] == 1) {
+                if (is_admin()) {
                     include("adminDel.php");
                 } else {
                     echo "<p style='text-align:center; color:red;'>權限不足!</p>";
                 }
                 break;
             case "135": // 使用者批量刪除
-                if ($_SESSION["admlimit"] == 1) {
+                if (is_admin()) {
                     include("adminDelBatch.php");
                 } else {
                     echo "<p style='text-align:center; color:red;'>權限不足!</p>";
                 }
                 break;
             case "140": // 使用者新增
-                if ($_SESSION["admlimit"] == 1 || $_SESSION["admlimit"] == 2) {
+                if (is_admin()) {
                     include("adminAdd.php");
                 } else {
                     echo "<p style='text-align:center; color:red;'>權限不足!</p>";
@@ -232,6 +254,9 @@ if (!isset($_SESSION['admid'])) {
                 break;
             case "510": // 出貨紀錄批量刪除
                 include("ShipmentDelBatch.php");
+                break;
+            case "forbidden":
+                echo "<p style='text-align:center; color:red;'>權限不足!</p>";
                 break;
         }
         ?>

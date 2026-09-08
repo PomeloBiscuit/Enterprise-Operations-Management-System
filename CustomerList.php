@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) { // 管理員權限
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) { // 管理員與內部員工權限
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC'; // 排序順序
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc'; // 下一次排序順序
     $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'CustomerID'; // 預設以 CustomerID 欄位排序
