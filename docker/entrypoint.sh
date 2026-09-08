@@ -3,6 +3,16 @@ set -e
 
 APP_DIR=/var/www/html
 DB_FILE="$APP_DIR/data/fiance2024.sqlite"
+CONFIG="$APP_DIR/config.inc.php"
+
+# config.inc.php 在 .gitignore 內，所以「全新 clone」不會有這個檔，
+# 而 index.php 第一行就 require_once 它 —— 少了它整站直接 fatal error。
+# SQLite 版的範本沒有任何需要填的值，所以這裡直接複製，
+# 讓「clone 之後一道 docker compose up」真的成立（實測過全新 clone 會缺這個檔）。
+if [ ! -f "$CONFIG" ]; then
+    echo "[entrypoint] config.inc.php 不存在，從 config.inc.php.example 複製..."
+    cp "$APP_DIR/config.inc.php.example" "$CONFIG"
+fi
 
 # data/ 目錄要能被 www-data 寫入（SQLite 的新增/修改/刪除都要寫檔）
 mkdir -p "$APP_DIR/data"

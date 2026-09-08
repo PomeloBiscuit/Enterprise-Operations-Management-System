@@ -46,9 +46,11 @@ Prerequisites: Docker Desktop.
 ```bash
 git clone <this repo>
 cd Enterprise-Operations-Management-System
-cp config.inc.php.example config.inc.php   # SQLite: nothing to edit
 docker compose up -d
 ```
+
+The entrypoint copies `config.inc.php` from the example on first start, so no manual
+setup step is needed for the Docker route.
 
 The container auto-runs `create.php` on first start, so the app comes up with seed data.
 
