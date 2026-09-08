@@ -204,6 +204,93 @@ erDiagram
 外鍵約束在 SQLite 預設是關閉的，且必須每個連線各自開啟；本專案在每次建立 PDO 連線後
 立即執行 `PRAGMA foreign_keys = ON`，否則 `ON DELETE CASCADE` 會靜默失效。
 
+### ER 圖（Chen 記法）
+
+矩形是實體、菱形是關聯、橢圓是屬性、**星號是主鍵**。訂單與產品之間是 **M:N** 的
+`Contain` 關聯，`Quantity`（數量）掛在關聯上——它不屬於訂單、也不屬於產品，
+而是「這張訂單買了這個產品幾個」。
+
+```mermaid
+flowchart TB
+    EMP[Employee]
+    ORD[Orders]
+    PRD[Product]
+    CUS[Customer]
+
+    HAN{Handle}
+    CON{Contain}
+    PLA{Place}
+
+    eid((EmployeeID*)) --- EMP
+    enm((EmployeeName)) --- EMP
+    EMP ---|1| HAN
+    HAN ---|N| ORD
+
+    oid((OrderID*)) --- ORD
+    otm((OrderTime)) --- ORD
+    osd((ShipDate)) --- ORD
+    otn((TrackingNumber)) --- ORD
+    osm((ShipMethod)) --- ORD
+
+    ORD ---|N| CON
+    CON ---|M| PRD
+    qty((Quantity)) --- CON
+
+    pid((ProductID*)) --- PRD
+    pnm((ProductName)) --- PRD
+    pct((ProductCategory)) --- PRD
+    pup((UnitPrice)) --- PRD
+
+    ORD ---|N| PLA
+    PLA ---|1| CUS
+
+    cid((CustomerID*)) --- CUS
+    cnm((CustomerName)) --- CUS
+    cad((CustomerAddress)) --- CUS
+    cph((CustomerPhoneNumber)) --- CUS
+```
+
+出貨與發票各自是獨立實體（有自己的主鍵與屬性），與訂單核心的關係：
+
+```mermaid
+flowchart LR
+    EMP[Employee]
+    CUS[Customer]
+    ORD[Orders]
+    SHP[Shipment]
+    INV[orderandinvoice]
+
+    HAN{Handle}
+    PLA{Place}
+    SHIPS{ShipFor}
+    BYEMP{HandledBy}
+    BILLS{BillFor}
+    ISSUED{IssuedTo}
+
+    EMP ---|1| HAN
+    HAN ---|N| ORD
+    CUS ---|1| PLA
+    PLA ---|N| ORD
+    ORD ---|1| SHIPS
+    SHIPS ---|N| SHP
+    EMP ---|1| BYEMP
+    BYEMP ---|N| SHP
+    ORD ---|1| BILLS
+    BILLS ---|N| INV
+    CUS ---|1| ISSUED
+    ISSUED ---|N| INV
+```
+
+### 關聯綱目
+
+把上面的 ER 圖落成實際的資料表：每一列是一張表，格子是欄位，**底線是主鍵**，
+箭頭由外鍵指向它參照的主鍵。實線是 `ON DELETE CASCADE`，虛線是 `ON DELETE RESTRICT`。
+
+![關聯綱目：7 張表與 8 條外鍵的對應關係](docs/relational-schema.svg)
+
+`User`（系統帳號）與 `admin`（廠商顧客主檔）刻意不設外鍵、與這 7 張表沒有關聯，
+因此不在本圖中。
+
 ---
 
 ## 權限模型
