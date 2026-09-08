@@ -6,276 +6,368 @@ if (!can_view_business_data()) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {    // 如果是 POST 請求
-    try {   // 例外處理 
-        $OrderID = $_POST['OrderID'];   // 取得表單欄位
-        $CustomerID = $_POST['CustomerID']; // 取得表單欄位
-        $ProductID = $_POST['ProductID'];   // 取得表單欄位
-        $EmployeeID = $_POST['EmployeeID']; // 取得表單欄位
-        $OrderTime = $_POST['OrderTime'];   // 取得表單欄位
-        $ShipDate = $_POST['ShipDate']; // 取得表單欄位
-        $TrackingNumber = $_POST['TrackingNumber'];  // 取得表單欄位
-        $ShipMethod = $_POST['ShipMethod'];  // 取得表單欄位
+    try {
+        $OrderID = $_POST['OrderID'];
+        $CustomerID = $_POST['CustomerID'];
+        $EmployeeID = $_POST['EmployeeID'];
+        $OrderTime = $_POST['OrderTime'];
+        $ShipDate = $_POST['ShipDate'];
+        $TrackingNumber = $_POST['TrackingNumber'];
+        $ShipMethod = $_POST['ShipMethod'];
 
+        // 訂單明細：每列一個產品 + 數量。重複產品合併數量。
+        $postProductIDs = $_POST['ProductID'] ?? [];
+        $postQuantities = $_POST['Quantity'] ?? [];
+        if (!is_array($postProductIDs)) {
+            $postProductIDs = [];
+        }
+        $lineItems = []; // ProductID => 合併後的數量
+        foreach ($postProductIDs as $idx => $rawPid) {
+            $pid = (int) $rawPid;
+            $qty = (int) ($postQuantities[$idx] ?? 0);
+            if ($pid <= 0) {
+                continue;
+            }
+            if ($qty <= 0) {
+                throw new Exception("產品 $pid 的數量必須大於 0");
+            }
+            $lineItems[$pid] = ($lineItems[$pid] ?? 0) + $qty;
+        }
+        if (count($lineItems) === 0) {
+            throw new Exception("訂單至少要有一項產品");
+        }
+        foreach (array_keys($lineItems) as $pid) {
+            $chk = $pdo->prepare("SELECT COUNT(*) FROM Product WHERE ProductID = :ProductID");
+            $chk->execute([':ProductID' => $pid]);
+            if ($chk->fetchColumn() == 0) {
+                throw new Exception("Invalid Product ID: $pid");
+            }
+        }
+
+        $pdo->beginTransaction();
         $stmt = $pdo->prepare("
             UPDATE Orders
             SET CustomerID = :CustomerID,
-                ProductID = :ProductID,
                 EmployeeID = :EmployeeID,
                 OrderTime = :OrderTime,
                 ShipDate = :ShipDate,
                 TrackingNumber = :TrackingNumber,
                 ShipMethod = :ShipMethod
             WHERE OrderID = :OrderID
-        "); // 更新訂單資料
-        $stmt->execute([    // 執行 SQL
-            ':CustomerID' => $CustomerID,   // 顧客編號
-            ':ProductID' => $ProductID, // 產品編號
-            ':EmployeeID' => $EmployeeID,   // 員工編號
-            ':OrderTime' => $OrderTime, // 訂單時間
-            ':ShipDate' => $ShipDate,   // 出貨日期
-            ':TrackingNumber' => $TrackingNumber,   // 追蹤編號
-            ':ShipMethod' => $ShipMethod,   // 出貨方式
-            ':OrderID' => $OrderID  // 訂單編號
+        ");
+        $stmt->execute([
+            ':CustomerID' => $CustomerID,
+            ':EmployeeID' => $EmployeeID,
+            ':OrderTime' => $OrderTime,
+            ':ShipDate' => $ShipDate,
+            ':TrackingNumber' => $TrackingNumber,
+            ':ShipMethod' => $ShipMethod,
+            ':OrderID' => $OrderID
         ]);
-        $resultsPerPage = $_POST['resultsPerPage'] ?? 5;    // 新增此行
-        header("Location: index.php?Act=430&resultsPerPage=$resultsPerPage");   // 顯示訂單列表
-        exit(); // 結束程式
-    } catch (PDOException $e) { // 例外處理
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";   // 顯示錯誤訊息
-    }   // 結束例外處理
+
+        // 明細整批重寫：先刪再插，避免逐列 diff 的複雜度
+        $pdo->prepare("DELETE FROM Contain WHERE OrderID = :OrderID")->execute([':OrderID' => $OrderID]);
+        $ins = $pdo->prepare("INSERT INTO Contain (OrderID, ProductID, Quantity) VALUES (:OrderID, :ProductID, :Quantity)");
+        foreach ($lineItems as $pid => $qty) {
+            $ins->execute([':OrderID' => $OrderID, ':ProductID' => $pid, ':Quantity' => $qty]);
+        }
+        $pdo->commit();
+
+        $resultsPerPage = $_POST['resultsPerPage'] ?? 5;
+        header("Location: index.php?Act=430&resultsPerPage=$resultsPerPage");
+        exit();
+    } catch (Throwable $e) { // 例外處理（含 PDOException）
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        echo "<p>錯誤：" . htmlspecialchars($e->getMessage()) . "</p>";
+    }
 } else {    // 如果是 GET 請求
-    $stmt = $pdo->prepare("SELECT * FROM Orders WHERE OrderID = :OrderID");   // 查詢訂單資料
-    $stmt->execute([':OrderID' => $_GET['id']]);    // 執行 SQL
-    $row = $stmt->fetch();  // 取得查詢結果
+    $stmt = $pdo->prepare("SELECT * FROM Orders WHERE OrderID = :OrderID");
+    $stmt->execute([':OrderID' => $_GET['id']]);
+    $row = $stmt->fetch();
+
+    // 既有明細
+    $containStmt = $pdo->prepare("SELECT ProductID, Quantity FROM Contain WHERE OrderID = :OrderID ORDER BY ProductID");
+    $containStmt->execute([':OrderID' => $_GET['id']]);
+    $existingItems = $containStmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Fetch customers, products, and employees for selection
-$customers = $pdo->query("SELECT CustomerID, CustomerName FROM Customer")->fetchAll(PDO::FETCH_ASSOC);  // 查詢顧客資料
-$products = $pdo->query("SELECT ProductID, ProductName FROM Product")->fetchAll(PDO::FETCH_ASSOC);  // 查詢產品資料
-$employees = $pdo->query("SELECT EmployeeID, EmployeeName FROM Employee")->fetchAll(PDO::FETCH_ASSOC);  // 查詢員工資料
+$customers = $pdo->query("SELECT CustomerID, CustomerName FROM Customer")->fetchAll(PDO::FETCH_ASSOC);
+$products = $pdo->query("SELECT ProductID, ProductName FROM Product")->fetchAll(PDO::FETCH_ASSOC);
+$employees = $pdo->query("SELECT EmployeeID, EmployeeName FROM Employee")->fetchAll(PDO::FETCH_ASSOC);
+
+// 產品下拉選項 HTML（可指定要選中的 ProductID），初始列與 JS 動態列共用
+function renderProductOptions($products, $selectedId = null) {
+    $html = '<option value="">選擇Product</option>';
+    foreach ($products as $product) {
+        $selected = ((string) $product['ProductID'] === (string) $selectedId) ? ' selected' : '';
+        $html .= '<option value="' . (int) $product['ProductID'] . '"' . $selected . '>'
+            . htmlspecialchars($product['ProductID'] . ' - ' . $product['ProductName'])
+            . '</option>';
+    }
+    return $html;
+}
+$blankProductOptions = renderProductOptions($products);
 ?>
 
-<div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>  <!-- 卡片 -->    
-    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;">編輯訂單</h3>    <!-- 標題 -->
-    <hr>    <!-- 分隔線 -->
-    <form method="POST">    <!-- 表單 -->
-        <input type="hidden" name="OrderID" value="<?php echo $row['OrderID']; ?>">   <!-- 隱藏欄位 -->
-        <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>">   <!-- 隱藏欄位 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Order ID</label> <!-- 標籤 -->
-            <input type="text" class="form-control" value="<?php echo $row['OrderID']; ?>" disabled>    <!-- 顯示訂單編號但不開放修改 -->
-        </div>  <!-- 結束表單群組 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Employee ID</label>  <!-- 標籤 -->
-            <input type="text" id="employeeSearch" class="form-control" placeholder="搜尋 Employee ID or Name">   <!-- 新增搜尋框 -->
-            <select name="EmployeeID" id="employeeID" class="form-control" required>    <!-- 下拉式選單 -->
-                <option value="">選擇員工</option>  <!-- 選項 -->
-                <?php foreach ($employees as $employee): ?>   <!-- 迴圈 -->
-                    <option value="<?php echo $employee['EmployeeID']; ?>" <?php echo $employee['EmployeeID'] == $row['EmployeeID'] ? 'selected' : '';
-                     ?>><?php echo $employee['EmployeeID'] . ' - ' . $employee['EmployeeName']; ?></option>   <!-- 選項 -->
-                <?php endforeach; ?>    <!-- 結束迴圈 -->
-            </select>   <!-- 結束下拉式選單 -->
-        </div>  <!-- 結束表單群組 -->
+<div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
+    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;">編輯訂單</h3>
+    <hr>
+    <form method="POST" id="orderEditForm">
+        <input type="hidden" name="OrderID" value="<?php echo $row['OrderID']; ?>">
+        <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>">
+        <div class="form-group">
+            <label>Order ID</label>
+            <input type="text" class="form-control" value="<?php echo $row['OrderID']; ?>" disabled>
+        </div>
+        <div class="form-group">
+            <label>Employee ID</label>
+            <input type="text" id="employeeSearch" class="form-control" placeholder="搜尋 Employee ID or Name">
+            <select name="EmployeeID" id="employeeID" class="form-control" required>
+                <option value="">選擇員工</option>
+                <?php foreach ($employees as $employee): ?>
+                    <option value="<?php echo $employee['EmployeeID']; ?>" <?php echo $employee['EmployeeID'] == $row['EmployeeID'] ? 'selected' : ''; ?>><?php echo $employee['EmployeeID'] . ' - ' . $employee['EmployeeName']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         <div class="form-group">
             <label>Customer ID</label>
-            <!-- 新增搜尋框 -->
-            <input type="text" id="customerSearch" class="form-control" placeholder="搜尋 Customer ID or Name"> <!-- 新增搜尋框 -->
-            <!-- 新增下拉式選單 -->
-            <select name="CustomerID" id="customerID" class="form-control" required>    <!-- 下拉式選單 -->
-                <option value="">選擇顧客</option>  <!-- 選項 -->
-                <?php foreach ($customers as $customer): ?>  <!-- 迴圈 -->
-                    <option value="<?php echo $customer['CustomerID']; ?>" <?php echo $customer['CustomerID'] == $row['CustomerID'] ? 'selected' : '';
-                     ?>><?php echo $customer['CustomerID'] . ' - ' . $customer['CustomerName']; ?></option>   <!-- 選項 -->
-                <?php endforeach; ?>    <!-- 結束迴圈 -->
-            </select>   <!-- 結束下拉式選單 -->
-        </div>  <!-- 結束表單群組 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Product ID</label>   <!-- 標籤 -->
-            <input type="text" id="productSearch" class="form-control" placeholder="搜尋 Product ID or Name">   <!-- 新增搜尋框 -->
-            <select name="ProductID" id="productID" class="form-control" required>  <!-- 下拉式選單 -->
-                <option value="">選擇產品</option>  <!-- 選項 -->
-                <?php foreach ($products as $product): ?>   <!-- 迴圈 -->
-                    <option value="<?php echo $product['ProductID']; ?>" <?php echo $product['ProductID'] == $row['ProductID'] ? 'selected' : ''; ?>><?php echo $product['ProductID'] . ' - ' . $product['ProductName']; ?></option>    <!-- 選項 -->
-                <?php endforeach; ?>    <!-- 結束迴圈 -->
-            </select>   <!-- 結束下拉式選單 -->
-        </div>  <!-- 結束表單群組 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Order Time</label>   <!-- 標籤 -->
-            <input type="datetime-local" name="OrderTime" class="form-control" value="<?php echo date('Y-m-d\TH:i', strtotime($row['OrderTime'])); ?>" required>    <!-- 輸入框 -->
-        </div>  <!-- 結束表單群組 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Ship Date</label>    <!-- 標籤 -->
-            <input type="date" name="ShipDate" class="form-control" value="<?php echo $row['ShipDate']; ?>">    <!-- 輸入框 -->
-        </div>      <!-- 結束表單群組 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Tracking Number</label>  <!-- 標籤 -->
-            <input type="text" name="TrackingNumber" class="form-control" value="<?php echo $row['TrackingNumber']; ?>" required>   <!-- 輸入框 -->
-        </div>  <!-- 結束表單群組 -->
-        <div class="form-group">    <!-- 表單群組 -->
-            <label>Ship Method</label>  <!-- 標籤 -->
-            <!-- 新增搜尋框 -->
-            <input type="text" id="shipMethodSearch" class="form-control" placeholder="搜尋 Ship Method (Air, Sea, Land)">  <!-- 新增搜尋框 -->
-            <!-- 原本的下拉式選單加上 id -->
-            <select name="ShipMethod" id="shipMethod" class="form-control">   <!-- 下拉式選單 -->
-                <option value="Air" <?php echo $row['ShipMethod'] == 'Air' ? 'selected' : ''; ?>>Air</option>   <!-- 選項 -->
-                <option value="Sea" <?php echo $row['ShipMethod'] == 'Sea' ? 'selected' : ''; ?>>Sea</option>   <!-- 選項 -->
-                <option value="Land" <?php echo $row['ShipMethod'] == 'Land' ? 'selected' : ''; ?>>Land</option>    <!-- 選項 -->
-            </select>   <!-- 結束下拉式選單 -->
-        </div>  <!-- 結束表單群組 -->
-        <br>    <!-- 斷行 -->
-        <div style="text-align: center;">   <!-- 按鈕置中 -->
-            <a href="index.php?Act=430&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary">返回</a>   <!-- 返回按鈕 -->
-            <span style='display: inline-block; width: 20px;'></span>   <!-- 空白 -->
-            <button type="reset" class="btn btn-warning text-white">清除</button>   <!-- 清除按鈕 -->
-            <span style='display: inline-block; width: 20px;'></span>   <!-- 空白 -->
-            <button type="submit" class="btn btn-primary">更新</button>  <!-- 更新按鈕 -->
-        </div>  <!-- 結束按鈕置中 -->
-    </form> <!-- 結束表單 -->
-</div>  <!-- 結束卡片 -->
+            <input type="text" id="customerSearch" class="form-control" placeholder="搜尋 Customer ID or Name">
+            <select name="CustomerID" id="customerID" class="form-control" required>
+                <option value="">選擇顧客</option>
+                <?php foreach ($customers as $customer): ?>
+                    <option value="<?php echo $customer['CustomerID']; ?>" <?php echo $customer['CustomerID'] == $row['CustomerID'] ? 'selected' : ''; ?>><?php echo $customer['CustomerID'] . ' - ' . $customer['CustomerName']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-<script>    // JavaScript
-document.getElementById('customerSearch').addEventListener('input', function() {    // 監聽搜尋框輸入事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const options = <?php echo json_encode($customers); ?>;  // 取得顧客資料
-    const filteredOptions = options.filter(option =>    // 過濾選項
-        option.CustomerName.toLowerCase().includes(searchValue) ||  // 顧客名稱包含搜尋值
-        option.CustomerID.toString().includes(searchValue)  // 顧客編號包含搜尋值
-    );  // 結束過濾選項
-    const customerSelect = document.getElementById('customerID');   // 取得顧客下拉式選單
-    customerSelect.innerHTML = '<option value="">選擇顧客</option>';    // 清空選項
-    filteredOptions.forEach(option => { // 迴圈
-        const opt = document.createElement('option');   // 建立選項
-        opt.value = option.CustomerID;  // 設定值
-        opt.textContent = `${option.CustomerID} - ${option.CustomerName}`;  // 設定文字
-        customerSelect.appendChild(opt);    // 新增選項
-    }); // 結束迴圈
-    if (filteredOptions.length === 1) { // 如果只有一個選項
-        customerSelect.value = filteredOptions[0].CustomerID;   // 選擇該選項
-    }   // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框輸入事件
+        <div class="form-group">
+            <label>訂單明細（產品與數量）</label>
+            <table class="table table-sm" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>產品</th>
+                        <th style="width: 120px;">數量</th>
+                        <th style="width: 90px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="lineItemsBody">
+                    <?php foreach ($existingItems as $item): ?>
+                        <tr class="line-item">
+                            <td>
+                                <select name="ProductID[]" class="form-control line-product">
+                                    <?php echo renderProductOptions($products, $item['ProductID']); ?>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" name="Quantity[]" class="form-control line-qty" min="1" step="1" value="<?php echo (int) $item['Quantity']; ?>">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm remove-line">刪除</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="addLineItem">＋ 新增一列</button>
+        </div>
 
-document.getElementById('productSearch').addEventListener('input', function() {   // 監聽搜尋框輸入事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const options = <?php echo json_encode($products); ?>;  // 取得產品資料
-    const filteredOptions = options.filter(option =>    // 過濾選項
-        option.ProductName.toLowerCase().includes(searchValue) ||   // 產品名稱包含搜尋值
-        option.ProductID.toString().includes(searchValue)   // 產品編號包含搜尋值
-    );  // 結束過濾選項
-    const productSelect = document.getElementById('productID');  // 取得產品下拉式選單
-    productSelect.innerHTML = '<option value="">選擇產品</option>';   // 清空選項
-    filteredOptions.forEach(option => {  // 迴圈
-        const opt = document.createElement('option');   // 建立選項
-        opt.value = option.ProductID;   // 設定值
-        opt.textContent = `${option.ProductID} - ${option.ProductName}`;    // 設定文字
-        productSelect.appendChild(opt); // 新增選項
-    }); // 結束迴圈
-    if (filteredOptions.length === 1) { // 如果只有一個選項
-        productSelect.value = filteredOptions[0].ProductID;  // 選擇該選項
-    }       // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框輸入事件
+        <template id="lineItemTemplate">
+            <tr class="line-item">
+                <td>
+                    <select name="ProductID[]" class="form-control line-product">
+                        <?php echo $blankProductOptions; ?>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="Quantity[]" class="form-control line-qty" min="1" step="1" value="1">
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm remove-line">刪除</button>
+                </td>
+            </tr>
+        </template>
 
-document.getElementById('employeeSearch').addEventListener('input', function() {    // 監聽搜尋框輸入事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const options = <?php echo json_encode($employees); ?>; // 取得員工資料
-    const filteredOptions = options.filter(option =>    // 過濾選項
-        option.EmployeeName.toLowerCase().includes(searchValue) ||  // 員工名稱包含搜尋值
-        option.EmployeeID.toString().includes(searchValue)  // 員工編號包含搜尋值
-    );  // 結束過濾選項
-    const employeeSelect = document.getElementById('employeeID');   // 取得員工下拉式選單
-    employeeSelect.innerHTML = '<option value="">選擇員工</option>';    // 清空選項
-    filteredOptions.forEach(option => { // 迴圈
-        const opt = document.createElement('option');   // 建立選項
-        opt.value = option.EmployeeID;  // 設定值
-        opt.textContent = `${option.EmployeeID} - ${option.EmployeeName}`;  // 設定文字
-        employeeSelect.appendChild(opt);    // 新增選項
-    }); // 結束迴圈
-    if (filteredOptions.length === 1) { // 如果只有一個選項
-        employeeSelect.value = filteredOptions[0].EmployeeID;   // 選擇該選項
-    }   // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框輸入事件
+        <div class="form-group">
+            <label>Order Time</label>
+            <input type="datetime-local" name="OrderTime" class="form-control" value="<?php echo date('Y-m-d\TH:i', strtotime($row['OrderTime'])); ?>" required>
+        </div>
+        <div class="form-group">
+            <label>Ship Date</label>
+            <input type="date" name="ShipDate" class="form-control" value="<?php echo $row['ShipDate']; ?>">
+        </div>
+        <div class="form-group">
+            <label>Tracking Number</label>
+            <input type="text" name="TrackingNumber" class="form-control" value="<?php echo $row['TrackingNumber']; ?>" required>
+        </div>
+        <div class="form-group">
+            <label>Ship Method</label>
+            <input type="text" id="shipMethodSearch" class="form-control" placeholder="搜尋 Ship Method (Air, Sea, Land)">
+            <select name="ShipMethod" id="shipMethod" class="form-control">
+                <option value="Air" <?php echo $row['ShipMethod'] == 'Air' ? 'selected' : ''; ?>>Air</option>
+                <option value="Sea" <?php echo $row['ShipMethod'] == 'Sea' ? 'selected' : ''; ?>>Sea</option>
+                <option value="Land" <?php echo $row['ShipMethod'] == 'Land' ? 'selected' : ''; ?>>Land</option>
+            </select>
+        </div>
+        <br>
+        <div style="text-align: center;">
+            <a href="index.php?Act=430&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary">返回</a>
+            <span style='display: inline-block; width: 20px;'></span>
+            <button type="reset" class="btn btn-warning text-white">清除</button>
+            <span style='display: inline-block; width: 20px;'></span>
+            <button type="submit" class="btn btn-primary">更新</button>
+        </div>
+    </form>
+</div>
 
-document.getElementById('customerSearch').addEventListener('blur', function() {   // 監聽搜尋框失焦事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const options = <?php echo json_encode($customers); ?>; // 取得顧客資料
-    const filteredOptions = options.filter(option =>    // 過濾選項
-        option.CustomerName.toLowerCase().includes(searchValue) ||  // 顧客名稱包含搜尋值
-        option.CustomerID.toString().includes(searchValue)  // 顧客編號包含搜尋值
-    );  // 結束過濾選項
-    if (filteredOptions.length === 1) {  // 如果只有一個選項
-        document.getElementById('customerID').value = filteredOptions[0].CustomerID;    // 選擇該選項
-    } else {    // 如果不只一個選項
-        const exactMatch = options.find(option =>   // 尋找完全符合的選項
-            option.CustomerName.toLowerCase() === searchValue ||    // 顧客名稱完全符合
-            option.CustomerID.toString() === searchValue    // 顧客編號完全符合
-        );  // 結束尋找完全符合的選項
-        document.getElementById('customerID').value = exactMatch ? exactMatch.CustomerID : '';  // 選擇完全符合的選項
-    }   // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框失焦事件
+<script src="js/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // ---- 訂單明細：動態增減列 ----
+    var lineItemTemplate = document.getElementById('lineItemTemplate');
+    var lineItemsBody = document.getElementById('lineItemsBody');
 
-document.getElementById('productSearch').addEventListener('blur', function() {  // 監聽搜尋框失焦事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const options = <?php echo json_encode($products); ?>;  // 取得產品資料
-    const filteredOptions = options.filter(option =>    // 過濾選項
-        option.ProductName.toLowerCase().includes(searchValue) ||   // 產品名稱包含搜尋值
-        option.ProductID.toString().includes(searchValue)   // 產品編號包含搜尋值
-    );  // 結束過濾選項
-    if (filteredOptions.length === 1) { // 如果只有一個選項
-        document.getElementById('productID').value = filteredOptions[0].ProductID;  // 選擇該選項
-    } else {    // 如果不只一個選項
-        const exactMatches = options.filter(option => option.ProductID.toString() === searchValue || option.ProductName.toLowerCase() === searchValue);   // 尋找完全符合的選項
-        if (exactMatches.length === 1) {    // 如果只有一個完全符合的選項
-            document.getElementById('productID').value = exactMatches[0].ProductID;   // 選擇該選項
-        } else {    // 如果不只一個完全符合的選項
-            document.getElementById('productID').value = '';    // 清空選擇
-        }   // 結束判斷是否只有一個完全符合的選項
-    }   // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框失焦事件
+    function addLineItem() {
+        lineItemsBody.appendChild(lineItemTemplate.content.cloneNode(true));
+    }
+    if (lineItemsBody.querySelectorAll('.line-item').length === 0) {
+        addLineItem(); // 沒有既有明細時至少給一列
+    }
 
-document.getElementById('employeeSearch').addEventListener('blur', function() {   // 監聽搜尋框失焦事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const options = <?php echo json_encode($employees); ?>; // 取得員工資料
-    const filteredOptions = options.filter(option =>    // 過濾選項
-        option.EmployeeName.toLowerCase().includes(searchValue) ||  // 員工名稱包含搜尋值
-        option.EmployeeID.toString().includes(searchValue)  // 員工編號包含搜尋值
-    );  // 結束過濾選項
-    if (filteredOptions.length === 1) { // 如果只有一個選項
-        document.getElementById('employeeID').value = filteredOptions[0].EmployeeID;    // 選擇該選項
-    } else {    // 如果不只一個選項
-        const exactMatches = options.filter(option => option.EmployeeID.toString() === searchValue || option.EmployeeName.toLowerCase() === searchValue);   // 尋找完全符合的選項
-        if (exactMatches.length === 1) {    // 如果只有一個完全符合的選項
-            document.getElementById('employeeID').value = exactMatches[0].EmployeeID;   // 選擇該選項
-        } else {    // 如果不只一個完全符合的選項
-            document.getElementById('employeeID').value = '';   // 清空選擇
-        }   // 結束判斷是否只有一個完全符合的選項
-    }   // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框失焦事件
+    $('#addLineItem').on('click', addLineItem);
+
+    $(lineItemsBody).on('click', '.remove-line', function() {
+        if (lineItemsBody.querySelectorAll('.line-item').length > 1) {
+            $(this).closest('.line-item').remove();
+        } else {
+            alert('至少要保留一列明細');
+        }
+    });
+
+    $('#orderEditForm').on('submit', function(e) {
+        var hasValidLine = false;
+        lineItemsBody.querySelectorAll('.line-item').forEach(function(row) {
+            var pid = row.querySelector('.line-product').value;
+            var qty = parseInt(row.querySelector('.line-qty').value, 10);
+            if (pid && qty > 0) {
+                hasValidLine = true;
+            }
+        });
+        if (!hasValidLine) {
+            e.preventDefault();
+            alert('請至少選擇一項產品並填入大於 0 的數量');
+        }
+    });
+});
+
+document.getElementById('customerSearch').addEventListener('input', function() {
+    var searchValue = this.value.toLowerCase();
+    var options = <?php echo json_encode($customers); ?>;
+    var filteredOptions = options.filter(function(option) {
+        return option.CustomerName.toLowerCase().includes(searchValue) ||
+            option.CustomerID.toString().includes(searchValue);
+    });
+    var customerSelect = document.getElementById('customerID');
+    customerSelect.innerHTML = '<option value="">選擇顧客</option>';
+    filteredOptions.forEach(function(option) {
+        var opt = document.createElement('option');
+        opt.value = option.CustomerID;
+        opt.textContent = option.CustomerID + ' - ' + option.CustomerName;
+        customerSelect.appendChild(opt);
+    });
+    if (filteredOptions.length === 1) {
+        customerSelect.value = filteredOptions[0].CustomerID;
+    }
+});
+
+document.getElementById('employeeSearch').addEventListener('input', function() {
+    var searchValue = this.value.toLowerCase();
+    var options = <?php echo json_encode($employees); ?>;
+    var filteredOptions = options.filter(function(option) {
+        return option.EmployeeName.toLowerCase().includes(searchValue) ||
+            option.EmployeeID.toString().includes(searchValue);
+    });
+    var employeeSelect = document.getElementById('employeeID');
+    employeeSelect.innerHTML = '<option value="">選擇員工</option>';
+    filteredOptions.forEach(function(option) {
+        var opt = document.createElement('option');
+        opt.value = option.EmployeeID;
+        opt.textContent = option.EmployeeID + ' - ' + option.EmployeeName;
+        employeeSelect.appendChild(opt);
+    });
+    if (filteredOptions.length === 1) {
+        employeeSelect.value = filteredOptions[0].EmployeeID;
+    }
+});
+
+document.getElementById('customerSearch').addEventListener('blur', function() {
+    var searchValue = this.value.toLowerCase();
+    var options = <?php echo json_encode($customers); ?>;
+    var filteredOptions = options.filter(function(option) {
+        return option.CustomerName.toLowerCase().includes(searchValue) ||
+            option.CustomerID.toString().includes(searchValue);
+    });
+    if (filteredOptions.length === 1) {
+        document.getElementById('customerID').value = filteredOptions[0].CustomerID;
+    } else {
+        var exactMatch = options.find(function(option) {
+            return option.CustomerName.toLowerCase() === searchValue || option.CustomerID.toString() === searchValue;
+        });
+        document.getElementById('customerID').value = exactMatch ? exactMatch.CustomerID : '';
+    }
+});
+
+document.getElementById('employeeSearch').addEventListener('blur', function() {
+    var searchValue = this.value.toLowerCase();
+    var options = <?php echo json_encode($employees); ?>;
+    var filteredOptions = options.filter(function(option) {
+        return option.EmployeeName.toLowerCase().includes(searchValue) ||
+            option.EmployeeID.toString().includes(searchValue);
+    });
+    if (filteredOptions.length === 1) {
+        document.getElementById('employeeID').value = filteredOptions[0].EmployeeID;
+    } else {
+        var exactMatches = options.filter(function(option) {
+            return option.EmployeeID.toString() === searchValue || option.EmployeeName.toLowerCase() === searchValue;
+        });
+        document.getElementById('employeeID').value = exactMatches.length === 1 ? exactMatches[0].EmployeeID : '';
+    }
+});
 
 // Ship Method 搜尋與自動選擇
-const shipMethods = ['Air', 'Sea', 'Land'];   // 出貨方式
-document.getElementById('shipMethodSearch').addEventListener('input', function() {  // 監聽搜尋框輸入事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const matchingMethods = shipMethods.filter(method => method.toLowerCase().includes(searchValue));   // 過濾選項
-    const shipSelect = document.getElementById('shipMethod');   // 取得出貨方式下拉式選單
-    shipSelect.innerHTML = '';  // 清空選項
-    matchingMethods.forEach(method => { // 迴圈
-        const option = document.createElement('option');    // 建立選項
-        option.value = method;  // 設定值
-        option.textContent = method;    // 設定文字
-        shipSelect.appendChild(option); // 新增選項
-    }); // 結束迴圈
-    if (matchingMethods.length === 1) { // 如果只有一個選項
-        shipSelect.value = matchingMethods[0];  // 選擇該選項
-    }       // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框輸入事件
+var shipMethods = ['Air', 'Sea', 'Land'];
+document.getElementById('shipMethodSearch').addEventListener('input', function() {
+    var searchValue = this.value.toLowerCase();
+    var matchingMethods = shipMethods.filter(function(method) {
+        return method.toLowerCase().includes(searchValue);
+    });
+    var shipSelect = document.getElementById('shipMethod');
+    shipSelect.innerHTML = '';
+    matchingMethods.forEach(function(method) {
+        var option = document.createElement('option');
+        option.value = method;
+        option.textContent = method;
+        shipSelect.appendChild(option);
+    });
+    if (matchingMethods.length === 1) {
+        shipSelect.value = matchingMethods[0];
+    }
+});
 
-document.getElementById('shipMethodSearch').addEventListener('blur', function() {   // 監聽搜尋框失焦事件
-    const searchValue = this.value.toLowerCase();   // 取得搜尋值
-    const matchingMethods = shipMethods.filter(method => method.toLowerCase().includes(searchValue));   // 過濾選項
-    if (matchingMethods.length === 1) { // 如果只有一個選項
-        document.getElementById('shipMethod').value = matchingMethods[0];   // 選擇該選項
-    } else {    // 如果不只一個選項
-        const exactMatch = shipMethods.find(method => method.toLowerCase() === searchValue);    // 尋找完全符合的選項
-        document.getElementById('shipMethod').value = exactMatch ? exactMatch : ''; // 選擇完全符合的選項
-    }   // 結束判斷是否只有一個選項
-}); // 結束監聽搜尋框失焦事件
-</script>   <!-- 結束 JavaScript -->
+document.getElementById('shipMethodSearch').addEventListener('blur', function() {
+    var searchValue = this.value.toLowerCase();
+    var matchingMethods = shipMethods.filter(function(method) {
+        return method.toLowerCase().includes(searchValue);
+    });
+    if (matchingMethods.length === 1) {
+        document.getElementById('shipMethod').value = matchingMethods[0];
+    } else {
+        var exactMatch = shipMethods.find(function(method) {
+            return method.toLowerCase() === searchValue;
+        });
+        document.getElementById('shipMethod').value = exactMatch ? exactMatch : '';
+    }
+});
+</script>

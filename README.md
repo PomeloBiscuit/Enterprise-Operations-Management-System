@@ -80,14 +80,15 @@ flowchart TD
 
 ## 資料庫結構
 
-共 **8 張表**，其中 6 張以 **7 條外鍵**互相關聯，`User` 與 `admin` 兩張**刻意不設任何
+共 **9 張表**，其中 7 張以 **8 條外鍵**互相關聯，`User` 與 `admin` 兩張**刻意不設任何
 外鍵**、與其他表沒有關聯。
 
 ```mermaid
 erDiagram
     Customer ||--o{ Orders : "ON DELETE CASCADE"
-    Product  ||--o{ Orders : "ON DELETE CASCADE"
     Employee ||--o{ Orders : "ON DELETE CASCADE"
+    Orders   ||--o{ Contain : "ON DELETE CASCADE"
+    Product  ||--o{ Contain : "ON DELETE RESTRICT"
     Employee ||--o{ Shipment : "ON DELETE CASCADE"
     Orders   ||--o{ Shipment : "ON DELETE CASCADE"
     Orders   ||--o{ orderandinvoice : "ON DELETE RESTRICT"
@@ -114,10 +115,14 @@ erDiagram
         text OrderTime
         text ShipDate
         integer CustomerID FK
-        integer ProductID FK
         integer EmployeeID FK
         text TrackingNumber
         text ShipMethod
+    }
+    Contain {
+        integer OrderID PK "FK"
+        integer ProductID PK "FK"
+        integer Quantity "NOT NULL, CHECK > 0"
     }
     Shipment {
         integer ShipmentID PK
@@ -170,17 +175,22 @@ erDiagram
     }
 ```
 
-### 7 條外鍵一覽
+### 8 條外鍵一覽
 
 | 從 | 到 | ON DELETE |
 |---|---|---|
 | `Orders.CustomerID` | `Customer.CustomerID` | CASCADE |
-| `Orders.ProductID` | `Product.ProductID` | CASCADE |
 | `Orders.EmployeeID` | `Employee.EmployeeID` | CASCADE |
+| `Contain.OrderID` | `Orders.OrderID` | CASCADE |
+| `Contain.ProductID` | `Product.ProductID` | RESTRICT |
 | `Shipment.OrderID` | `Orders.OrderID` | CASCADE |
 | `Shipment.EmployeeID` | `Employee.EmployeeID` | CASCADE |
 | `orderandinvoice.order_id` | `Orders.OrderID` | RESTRICT |
 | `orderandinvoice.customer_id` | `Customer.CustomerID` | RESTRICT |
+
+`Contain(OrderID, ProductID, Quantity)` 是訂單與產品的 M:N 關聯表：一張訂單可含多項產品，
+每項有數量。訂單刪除時明細跟著刪（CASCADE）；但只要還有訂單引用某產品，該產品就不能被刪
+（RESTRICT）——否則會失去金額計算的來源。
 
 ### 兩個值得注意的設計
 
@@ -263,7 +273,7 @@ docker compose exec web bash scripts/smoke.sh
 
 **資料庫結構與種子資料**
 
-1. 資料表剛好 8 張
+1. 資料表剛好 9 張
 2. 每張表的種子筆數符合預期（`User` 11、其餘見腳本）
 3. `PRAGMA foreign_keys` 為 `1`（外鍵約束已啟用）
 4. `ON DELETE CASCADE` 實際會級聯：新增顧客與其訂單、刪除顧客後訂單同步消失（全程在交易內、結束即 rollback）

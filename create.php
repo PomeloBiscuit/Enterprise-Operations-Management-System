@@ -291,17 +291,17 @@
                // 舊版另有 ALTER TABLE Orders ADD ShipDate DATE AFTER OrderTime，
                // SQLite 不支援 AFTER，直接把 ShipDate 併進 CREATE TABLE。
                $tableName = "Orders";
+               // 產品不再是 Orders 的單一外鍵欄位：一張訂單可含多項產品，
+               // 對應關係與數量放在 Contain 關聯表（見下方）。
                $sql = "CREATE TABLE $tableName (
                     OrderID        INTEGER PRIMARY KEY AUTOINCREMENT, -- 訂單編號
                     OrderTime      TEXT DEFAULT (datetime('now','localtime')), -- 訂單時間
                     ShipDate       TEXT, -- 出貨日期
                     CustomerID     INTEGER, -- 顧客編號
-                    ProductID      INTEGER, -- 產品編號
                     EmployeeID     INTEGER, -- 員工編號
                     TrackingNumber TEXT, -- 追蹤編號
                     ShipMethod     TEXT, -- 運輸方式
                     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID) ON DELETE CASCADE,
-                    FOREIGN KEY (ProductID)  REFERENCES Product(ProductID)   ON DELETE CASCADE,
                     FOREIGN KEY (EmployeeID) REFERENCES Employee(EmployeeID) ON DELETE CASCADE
                )";
                createTable($pdo, $tableName, $sql);
@@ -319,7 +319,6 @@
 
                     $orderData = [
                          'CustomerID' => rand(1, 10),
-                         'ProductID' => rand(1, 10),
                          'EmployeeID' => rand(1, 10),
                          'OrderTime' => $randomOrderTime,
                          'ShipDate' => $randomShipDate,
@@ -329,15 +328,54 @@
 
                     try {
                          $sql = "INSERT INTO Orders
-                              (CustomerID, ProductID, EmployeeID, OrderTime, ShipDate, TrackingNumber, ShipMethod)
+                              (CustomerID, EmployeeID, OrderTime, ShipDate, TrackingNumber, ShipMethod)
                               VALUES
-                              (:CustomerID, :ProductID, :EmployeeID, :OrderTime, :ShipDate, :TrackingNumber, :ShipMethod)";
+                              (:CustomerID, :EmployeeID, :OrderTime, :ShipDate, :TrackingNumber, :ShipMethod)";
                          $stmt = $pdo->prepare($sql);
                          $stmt->execute($orderData);
-                         echo "<p>Order with CustomerID {$orderData['CustomerID']} and ProductID {$orderData['ProductID']} is added to $tableName table.";
+                         echo "<p>Order with CustomerID {$orderData['CustomerID']} is added to $tableName table.";
                     } catch (PDOException $e) {
                          echo "<p>Error inserting into $tableName: " . $e->getMessage();
                     }
+               }
+
+               // Create Contain table（訂單明細關聯表：Order ──N── Contain ──M── Product）
+               // 這是使用者原始 ER 圖裡就有的 M:N 關聯，實作階段被退化成 Orders 表上的
+               // 單一產品外鍵欄位；這裡補回：一張訂單可含多項產品，每項有數量。
+               $tableName = "Contain";
+               $sql = "CREATE TABLE $tableName (
+                    OrderID   INTEGER NOT NULL, -- 外鍵：訂單編號
+                    ProductID INTEGER NOT NULL, -- 外鍵：產品編號
+                    Quantity  INTEGER NOT NULL DEFAULT 1 CHECK (Quantity > 0), -- 數量，必須大於 0
+                    PRIMARY KEY (OrderID, ProductID),
+                    -- 訂單刪掉，明細跟著走；但有訂單引用的產品不准刪（避免誤刪產品吃掉金額來源）。
+                    FOREIGN KEY (OrderID)   REFERENCES Orders(OrderID)   ON DELETE CASCADE,
+                    FOREIGN KEY (ProductID) REFERENCES Product(ProductID) ON DELETE RESTRICT
+               )";
+               createTable($pdo, $tableName, $sql);
+
+               // 種子明細：每張訂單 1~3 筆，數量隨機 1~5。
+               // 第 1 張訂單固定塞 3 筆不同產品，確保「多品項」情境一定存在、驗收看得到。
+               $seedProductIds = $pdo->query("SELECT ProductID FROM Product")->fetchAll(PDO::FETCH_COLUMN);
+               $seedOrderIds   = $pdo->query("SELECT OrderID FROM Orders")->fetchAll(PDO::FETCH_COLUMN);
+               $containInsert  = $pdo->prepare("INSERT INTO Contain (OrderID, ProductID, Quantity) VALUES (:OrderID, :ProductID, :Quantity)");
+               foreach ($seedOrderIds as $seedIdx => $seedOrderId) {
+                    $lineCount = ($seedIdx === 0) ? 3 : rand(1, 3);
+                    $lineCount = min($lineCount, count($seedProductIds));
+                    // array_rand 傳回隨機「鍵」，這裡用值當鍵才能取到 ProductID
+                    $pickedKeys = (array) array_rand(array_flip($seedProductIds), $lineCount);
+                    foreach ($pickedKeys as $pickedProductId) {
+                         try {
+                              $containInsert->execute([
+                                   ':OrderID'   => $seedOrderId,
+                                   ':ProductID' => $pickedProductId,
+                                   ':Quantity'  => rand(1, 5),
+                              ]);
+                         } catch (PDOException $e) {
+                              echo "<p>Error inserting into Contain: " . $e->getMessage();
+                         }
+                    }
+                    echo "<p>Contain: order $seedOrderId 塞了 " . count($pickedKeys) . " 筆明細。";
                }
 
                // Create Shipment table
