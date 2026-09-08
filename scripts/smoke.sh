@@ -76,8 +76,8 @@ db_scalar() {
 check_tables() {
     local count
     count="$(db_scalar "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")" || return 1
-    [[ "$count" == "8" ]] || { CHECK_DETAIL="資料表數=$count，預期 8"; return 1; }
-    CHECK_DETAIL="資料表數=8"
+    [[ "$count" == "9" ]] || { CHECK_DETAIL="資料表數=$count，預期 9"; return 1; }
+    CHECK_DETAIL="資料表數=9"
 }
 
 check_seed_counts() {
@@ -105,11 +105,10 @@ check_fk_cascade() {
         $pdo->beginTransaction();
         $pdo->exec("INSERT INTO Customer (CustomerName, CustomerPhoneNumber, CustomerAddress) VALUES (\"smoke-fk-cascade\", \"0000\", \"smoke\")");
         $id = $pdo->lastInsertId();
-        $productId = $pdo->query("SELECT ProductID FROM Product LIMIT 1")->fetchColumn();
         $employeeId = $pdo->query("SELECT EmployeeID FROM Employee LIMIT 1")->fetchColumn();
-        if ($productId === false || $employeeId === false) { fwrite(STDERR, "缺少建立測試訂單所需資料\n"); exit(2); }
-        $insertOrder = $pdo->prepare("INSERT INTO Orders (CustomerID, ProductID, EmployeeID, TrackingNumber) VALUES (:customer_id, :product_id, :employee_id, \"SMOKE-FK\")");
-        $insertOrder->execute([":customer_id" => $id, ":product_id" => $productId, ":employee_id" => $employeeId]);
+        if ($employeeId === false) { fwrite(STDERR, "缺少建立測試訂單所需資料\n"); exit(2); }
+        $insertOrder = $pdo->prepare("INSERT INTO Orders (CustomerID, EmployeeID, TrackingNumber) VALUES (:customer_id, :employee_id, \"SMOKE-FK\")");
+        $insertOrder->execute([":customer_id" => $id, ":employee_id" => $employeeId]);
         $before = $pdo->prepare("SELECT count(*) FROM Orders WHERE CustomerID = :id");
         $before->execute([":id" => $id]);
         $beforeCount = $before->fetchColumn();

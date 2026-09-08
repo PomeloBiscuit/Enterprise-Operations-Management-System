@@ -19,18 +19,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // Insert new order
+        // Insert new order（產品改由 Contain 承載，Orders 不再有 ProductID 欄位）
         $orderID = generateOrderID($pdo);
         $stmt = $pdo->prepare("
-            INSERT INTO Orders (OrderID, OrderTime, CustomerID, ProductID, TrackingNumber, ShipMethod)
-            VALUES (:OrderID, datetime('now','localtime'), :CustomerID, :ProductID, :TrackingNumber, :ShipMethod)
+            INSERT INTO Orders (OrderID, OrderTime, CustomerID, TrackingNumber, ShipMethod)
+            VALUES (:OrderID, datetime('now','localtime'), :CustomerID, :TrackingNumber, :ShipMethod)
         ");
         $stmt->execute([
             ':OrderID' => $orderID,
             ':CustomerID' => $_POST['CustomerID'],
-            ':ProductID' => $_POST['ProductID'],
             ':TrackingNumber' => $_POST['TrackingNumber'],
             ':ShipMethod' => $_POST['ShipMethod']
+        ]);
+
+        // 出貨流程仍只帶單一產品；在新 schema 下寫成一筆 Contain，數量預設 1。
+        // （「出貨為什麼會建訂單」是另一個範圍的 UX 問題，這裡不動它。）
+        $containStmt = $pdo->prepare("
+            INSERT INTO Contain (OrderID, ProductID, Quantity) VALUES (:OrderID, :ProductID, 1)
+        ");
+        $containStmt->execute([
+            ':OrderID' => $orderID,
+            ':ProductID' => $_POST['ProductID']
         ]);
 
         // Insert new shipment

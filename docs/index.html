@@ -231,7 +231,7 @@ flowchart TD
   <section>
     <h2>資料庫結構</h2>
     <p>
-      共 <strong>8 張表</strong>，其中 6 張以 <strong>7 條外鍵</strong>互相關聯。
+      共 <strong>9 張表</strong>，其中 7 張以 <strong>8 條外鍵</strong>互相關聯。
       <code>User</code> 與 <code>admin</code> 兩張<strong>刻意不設任何外鍵</strong>、
       與其他表沒有關聯，因此在下圖中以獨立實體呈現。
     </p>
@@ -239,8 +239,9 @@ flowchart TD
       <pre class="mermaid">
 erDiagram
     Customer ||--o{ Orders : "ON DELETE CASCADE"
-    Product  ||--o{ Orders : "ON DELETE CASCADE"
     Employee ||--o{ Orders : "ON DELETE CASCADE"
+    Orders   ||--o{ Contain : "ON DELETE CASCADE"
+    Product  ||--o{ Contain : "ON DELETE RESTRICT"
     Employee ||--o{ Shipment : "ON DELETE CASCADE"
     Orders   ||--o{ Shipment : "ON DELETE CASCADE"
     Orders   ||--o{ orderandinvoice : "ON DELETE RESTRICT"
@@ -267,10 +268,14 @@ erDiagram
         text OrderTime
         text ShipDate
         integer CustomerID FK
-        integer ProductID FK
         integer EmployeeID FK
         text TrackingNumber
         text ShipMethod
+    }
+    Contain {
+        integer OrderID PK "FK"
+        integer ProductID PK "FK"
+        integer Quantity "NOT NULL, CHECK > 0"
     }
     Shipment {
         integer ShipmentID PK
@@ -324,14 +329,15 @@ erDiagram
       </pre>
     </div>
 
-    <h3>7 條外鍵一覽</h3>
+    <h3>8 條外鍵一覽</h3>
     <div class="scroll">
       <table>
         <thead><tr><th>從</th><th>到</th><th>ON DELETE</th></tr></thead>
         <tbody>
           <tr><td><code>Orders.CustomerID</code></td><td><code>Customer.CustomerID</code></td><td>CASCADE</td></tr>
-          <tr><td><code>Orders.ProductID</code></td><td><code>Product.ProductID</code></td><td>CASCADE</td></tr>
           <tr><td><code>Orders.EmployeeID</code></td><td><code>Employee.EmployeeID</code></td><td>CASCADE</td></tr>
+          <tr><td><code>Contain.OrderID</code></td><td><code>Orders.OrderID</code></td><td>CASCADE</td></tr>
+          <tr><td><code>Contain.ProductID</code></td><td><code>Product.ProductID</code></td><td>RESTRICT</td></tr>
           <tr><td><code>Shipment.OrderID</code></td><td><code>Orders.OrderID</code></td><td>CASCADE</td></tr>
           <tr><td><code>Shipment.EmployeeID</code></td><td><code>Employee.EmployeeID</code></td><td>CASCADE</td></tr>
           <tr><td><code>orderandinvoice.order_id</code></td><td><code>Orders.OrderID</code></td><td>RESTRICT</td></tr>
@@ -453,7 +459,7 @@ php -S localhost:8080          # 然後開一次 http://localhost:8080/create.ph
     </p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>
     <ul>
-      <li><strong>資料庫結構與種子資料</strong>：資料表剛好 8 張、種子筆數符合預期、<code>PRAGMA foreign_keys</code> 為 1、<code>ON DELETE CASCADE</code> 實際會級聯（在交易內驗證後 rollback）、PHP 與 SQLite 時區一致、清空 <code>orderandinvoice</code> 後自增號歸 1、每筆發票都有外鍵與非空快照。</li>
+      <li><strong>資料庫結構與種子資料</strong>：資料表剛好 9 張、種子筆數符合預期、<code>PRAGMA foreign_keys</code> 為 1、<code>ON DELETE CASCADE</code> 實際會級聯（在交易內驗證後 rollback）、PHP 與 SQLite 時區一致、清空 <code>orderandinvoice</code> 後自增號歸 1、每筆發票都有外鍵與非空快照。</li>
       <li><strong>登入與密碼</strong>：<code>Admin</code> / <code>123456</code> 可登入並取得 <code>PHPSESSID</code>、錯誤密碼被拒、<code>Admin</code> 密碼雜湊為 <code>$2y$</code> 開頭且長度 60。</li>
       <li><strong>權限與直接存取</strong>：45 個功能檔全部使用指定的具名守衛；外部使用者註冊後 <code>limited=3</code>、可登入、只看得到個人資料頁；列舉 web root 下所有非例外 <code>.php</code>，未登入直接開啟都顯示「權限不足!」且不含應用程式內容。</li>
       <li><strong>注入防護、路由與衛生</strong>：SQL injection 探針送出含 <code>'); DROP TABLE admin;--</code> 的欄位值，字串原樣保存、<code>admin</code> 表完好；18 個指定 <code>Act</code> 路由皆回應 2xx/3xx 且無 PHP 錯誤；Apache 錯誤輸出無 <code>Deprecated</code> / <code>Warning</code> / <code>Fatal</code>；Git 已追蹤檔不含 <code>*.sqlite</code>、<code>sess_*</code>、<code>config.inc.php</code>、<code>*.mp3</code>。</li>
