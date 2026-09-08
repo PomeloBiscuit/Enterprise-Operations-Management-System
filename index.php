@@ -28,7 +28,10 @@ if (!isset($_SESSION['admid'])) {
             margin: 0;  /* 邊距 */
             padding: 0; /* 內距 */
             min-height: 100vh;  /* 最小高度 100% */
-            background: url('images/DALL·E 2024-12-02 05.00.23 - A highly realistic and natural panoramic view of the Matterhorn covered in snow, showcasing its iconic pyramid shape and majestic appearance. The moun.jpg') no-repeat center center fixed;
+            /* 檔名刻意保持短且純 ASCII：原檔名 162 字元且含非 ASCII 字元，
+               在 Windows 上 clone 到稍深的目錄會超過 MAX_PATH 260 而 checkout 失敗
+               （實測：clone 根目錄 110 字元時即失敗，43 字元時成功）。 */
+            background: url('images/hero-matterhorn.jpg') no-repeat center center fixed;
             background-size: cover; /* 背景圖片填滿 */
             display: flex;  /* 使用 flex 排版 */
             flex-direction: column; /* 垂直排列 */
