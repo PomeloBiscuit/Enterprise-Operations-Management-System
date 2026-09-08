@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // 改變關聯等同重新開立關聯內容，因此以新外鍵重新取得兩個快照。

@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
+
 if (isset($_GET['id'])) { // 若有 ID
     try { // 嘗試執行
         $stmt = $pdo->prepare("DELETE FROM customer WHERE customer_id = :id"); // SQL 語法

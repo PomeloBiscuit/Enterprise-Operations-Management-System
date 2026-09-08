@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
+
 function generateTrackingNumber() {
     return 'TN' . str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 }

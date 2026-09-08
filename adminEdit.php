@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/auth.inc.php';
+if (!can_manage_users()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 if (can_manage_users()) {
     $EK = intval($_GET['EK']);
     $resultsPerPage = $_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5;

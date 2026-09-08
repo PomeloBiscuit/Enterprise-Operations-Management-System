@@ -1,4 +1,10 @@
 <?php   // OrderEdit.php
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {    // 如果是 POST 請求
     try {   // 例外處理 
         $OrderID = $_POST['OrderID'];   // 取得表單欄位

@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 if (can_view_business_data()) { // 管理員與內部員工權限
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC'; // 排序順序
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc'; // 下一次排序順序
