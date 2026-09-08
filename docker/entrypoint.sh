@@ -28,5 +28,9 @@ if [ ! -f "$DB_FILE" ]; then
     chmod -R 0777 "$APP_DIR/data"
 fi
 
-# 交回官方 image 的預設啟動流程（apache2-foreground）
-exec docker-php-entrypoint "$@"
+# Apache 官方 image 的 error log 預設只送到 stderr，容器內沒有可讀的歷史檔。
+# 同步鏡像到 /tmp，讓 scripts/smoke.sh 能檢查本輪 HTTP 請求是否產生 PHP 錯誤；
+# stderr 仍完整交給 Docker log driver，這不改變應用程式行為。
+APACHE_ERROR_LOG=/tmp/eoms-apache-error.log
+: > "$APACHE_ERROR_LOG"
+exec docker-php-entrypoint "$@" 2> >(tee -a "$APACHE_ERROR_LOG" >&2)
