@@ -8,7 +8,7 @@
 - **後端**：PHP 8（無框架、無 Composer、無建置步驟）
 - **資料庫**：SQLite，單檔存於 `data/fiance2024.sqlite`
 - **容器**：`php:8-apache`
-- **驗證**：`scripts/smoke.sh`，20 項可重跑的檢查，任一失敗即以非 0 結束碼退出
+- **驗證**：`scripts/smoke.sh`，21 項可重跑的檢查，任一失敗即以非 0 結束碼退出
 
 ---
 
@@ -263,7 +263,7 @@ php -S localhost:8080          # 然後開一次 http://localhost:8080/create.ph
 
 ## 如何驗證它是對的
 
-專案內建一支可重跑的驗證腳本，涵蓋 **20 項檢查**；任一項失敗會以非 0 結束碼退出。
+專案內建一支可重跑的驗證腳本，涵蓋 **21 項檢查**；任一項失敗會以非 0 結束碼退出。
 
 ```bash
 docker compose exec web bash scripts/smoke.sh
@@ -299,6 +299,7 @@ docker compose exec web bash scripts/smoke.sh
 **注入防護、路由與衛生**
 
 - 10. SQL injection 探針：送出含 `'); DROP TABLE admin;--` 的欄位值，字串原樣保存、`admin` 表完好（測試新增的資料結束時移除）
+- `ORDER-TOTALS`：每張訂單都有 `Contain` 明細；至少一張品項數 ≥ 2；`OrderList.php` 走 HTTP 渲染的訂單金額等於 `SUM(數量 × 單價)`，且該訂單數量不全為 1（漏乘數量會得到不同值）
 - `ROUTES`：18 個指定的 `Act` 路由皆回應 2xx/3xx，且不含 PHP 錯誤
 - 11. Apache 錯誤輸出沒有 `Deprecated` / `Warning` / `Fatal`
 - 12. Git 已追蹤的檔案不含 `*.sqlite`、`sess_*`、`config.inc.php`、`*.mp3`

@@ -62,6 +62,8 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                     <th style='text-align: center; vertical-align: middle;'>ShipDate</th>   <!-- 出貨日期 -->
                     <th style='text-align: center; vertical-align: middle;'>TrackingNumber</th> <!-- 追蹤號碼 -->
                     <th style='text-align: center; vertical-align: middle;'>ShipMethod</th> <!-- 運送方式 -->
+                    <th style='text-align: center; vertical-align: middle;'>品項數</th> <!-- Contain 明細列數 -->
+                    <th style='text-align: center; vertical-align: middle;'>訂單金額</th> <!-- SUM(數量 × 單價) -->
                     <th style='text-align: center; vertical-align: middle; width: 75px;'>功能</th>  <!-- 功能 -->
                 </tr>
             </thead>
@@ -70,28 +72,34 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
 
     try {   // 連接資料庫
         // 設定查詢條件
+        // 品項數與訂單總金額改用 Contain 關聯表計算（SUM(數量 × 單價)）。
+        // 用相關子查詢而非 JOIN + GROUP BY，才不會和外層的 Orders.* 與 LIMIT/OFFSET 打架。
         $query = "
-            SELECT Orders.*, Customer.CustomerName, Product.ProductName, Employee.EmployeeName
+            SELECT Orders.*, Customer.CustomerName, Employee.EmployeeName,
+                   (SELECT COUNT(*) FROM Contain WHERE Contain.OrderID = Orders.OrderID) AS ItemCount,
+                   (SELECT COALESCE(SUM(Contain.Quantity * Product.UnitPrice), 0)
+                      FROM Contain JOIN Product ON Product.ProductID = Contain.ProductID
+                      WHERE Contain.OrderID = Orders.OrderID) AS OrderTotal
             FROM Orders
             LEFT JOIN Customer ON Orders.CustomerID = Customer.CustomerID
-            LEFT JOIN Product ON Orders.ProductID = Product.ProductID
             LEFT JOIN Employee ON Orders.EmployeeID = Employee.EmployeeID
         ";
         if ($searchValue) { // 如果有輸入搜尋內容
-            if (empty($searchColumn) || $searchColumn === 'all') { 
-                // 搜尋所有欄位
+            if (empty($searchColumn) || $searchColumn === 'all') {
+                // 搜尋所有欄位（產品搜尋改為「訂單中含有某產品」）
                 $query .= " WHERE (
-                    Customer.CustomerName LIKE :searchValue OR 
-                    Product.ProductName LIKE :searchValue OR 
-                    Orders.ShipDate LIKE :searchValue OR 
-                    Orders.TrackingNumber LIKE :searchValue OR 
-                    Orders.ShipMethod LIKE :searchValue OR 
-                    Orders.CustomerID LIKE :searchValue OR 
-                    Orders.OrderID LIKE :searchValue OR 
-                    Orders.ProductID LIKE :searchValue OR 
-                    Orders.EmployeeID LIKE :searchValue
+                    Customer.CustomerName LIKE :searchValue OR
+                    Orders.ShipDate LIKE :searchValue OR
+                    Orders.TrackingNumber LIKE :searchValue OR
+                    Orders.ShipMethod LIKE :searchValue OR
+                    Orders.CustomerID LIKE :searchValue OR
+                    Orders.OrderID LIKE :searchValue OR
+                    Orders.EmployeeID LIKE :searchValue OR
+                    EXISTS (SELECT 1 FROM Contain ct JOIN Product pr ON pr.ProductID = ct.ProductID
+                            WHERE ct.OrderID = Orders.OrderID
+                              AND (pr.ProductName LIKE :searchValue OR ct.ProductID LIKE :searchValue))
                 )";
-            } else { 
+            } else {
                 // 搜尋指定欄位
                 $query .= " WHERE Orders.$searchColumn LIKE :searchValue";
             }
@@ -111,8 +119,12 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $results = $stmt->fetchAll(); // 取得查詢結果
         if (count($results) > 0) { // 顯示資料
             foreach ($results as $row) { // 顯示每一筆資料
+                // 金額為整數元（種子單價皆為整數，無分位）；data-order-total 供 smoke test 直接讀取，
+                // 與可見的 <td> 同一個運算式，改壞金額算法時兩者會一起變。
+                $orderTotalInt = (int) round((float) $row['OrderTotal']);
+                $itemCount = (int) $row['ItemCount'];
                 echo " <!-- 顯示每一筆資料 -->
-                <tr>   <!-- 資料列 -->
+                <tr data-order-id='{$row['OrderID']}' data-order-total='{$orderTotalInt}'>   <!-- 資料列 -->
                     <td style='text-align: center;'><input type='checkbox' name='selectedOrders[]' value='{$row['OrderID']}'></td> <!-- 勾選框 -->
                     <td style='text-align: center;'>{$row['OrderID']}</td> <!-- 訂單編號 -->
                     <td style='text-align: center;'>{$row['EmployeeID']}</td> <!-- 員工編號 -->
@@ -121,6 +133,8 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                     <td style='text-align: center;'>{$row['ShipDate']}</td> <!-- 出貨日期 -->
                     <td style='text-align: center;'>{$row['TrackingNumber']}</td> <!-- 追蹤號碼 -->
                     <td style='text-align: center;'>{$row['ShipMethod']}</td> <!-- 運送方式 -->
+                    <td style='text-align: center;'>{$itemCount}</td> <!-- 品項數 -->
+                    <td style='text-align: center;'>{$orderTotalInt}</td> <!-- 訂單金額 SUM(數量 × 單價) -->
                     <td style='text-align: center;'>
                         <a href='index.php?Act=460&id={$row['OrderID']}&resultsPerPage=$resultsPerPage' class='btn btn-primary btn-sm'>編輯</a> <!-- 編輯按鈕 -->
                     </td> <!-- 結束功能欄 -->
@@ -128,32 +142,32 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                 "; // 結束顯示每一筆資料
             } // 結束顯示每一筆資料
         } else { // 如果沒有資料
-            echo "<tr><td colspan='9' style='text-align: center;'>查無資料</td></tr>"; // 顯示查無資料
+            echo "<tr><td colspan='11' style='text-align: center;'>查無資料</td></tr>"; // 顯示查無資料
         } // 結束顯示資料
 
         // 計算總頁數
         $countQuery = "
-            SELECT COUNT(*) 
+            SELECT COUNT(*)
             FROM Orders
             LEFT JOIN Customer ON Orders.CustomerID = Customer.CustomerID
-            LEFT JOIN Product ON Orders.ProductID = Product.ProductID
             LEFT JOIN Employee ON Orders.EmployeeID = Employee.EmployeeID
         ";
-        if ($searchValue) { 
+        if ($searchValue) {
             if (empty($searchColumn) || $searchColumn === 'all') {
-                // 搜尋所有欄位
+                // 搜尋所有欄位（產品搜尋改為「訂單中含有某產品」）
                 $countQuery .= " WHERE (
-                    Customer.CustomerName LIKE :searchValue OR 
-                    Product.ProductName LIKE :searchValue OR 
-                    Orders.ShipDate LIKE :searchValue OR 
-                    Orders.TrackingNumber LIKE :searchValue OR 
-                    Orders.ShipMethod LIKE :searchValue OR 
-                    Orders.CustomerID LIKE :searchValue OR 
-                    Orders.OrderID LIKE :searchValue OR 
-                    Orders.ProductID LIKE :searchValue OR 
-                    Orders.EmployeeID LIKE :searchValue
+                    Customer.CustomerName LIKE :searchValue OR
+                    Orders.ShipDate LIKE :searchValue OR
+                    Orders.TrackingNumber LIKE :searchValue OR
+                    Orders.ShipMethod LIKE :searchValue OR
+                    Orders.CustomerID LIKE :searchValue OR
+                    Orders.OrderID LIKE :searchValue OR
+                    Orders.EmployeeID LIKE :searchValue OR
+                    EXISTS (SELECT 1 FROM Contain ct JOIN Product pr ON pr.ProductID = ct.ProductID
+                            WHERE ct.OrderID = Orders.OrderID
+                              AND (pr.ProductName LIKE :searchValue OR ct.ProductID LIKE :searchValue))
                 )";
-            } else { 
+            } else {
                 // 搜尋指定欄位
                 $countQuery .= " WHERE Orders.$searchColumn LIKE :searchValue";
             }

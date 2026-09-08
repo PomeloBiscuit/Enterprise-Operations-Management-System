@@ -171,7 +171,7 @@
     </p>
     <p>
       後端是純 PHP 8，沒有框架、沒有 Composer、沒有建置步驟；前端用 Bootstrap 5 與
-      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 20 項檢查。
+      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 21 項檢查。
     </p>
   </section>
 
@@ -186,7 +186,7 @@
           <tr><td>資料庫</td><td>SQLite，單檔存於 <code>data/fiance2024.sqlite</code></td></tr>
           <tr><td>資料存取</td><td>PDO prepared statement</td></tr>
           <tr><td>容器</td><td><code>php:8-apache</code></td></tr>
-          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，20 項可重跑檢查</td></tr>
+          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，21 項可重跑檢查</td></tr>
         </tbody>
       </table>
     </div>
@@ -454,7 +454,7 @@ php -S localhost:8080          # 然後開一次 http://localhost:8080/create.ph
   <section>
     <h2>如何驗證它是對的</h2>
     <p>
-      專案內建一支可重跑的驗證腳本，涵蓋 <strong>20 項檢查</strong>；任一項失敗會以
+      專案內建一支可重跑的驗證腳本，涵蓋 <strong>21 項檢查</strong>；任一項失敗會以
       非 0 結束碼退出。
     </p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>
@@ -462,6 +462,7 @@ php -S localhost:8080          # 然後開一次 http://localhost:8080/create.ph
       <li><strong>資料庫結構與種子資料</strong>：資料表剛好 9 張、種子筆數符合預期、<code>PRAGMA foreign_keys</code> 為 1、<code>ON DELETE CASCADE</code> 實際會級聯（在交易內驗證後 rollback）、PHP 與 SQLite 時區一致、清空 <code>orderandinvoice</code> 後自增號歸 1、每筆發票都有外鍵與非空快照。</li>
       <li><strong>登入與密碼</strong>：<code>Admin</code> / <code>123456</code> 可登入並取得 <code>PHPSESSID</code>、錯誤密碼被拒、<code>Admin</code> 密碼雜湊為 <code>$2y$</code> 開頭且長度 60。</li>
       <li><strong>權限與直接存取</strong>：45 個功能檔全部使用指定的具名守衛；外部使用者註冊後 <code>limited=3</code>、可登入、只看得到個人資料頁；列舉 web root 下所有非例外 <code>.php</code>，未登入直接開啟都顯示「權限不足!」且不含應用程式內容。</li>
+      <li><strong>訂單金額</strong>：每張訂單都有 <code>Contain</code> 明細、至少一張品項數 ≥ 2，且 <code>OrderList.php</code> 走 HTTP 渲染出的訂單金額等於 <code>SUM(數量 × 單價)</code>（漏乘數量會得到不同值，探針有鑑別力）。</li>
       <li><strong>注入防護、路由與衛生</strong>：SQL injection 探針送出含 <code>'); DROP TABLE admin;--</code> 的欄位值，字串原樣保存、<code>admin</code> 表完好；18 個指定 <code>Act</code> 路由皆回應 2xx/3xx 且無 PHP 錯誤；Apache 錯誤輸出無 <code>Deprecated</code> / <code>Warning</code> / <code>Fatal</code>；Git 已追蹤檔不含 <code>*.sqlite</code>、<code>sess_*</code>、<code>config.inc.php</code>、<code>*.mp3</code>。</li>
     </ul>
   </section>
