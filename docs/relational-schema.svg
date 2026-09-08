@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1315 656" width="1315" height="656" role="img" aria-label="關聯綱目：資料表與外鍵對應">
+<title>關聯綱目 — 訂單、出貨與發票</title>
+<defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#41566e" class="ahf"/>
+    </marker>
+  </defs>
+<style>
+    svg { --sc-fg:#1c2530; --sc-line:#41566e; --sc-box:#ffffff; --sc-label:#eef2f6; --sc-pk:#1c2530; }
+    @media (prefers-color-scheme: dark) {
+      svg { --sc-fg:#e6edf3; --sc-line:#8fa9c4; --sc-box:#1b2027; --sc-label:#242c36; --sc-pk:#e6edf3; }
+    }
+    .b { fill: var(--sc-box); stroke: var(--sc-line); stroke-width: 1.2; }
+    .lb { fill: var(--sc-label); stroke: var(--sc-line); stroke-width: 1.2; }
+    .t { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: var(--sc-fg); }
+    .tn { font: 600 12.5px ui-sans-serif, system-ui, "Noto Sans TC", sans-serif; fill: var(--sc-fg); }
+    .pk { text-decoration: underline; font-weight: 700; fill: var(--sc-pk); }
+    .ln { stroke: var(--sc-line); stroke-width: 1.3; fill: none; marker-end: url(#ah); }
+    .ahf { fill: var(--sc-line); }
+    .rs { stroke-dasharray: 5 3; }
+  </style>
+<rect class="lb" x="150" y="34" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="58.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">Employee</text>
+<rect class="b" x="302.0" y="34" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="357.0" y="58.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">EmployeeID</text>
+<rect class="b" x="412.0" y="34" width="124.8" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="474.4" y="58.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">EmployeeName</text>
+<rect class="lb" x="150" y="120" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="144.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">Customer</text>
+<rect class="b" x="302.0" y="120" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="357.0" y="144.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">CustomerID</text>
+<rect class="b" x="412.0" y="120" width="124.8" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="474.4" y="144.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">CustomerName</text>
+<rect class="b" x="536.8" y="120" width="176.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="625.1" y="144.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">CustomerPhoneNumber</text>
+<rect class="b" x="713.4" y="120" width="147.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="786.9" y="144.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">CustomerAddress</text>
+<rect class="lb" x="150" y="206" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="230.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">Product</text>
+<rect class="b" x="302.0" y="206" width="102.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="353.3" y="230.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">ProductID</text>
+<rect class="b" x="404.6" y="206" width="117.4" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="463.3" y="230.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ProductName</text>
+<rect class="b" x="522.0" y="206" width="147.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="595.5" y="230.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ProductCategory</text>
+<rect class="b" x="669.0" y="206" width="102.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="720.3" y="230.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">UnitPrice</text>
+<rect class="lb" x="150" y="292" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="316.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">Orders</text>
+<rect class="b" x="302.0" y="292" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="346.0" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">OrderID</text>
+<rect class="b" x="390.0" y="292" width="102.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="441.3" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">OrderTime</text>
+<rect class="b" x="492.6" y="292" width="95.2" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="540.2" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ShipDate</text>
+<rect class="b" x="587.8" y="292" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="642.8" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">CustomerID</text>
+<rect class="b" x="697.8" y="292" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="752.8" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">EmployeeID</text>
+<rect class="b" x="807.8" y="292" width="139.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="877.6" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">TrackingNumber</text>
+<rect class="b" x="947.4" y="292" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="1002.4" y="316.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ShipMethod</text>
+<rect class="lb" x="150" y="378" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="402.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">Contain</text>
+<rect class="b" x="302.0" y="378" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="346.0" y="402.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">OrderID</text>
+<rect class="b" x="390.0" y="378" width="102.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="441.3" y="402.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">ProductID</text>
+<rect class="b" x="492.6" y="378" width="95.2" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="540.2" y="402.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">Quantity</text>
+<rect class="lb" x="150" y="464" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="488.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">Shipment</text>
+<rect class="b" x="302.0" y="464" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="357.0" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">ShipmentID</text>
+<rect class="b" x="412.0" y="464" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="467.0" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">EmployeeID</text>
+<rect class="b" x="522.0" y="464" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="566.0" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">OrderID</text>
+<rect class="b" x="610.0" y="464" width="95.2" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="657.6" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ShipDate</text>
+<rect class="b" x="705.2" y="464" width="139.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="775.0" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">TrackingNumber</text>
+<rect class="b" x="844.8" y="464" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="899.8" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ShipMethod</text>
+<rect class="b" x="954.8" y="464" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="998.8" y="488.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">status</text>
+<rect class="lb" x="150" y="550" width="132" height="40" rx="3" fill="#eef2f6" stroke="#41566e" stroke-width="1.2"/>
+<text class="tn" x="216.0" y="574.5" text-anchor="middle" fill="#1c2530" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12.5" font-weight="600">orderandinvoice</text>
+<rect class="b" x="302.0" y="550" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t pk" x="346.0" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" text-decoration="underline" font-weight="700">id</text>
+<rect class="b" x="390.0" y="550" width="95.2" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="437.6" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">order_id</text>
+<rect class="b" x="485.2" y="550" width="124.8" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="547.6" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">order_number</text>
+<rect class="b" x="610.0" y="550" width="139.6" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="679.8" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">invoice_number</text>
+<rect class="b" x="749.6" y="550" width="117.4" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="808.3" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">customer_id</text>
+<rect class="b" x="867.0" y="550" width="132.2" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="933.1" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">customer_name</text>
+<rect class="b" x="999.2" y="550" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="1043.2" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">amount</text>
+<rect class="b" x="1087.2" y="550" width="88.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="1131.2" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">status</text>
+<rect class="b" x="1175.2" y="550" width="110.0" height="40" fill="#ffffff" stroke="#41566e" stroke-width="1.2"/>
+<text class="t" x="1230.2" y="574.0" text-anchor="middle" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">created_at</text>
+<path class="ln" d="M 642.8 332 V 342.0 H 102.0 V 170.0 H 357.0 V 164.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)"/>
+<path class="ln" d="M 752.8 332 V 350.0 H 86.0 V 92.0 H 357.0 V 78.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)"/>
+<path class="ln" d="M 346.0 418 V 444.0 H 134.0 V 358.0 H 346.0 V 336.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)"/>
+<path class="ln rs" d="M 441.3 418 V 428.0 H 118.0 V 256.0 H 353.3 V 250.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)" stroke-dasharray="5 3"/>
+<path class="ln" d="M 467.0 504 V 522.0 H 70.0 V 92.0 H 357.0 V 78.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)"/>
+<path class="ln" d="M 566.0 504 V 530.0 H 54.0 V 358.0 H 346.0 V 336.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)"/>
+<path class="ln rs" d="M 437.6 590 V 600.0 H 22.0 V 342.0 H 346.0 V 336.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)" stroke-dasharray="5 3"/>
+<path class="ln rs" d="M 808.3 590 V 608.0 H 38.0 V 178.0 H 357.0 V 164.0" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)" stroke-dasharray="5 3"/>
+<line class="ln" x1="24" y1="643" x2="64" y2="643" stroke="#41566e" stroke-width="1.3" marker-end="url(#ah)"/>
+<text class="t" x="70" y="647" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ON DELETE CASCADE</text>
+<line class="ln rs" x1="230" y1="643" x2="270" y2="643" stroke="#41566e" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#ah)"/>
+<text class="t" x="276" y="647" fill="#1c2530" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11">ON DELETE RESTRICT　　底線＝主鍵</text>
+</svg>
