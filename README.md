@@ -1,6 +1,6 @@
 # Enterprise Operations Management System
 
-This is a PHP-based web application developed as the final project for the **Advanced Database** course. The system supports key functions for managing enterprise operations including employees, customers, orders, and customer-firm relationships.
+A PHP-based web application for managing day-to-day enterprise operations — employees, customers, products, orders, shipments, invoices, and firm-customer relationships. It runs from a single SQLite file with no database server and no credentials to configure.
 
 ## 🔧 Technologies Used
 
@@ -79,6 +79,7 @@ cp config.inc.php.example config.inc.php
 php -S localhost:8080          # then open http://localhost:8080/create.php once
 ```
 
-## 👨‍💻 Author
+## 📄 License & assets
 
-Developed by **[redacted]** as a final project for the **Advanced Database** course.
+All bundled images are self-generated. No third-party stock photography, icons, or audio
+are included in this repository.
