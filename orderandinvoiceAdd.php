@@ -4,7 +4,7 @@ if ($_SESSION["admlimit"] > 0) {
         try {
             $stmt = $pdo->prepare("
                 INSERT INTO orderandinvoice (order_id, invoice_number, customer_id, amount, status, created_at)
-                VALUES (:order_id, :invoice_number, :customer_id, :amount, :status, NOW())
+                VALUES (:order_id, :invoice_number, :customer_id, :amount, :status, datetime('now','localtime'))
             ");
             $stmt->execute([
                 ':order_id' => $_POST['order_id'],
@@ -20,8 +20,8 @@ if ($_SESSION["admlimit"] > 0) {
         }
     }
 
-    // 取得最新的自動生成 ID
-    $stmt = $pdo->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'Fiance2024' AND TABLE_NAME = 'orderandinvoice'");
+    // 取得下一個自動生成 ID（SQLite：sqlite_sequence 取代 information_schema）
+    $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'orderandinvoice'), 0) + 1 AS AUTO_INCREMENT");
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $nextId = $row['AUTO_INCREMENT'];
 

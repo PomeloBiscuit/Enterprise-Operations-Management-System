@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
     }       
 } else {    // 如果是 GET 請求
     try {   // 取得下一個訂單編號
-        $stmt = $pdo->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'Fiance2024' AND TABLE_NAME = 'Orders'");    // 查詢下一個訂單編號
+        $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'Orders'), 0) + 1 AS AUTO_INCREMENT");    // SQLite：sqlite_sequence 取代 information_schema
         $row = $stmt->fetch();  // 取得查詢結果
         $nextOrderID = $row['AUTO_INCREMENT'];  // 取得下一個訂單編號
     } catch (PDOException $e) { // 例外處理

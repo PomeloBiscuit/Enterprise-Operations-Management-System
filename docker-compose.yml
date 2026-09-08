@@ -1,0 +1,23 @@
+# 最小化的單一服務：PHP 8 + Apache，內建 pdo_sqlite。
+# 換成 SQLite 之後不再需要獨立的資料庫服務。
+#
+# 用法：
+#   docker compose up -d        # 第一次會自動跑 create.php 建立種子資料
+#   開瀏覽器 http://localhost:8080/login.php   帳號 Admin / 密碼 123456
+#   要重建資料庫：瀏覽器開 http://localhost:8080/create.php
+
+services:
+  web:
+    image: php:8-apache
+    container_name: eoms-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php.ini:/usr/local/etc/php/conf.d/zz-eoms.ini:ro
+    environment:
+      TZ: "Asia/Taipei"
+    # 用 bash 直接呼叫，避免 Windows bind mount 沒有帶執行權限
+    entrypoint: ["bash", "/var/www/html/docker/entrypoint.sh"]
+    command: ["apache2-foreground"]
+    restart: unless-stopped

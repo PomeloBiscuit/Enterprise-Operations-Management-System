@@ -15,6 +15,14 @@ Thumbs.db
 # Database credentials or configs (if added)
 config.inc.php
 
+# SQLite 資料庫檔（由 create.php 產生，不進版控；保留目錄結構用 .gitkeep）
+data/*
+!data/.gitkeep
+
+# Session 檔（舊版誤存進專案目錄，現已改用系統預設路徑）
+sessionstmp/
+sess_*
+
 # Node modules (if used later)
 node_modules/
 

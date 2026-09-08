@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label>員工編號</label>
                     <?php
                     try {
-                        $stmt = $pdo->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'Fiance2024' AND TABLE_NAME = 'Employee'"); // 取得 AUTO_INCREMENT
+                        $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'Employee'), 0) + 1 AS AUTO_INCREMENT"); // SQLite：sqlite_sequence 取代 information_schema
                         $row = $stmt->fetch(); // 取得 AUTO_INCREMENT
                         $nextEmployeeID = $row['AUTO_INCREMENT']; // 取得 AUTO_INCREMENT
                         echo "<input type='text' class='form-control' value='$nextEmployeeID' disabled>"; // 顯示 AUTO_INCREMENT

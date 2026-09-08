@@ -1,0 +1,16 @@
+# 這個專案由 Linux 容器（php:8-apache）與 Linux 主機提供服務，
+# 換行一律 LF —— 尤其 docker/entrypoint.sh 若被轉成 CRLF 會在容器內執行失敗。
+* text=auto eol=lf
+
+*.sh   text eol=lf
+*.php  text eol=lf
+
+# 二進位檔不要做換行轉換
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.mp3  binary
+*.woff binary
+*.woff2 binary
