@@ -14,6 +14,17 @@ EXTERNAL_ID="smoke-external"
 EXTERNAL_PASSWORD="smoke-external-password"
 FAILURES=0
 
+# 這些檔案是公開入口或只提供 PHP bootstrap，直接存取不應被未登入 guard 擋下。
+declare -A DIRECT_FILE_EXEMPTIONS=(
+    [index.php]="公開前端控制器，未登入時必須呈現登入頁"
+    [login.php]="公開登入入口"
+    [register.php]="公開註冊入口"
+    [create.php]="初始化工具，不是應用程式頁面"
+    [logout.php]="公開登出端點，必須可清除既有 session"
+    [config.inc.php]="資料庫 bootstrap，不直接呈現頁面"
+    [auth.inc.php]="權限函式 bootstrap，不直接呈現頁面"
+)
+
 delete_injection_rows() {
     php -r '
         require "/var/www/html/config.inc.php";
@@ -187,9 +198,15 @@ check_named_permission_guards() {
         'adminEdit.php:can_manage_users'
         'adminList.php:can_manage_users'
         'CustomerDelBatch.php:can_view_business_data'
+        'CustomerAdd.php:can_view_business_data'
+        'CustomerDel.php:can_view_business_data'
+        'CustomerEdit.php:can_view_business_data'
         'CustomerList.php:can_view_business_data'
         'deleteSelectedUsers.php:can_manage_users'
         'EmployeeDelBatch.php:can_view_business_data'
+        'EmployeeAdd.php:can_view_business_data'
+        'EmployeeDel.php:can_view_business_data'
+        'EmployeeEdit.php:can_view_business_data'
         'EmployeeList.php:can_view_business_data'
         'firmandcustomerAdd.php:can_view_business_data'
         'firmandcustomerDel.php:can_view_business_data'
@@ -197,27 +214,74 @@ check_named_permission_guards() {
         'firmandcustomerList.php:can_view_business_data'
         'Home.php:can_access_self'
         'orderandinvoiceAdd.php:can_view_business_data'
+        'orderandinvoiceDel.php:can_view_business_data'
         'orderandinvoiceDelBatch.php:can_view_business_data'
+        'orderandinvoiceEdit.php:can_view_business_data'
         'orderandinvoiceList.php:can_view_business_data'
         'OrderDelBatch.php:can_view_business_data'
+        'OrderAdd.php:can_view_business_data'
+        'OrderDel.php:can_view_business_data'
+        'OrderEdit.php:can_view_business_data'
         'OrderList.php:can_view_business_data'
         'ProductDelBatch.php:can_view_business_data'
+        'ProductAdd.php:can_view_business_data'
+        'ProductDel.php:can_view_business_data'
+        'ProductEdit.php:can_view_business_data'
         'ProductList.php:can_view_business_data'
         'profile.php:can_access_self'
+        'profileDelete.php:can_access_self'
         'profileEdit.php:can_access_self'
+        'ShipmentAdd.php:can_view_business_data'
+        'ShipmentDel.php:can_view_business_data'
         'ShipmentDelBatch.php:can_view_business_data'
+        'ShipmentEdit.php:can_view_business_data'
         'ShipmentList.php:can_view_business_data'
         'UserList.php:can_manage_users'
     )
     for entry in "${expected_guards[@]}"; do
         file="${entry%%:*}"
         function_name="${entry##*:}"
-        if ! grep -Eq "if[[:space:]]*\\([[:space:]]*${function_name}\\(\\)[[:space:]]*\\)" "$APP_DIR/$file"; then
+        if ! grep -Eq "if[[:space:]]*\\([[:space:]]*!?[[:space:]]*${function_name}\\(\\)[[:space:]]*\\)" "$APP_DIR/$file"; then
             failures+="$file→$function_name "
         fi
     done
     [[ -z "$failures" ]] || { CHECK_DETAIL="具名權限守衛缺失：${failures% }"; return 1; }
-    CHECK_DETAIL="27 個檔案均使用指定的具名權限守衛"
+    CHECK_DETAIL="45 個檔案均使用指定的具名權限守衛"
+}
+
+is_forbidden_without_application_content() {
+    local body="$1"
+    # HTTP 200 不能證明拒絕；必須有拒絕訊號，且不得混入頁面結構或互動元件。
+    [[ "$body" == *"權限不足!"* ]] || return 1
+    ! grep -Eiq '<(form|table|div|h[1-6]|input|select|button|script)([[:space:]>])' <<< "$body"
+}
+
+check_direct_file_access() {
+    local path file body status failures="" checked=0
+    for path in "$APP_DIR"/*.php; do
+        file="${path##*/}"
+        if [[ -n "${DIRECT_FILE_EXEMPTIONS[$file]+included}" ]]; then
+            continue
+        fi
+        checked=$((checked + 1))
+        body="$(curl -sS -o "$TMP_DIR/direct-$file.html" -w '%{http_code}' "$BASE_URL/$file")" || { failures+="$file:curl "; continue; }
+        status="$body"
+        body="$(<"$TMP_DIR/direct-$file.html")"
+        if ! is_forbidden_without_application_content "$body"; then
+            failures+="$file:HTTP-$status "
+        fi
+    done
+    [[ -z "$failures" ]] || { CHECK_DETAIL="未登入直接存取未被拒絕：${failures% }"; return 1; }
+    CHECK_DETAIL="列舉 $checked 個非例外 PHP；皆顯示「權限不足!」且不含應用程式內容"
+}
+
+check_external_direct_business_access() {
+    local body status
+    body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -o "$TMP_DIR/external-ProductEdit.html" -w '%{http_code}' "$BASE_URL/ProductEdit.php?id=1")" || { CHECK_DETAIL="ProductEdit.php curl 失敗"; return 1; }
+    status="$body"
+    body="$(<"$TMP_DIR/external-ProductEdit.html")"
+    is_forbidden_without_application_content "$body" || { CHECK_DETAIL="ProductEdit.php 對 limited=3 未拒絕（HTTP $status）"; return 1; }
+    CHECK_DETAIL="limited=3 直接開 ProductEdit.php 仍顯示「權限不足!」且不含應用程式內容"
 }
 
 check_external_registration() {
@@ -358,6 +422,8 @@ for check in \
     'EXTERNAL-REGISTER check_external_registration' \
     'EXTERNAL-LOGIN check_external_login' \
     'EXTERNAL-VISIBILITY check_external_visibility' \
+    'DIRECT-ACCESS check_direct_file_access' \
+    'EXTERNAL-DIRECT-ACCESS check_external_direct_business_access' \
     '10 check_injection' \
     'ROUTES check_routes' \
     '11 check_error_log' \
