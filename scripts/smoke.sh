@@ -79,12 +79,17 @@ check_fk_cascade() {
     local value before after
     value="$(php -r '
         require "/var/www/html/config.inc.php";
-        $id = $pdo->query("SELECT CustomerID FROM Customer WHERE CustomerID IN (SELECT CustomerID FROM Orders) LIMIT 1")->fetchColumn();
-        if ($id === false) { fwrite(STDERR, "沒有含訂單的顧客\n"); exit(2); }
+        $pdo->beginTransaction();
+        $pdo->exec("INSERT INTO Customer (CustomerName, CustomerPhoneNumber, CustomerAddress) VALUES (\"smoke-fk-cascade\", \"0000\", \"smoke\")");
+        $id = $pdo->lastInsertId();
+        $productId = $pdo->query("SELECT ProductID FROM Product LIMIT 1")->fetchColumn();
+        $employeeId = $pdo->query("SELECT EmployeeID FROM Employee LIMIT 1")->fetchColumn();
+        if ($productId === false || $employeeId === false) { fwrite(STDERR, "缺少建立測試訂單所需資料\n"); exit(2); }
+        $insertOrder = $pdo->prepare("INSERT INTO Orders (CustomerID, ProductID, EmployeeID, TrackingNumber) VALUES (:customer_id, :product_id, :employee_id, \"SMOKE-FK\")");
+        $insertOrder->execute([":customer_id" => $id, ":product_id" => $productId, ":employee_id" => $employeeId]);
         $before = $pdo->prepare("SELECT count(*) FROM Orders WHERE CustomerID = :id");
         $before->execute([":id" => $id]);
         $beforeCount = $before->fetchColumn();
-        $pdo->beginTransaction();
         $delete = $pdo->prepare("DELETE FROM Customer WHERE CustomerID = :id");
         $delete->execute([":id" => $id]);
         $after = $pdo->prepare("SELECT count(*) FROM Orders WHERE CustomerID = :id");
@@ -125,6 +130,13 @@ check_empty_sequence() {
     ')" || return 1
     [[ "$value" == "1" ]] || { CHECK_DETAIL="清空 orderandinvoice 的下一號=$value，預期 1"; return 1; }
     CHECK_DETAIL="清空 orderandinvoice 的下一號=1（交易已 rollback）"
+}
+
+check_invoice_snapshots() {
+    local count
+    count="$(db_scalar "SELECT count(*) FROM orderandinvoice WHERE order_id IS NULL OR customer_id IS NULL OR order_number IS NULL OR trim(CAST(order_number AS TEXT)) = '' OR customer_name IS NULL OR trim(customer_name) = ''")" || return 1
+    [[ "$count" == "0" ]] || { CHECK_DETAIL="有 $count 筆發票缺少外鍵或快照"; return 1; }
+    CHECK_DETAIL="所有發票均有 order/customer 外鍵與非空快照"
 }
 
 check_login_success() {
@@ -238,6 +250,7 @@ for check in \
     '6 check_empty_sequence' \
     '7a check_login_success' \
     '7b check_login_failure' \
+    '8 check_invoice_snapshots' \
     '9 check_password_hash' \
     '10 check_injection' \
     'ROUTES check_routes' \

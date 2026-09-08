@@ -377,47 +377,57 @@
                     }
                }
 
-               /* =========================================================
-                * 以下三張表：程式碼一直在查，但舊版 create.php 從來沒有建。
-                * 欄位是從既有 SQL（Add / Edit / List / Del）反推出來的聯集。
-                * ---------------------------------------------------------
-                * 已知的既有矛盾（本工單刻意不修，留給使用者決定統一成哪一組）：
-                * orderandinvoice：Add 寫 order_id / customer_id / created_at，
-                * Edit 寫 order_number / customer_name；List 的 JOIN 用 order_number。
-                * ========================================================= */
+                /* =========================================================
+                 * 以下兩張表：程式碼一直在查，但舊版 create.php 從來沒有建。
+                 * 欄位是從既有 SQL（Add / Edit / List / Del）反推出來的聯集。
+                 * ========================================================= */
 
                // Create orderandinvoice table（訂單與發票）
                $tableName = "orderandinvoice";
                $sql = "CREATE TABLE $tableName (
                     id             INTEGER PRIMARY KEY AUTOINCREMENT, -- 主鍵（Edit/Del/DelBatch 用）
-                    order_id       INTEGER, -- 訂單編號（orderandinvoiceAdd.php 寫入）
-                    order_number   INTEGER, -- 訂單編號（orderandinvoiceEdit.php 寫入；List 的 JOIN 依據）
+                    order_id       INTEGER NOT NULL, -- 外鍵：訂單編號（唯一真相）
+                    order_number   INTEGER, -- 快照：開立當下的訂單編號
                     invoice_number TEXT, -- 發票號碼
-                    customer_id    INTEGER, -- 客戶編號（Add 寫入）
-                    customer_name  TEXT, -- 客戶名稱（Edit 寫入）
+                    customer_id    INTEGER NOT NULL, -- 外鍵：客戶編號（唯一真相）
+                    customer_name  TEXT, -- 快照：開立當下的客戶名稱
                     amount         NUMERIC, -- 金額
                     status         INTEGER DEFAULT 0, -- 狀態，1 完成 / 0 未完成
-                    created_at     TEXT -- 建立時間（Add 以 datetime('now','localtime') 寫入）
-               )";
+                    created_at     TEXT, -- 建立時間（Add 以 datetime('now','localtime') 寫入）
+                    -- 發票是憑證；不可因刪除訂單或顧客而遺失其關聯。
+                    FOREIGN KEY (order_id) REFERENCES Orders(OrderID) ON DELETE RESTRICT,
+                    FOREIGN KEY (customer_id) REFERENCES Customer(CustomerID) ON DELETE RESTRICT
+                )";
                createTable($pdo, $tableName, $sql);
 
-               // 種子資料：order_id 與 order_number 兩欄都填有效的 OrderID，
-               // 讓 orderandinvoiceList.php 的 JOIN（oi.order_number = o.OrderID）抓得到資料。
-               $invoiceSeeds = [
-                    ['order_id' => 1, 'order_number' => 1, 'invoice_number' => 'INV-0001', 'customer_id' => 1, 'customer_name' => 'Customer 1', 'amount' => 1200, 'status' => 1],
-                    ['order_id' => 2, 'order_number' => 2, 'invoice_number' => 'INV-0002', 'customer_id' => 2, 'customer_name' => 'Customer 2', 'amount' => 3400, 'status' => 0],
-                    ['order_id' => 3, 'order_number' => 3, 'invoice_number' => 'INV-0003', 'customer_id' => 3, 'customer_name' => 'Customer 3', 'amount' => 5600, 'status' => 1],
-               ];
-               foreach ($invoiceSeeds as $seed) {
-                    try {
-                         $sql = "INSERT INTO orderandinvoice
+                // 種子資料的快照從目前的外鍵資料帶入，不能手填不存在的顧客名稱。
+                $invoiceSeeds = [
+                     ['order_id' => 1, 'invoice_number' => 'INV-0001', 'customer_id' => 1, 'amount' => 1200, 'status' => 1],
+                     ['order_id' => 2, 'invoice_number' => 'INV-0002', 'customer_id' => 2, 'amount' => 3400, 'status' => 0],
+                     ['order_id' => 3, 'invoice_number' => 'INV-0003', 'customer_id' => 3, 'amount' => 5600, 'status' => 1],
+                ];
+                $invoiceSnapshotStmt = $pdo->prepare("SELECT o.OrderID AS order_number, c.CustomerName AS customer_name
+                     FROM Orders o CROSS JOIN Customer c
+                     WHERE o.OrderID = :order_id AND c.CustomerID = :customer_id");
+                foreach ($invoiceSeeds as $seed) {
+                     try {
+                          $invoiceSnapshotStmt->execute([
+                               ':order_id' => $seed['order_id'],
+                               ':customer_id' => $seed['customer_id'],
+                          ]);
+                          $snapshot = $invoiceSnapshotStmt->fetch(PDO::FETCH_ASSOC);
+                          if ($snapshot === false) {
+                               throw new RuntimeException('種子發票的訂單或顧客不存在。');
+                          }
+                          $seed = array_merge($seed, $snapshot);
+                          $sql = "INSERT INTO orderandinvoice
                               (order_id, order_number, invoice_number, customer_id, customer_name, amount, status, created_at)
                               VALUES
                               (:order_id, :order_number, :invoice_number, :customer_id, :customer_name, :amount, :status, datetime('now','localtime'))";
                          $stmt = $pdo->prepare($sql);
                          $stmt->execute($seed);
                          echo "<p>Invoice {$seed['invoice_number']} is added to orderandinvoice table.";
-                    } catch (PDOException $e) {
+                     } catch (Throwable $e) {
                          echo "<p>Error inserting into orderandinvoice: " . $e->getMessage();
                     }
                }
