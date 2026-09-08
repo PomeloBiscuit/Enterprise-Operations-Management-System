@@ -27,6 +27,7 @@ sess_*
 node_modules/
 
 # 內部作業文件（不對外公開，另行備份）
+# 注意：內部文件放在 _ops/，不是 docs/ —— docs/ 保留給對外的 GitHub Pages 介紹頁。
 CLAUDE.md
-docs/
+_ops/
 新專案開場指令.md
