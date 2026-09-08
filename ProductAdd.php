@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
                     <label>Product ID</label> <!-- 標籤 -->
                     <?php // 取得下一個 ProductID
                     try { // 例外處理
-                        $stmt = $pdo->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'Fiance2024' AND TABLE_NAME = 'Product'"); // 查詢下一個 ProductID
+                        $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'Product'), 0) + 1 AS AUTO_INCREMENT"); // SQLite：sqlite_sequence 取代 information_schema
                         $row = $stmt->fetch(); // 取得查詢結果
                         $nextProductID = $row['AUTO_INCREMENT']; // 取得下一個 ProductID
                         echo "<input type='text' class='form-control' value='$nextProductID' disabled>"; // 顯示下一個 ProductID

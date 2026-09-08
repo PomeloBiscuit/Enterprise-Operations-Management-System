@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
                     <label>顧客編號</label> <!-- 標籤 -->
                     <?php // 取得下一個顧客編號
                     try { // 嘗試執行
-                        $stmt = $pdo->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'Fiance2024' AND TABLE_NAME = 'Customer'"); // SQL 語法
+                        $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'Customer'), 0) + 1 AS AUTO_INCREMENT"); // SQLite：sqlite_sequence 取代 information_schema
                         $row = $stmt->fetch(); // 取得第一筆資料
                         $nextCustomerID = $row['AUTO_INCREMENT']; // 取得 AUTO_INCREMENT 欄位值
                         echo "<input type='text' class='form-control' value='$nextCustomerID' disabled>"; // 顯示顧客編號

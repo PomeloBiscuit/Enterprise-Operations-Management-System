@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $orderID = generateOrderID($pdo);
         $stmt = $pdo->prepare("
             INSERT INTO Orders (OrderID, OrderTime, CustomerID, ProductID, TrackingNumber, ShipMethod)
-            VALUES (:OrderID, NOW(), :CustomerID, :ProductID, :TrackingNumber, :ShipMethod)
+            VALUES (:OrderID, datetime('now','localtime'), :CustomerID, :ProductID, :TrackingNumber, :ShipMethod)
         ");
         $stmt->execute([
             ':OrderID' => $orderID,

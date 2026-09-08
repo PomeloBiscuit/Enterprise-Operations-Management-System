@@ -1,4 +1,8 @@
 <?php
+     // 這個頁面沒有被 index.php 的路由收錄，只能被直接開啟；
+     // 補上 bootstrap 讓它拿得到 $pdo 與 $_SESSION（不動任何 SQL，SQL injection 仍歸 WO-02）。
+     require_once __DIR__ . '/config.inc.php';
+
      if ($_SESSION["admlimit"]>0) {
 
           echo "
