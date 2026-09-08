@@ -376,6 +376,123 @@
                          echo "<p>Error inserting into $tableName: " . $e->getMessage();
                     }
                }
+
+               /* =========================================================
+                * 以下三張表：程式碼一直在查，但舊版 create.php 從來沒有建。
+                * 欄位是從既有 SQL（Add / Edit / List / Del）反推出來的聯集。
+                * ---------------------------------------------------------
+                * 已知的既有矛盾（本工單刻意不修，留給使用者決定統一成哪一組）：
+                *  1) orderandinvoice：Add 寫 order_id / customer_id / created_at，
+                *     Edit 寫 order_number / customer_name；List 的 JOIN 用 order_number。
+                *  2) admin：List 用 ORDER BY name，Add 卻只寫 fcname，沒寫 name。
+                * ========================================================= */
+
+               // Create orderandinvoice table（訂單與發票）
+               $tableName = "orderandinvoice";
+               $sql = "CREATE TABLE $tableName (
+                    id             INTEGER PRIMARY KEY AUTOINCREMENT, -- 主鍵（Edit/Del/DelBatch 用）
+                    order_id       INTEGER, -- 訂單編號（orderandinvoiceAdd.php 寫入）
+                    order_number   INTEGER, -- 訂單編號（orderandinvoiceEdit.php 寫入；List 的 JOIN 依據）
+                    invoice_number TEXT, -- 發票號碼
+                    customer_id    INTEGER, -- 客戶編號（Add 寫入）
+                    customer_name  TEXT, -- 客戶名稱（Edit 寫入）
+                    amount         NUMERIC, -- 金額
+                    status         INTEGER DEFAULT 0, -- 狀態，1 完成 / 0 未完成
+                    created_at     TEXT -- 建立時間（Add 以 datetime('now','localtime') 寫入）
+               )";
+               createTable($pdo, $tableName, $sql);
+
+               // 種子資料：order_id 與 order_number 兩欄都填有效的 OrderID，
+               // 讓 orderandinvoiceList.php 的 JOIN（oi.order_number = o.OrderID）抓得到資料。
+               $invoiceSeeds = [
+                    ['order_id' => 1, 'order_number' => 1, 'invoice_number' => 'INV-0001', 'customer_id' => 1, 'customer_name' => 'Customer 1', 'amount' => 1200, 'status' => 1],
+                    ['order_id' => 2, 'order_number' => 2, 'invoice_number' => 'INV-0002', 'customer_id' => 2, 'customer_name' => 'Customer 2', 'amount' => 3400, 'status' => 0],
+                    ['order_id' => 3, 'order_number' => 3, 'invoice_number' => 'INV-0003', 'customer_id' => 3, 'customer_name' => 'Customer 3', 'amount' => 5600, 'status' => 1],
+               ];
+               foreach ($invoiceSeeds as $seed) {
+                    try {
+                         $sql = "INSERT INTO orderandinvoice
+                              (order_id, order_number, invoice_number, customer_id, customer_name, amount, status, created_at)
+                              VALUES
+                              (:order_id, :order_number, :invoice_number, :customer_id, :customer_name, :amount, :status, datetime('now','localtime'))";
+                         $stmt = $pdo->prepare($sql);
+                         $stmt->execute($seed);
+                         echo "<p>Invoice {$seed['invoice_number']} is added to orderandinvoice table.";
+                    } catch (PDOException $e) {
+                         echo "<p>Error inserting into orderandinvoice: " . $e->getMessage();
+                    }
+               }
+
+               // Create tksg table（流水帳 / trackonesspending）
+               $tableName = "tksg";
+               $sql = "CREATE TABLE $tableName (
+                    prikey   INTEGER PRIMARY KEY AUTOINCREMENT, -- 主鍵
+                    item     TEXT, -- 項目
+                    value    NUMERIC, -- 金額
+                    quantity INTEGER, -- 數量
+                    date     TEXT, -- 日期（YYYY-MM-DD）
+                    time     TEXT, -- 時間（HH:MM）
+                    checkid  TEXT  -- 帳目編號（自由文字，非外鍵）
+               )";
+               createTable($pdo, $tableName, $sql);
+
+               $tksgSeeds = [
+                    ['item' => '文具採購', 'value' => 350, 'quantity' => 5, 'date' => '2024-02-01', 'time' => '09:30', 'checkid' => 'CHK-001'],
+                    ['item' => '運費',     'value' => 180, 'quantity' => 1, 'date' => '2024-02-03', 'time' => '14:10', 'checkid' => 'CHK-002'],
+                    ['item' => '茶水費',   'value' => 90,  'quantity' => 3, 'date' => '2024-02-05', 'time' => '16:45', 'checkid' => 'CHK-003'],
+               ];
+               foreach ($tksgSeeds as $seed) {
+                    try {
+                         $sql = "INSERT INTO tksg (item, value, quantity, date, time, checkid)
+                                 VALUES (:item, :value, :quantity, :date, :time, :checkid)";
+                         $stmt = $pdo->prepare($sql);
+                         $stmt->execute($seed);
+                         echo "<p>tksg row {$seed['checkid']} added.";
+                    } catch (PDOException $e) {
+                         echo "<p>Error inserting into tksg: " . $e->getMessage();
+                    }
+               }
+
+               // Create admin table（廠商與顧客；沿用 User 的欄位命名，但不是使用者表）
+               $tableName = "admin";
+               $sql = "CREATE TABLE $tableName (
+                    prikey    INTEGER PRIMARY KEY AUTOINCREMENT, -- 主鍵
+                    name      TEXT DEFAULT '', -- firmandcustomerList.php 以此排序（Add 卻只寫 fcname，既有矛盾）
+                    fc        TEXT, -- 廠商 / 客戶
+                    fcname    TEXT, -- 姓名
+                    fcaddress TEXT, -- 地址
+                    fcphone   TEXT, -- 電話
+                    fcphonem  TEXT, -- 行動電話
+                    fcemail   TEXT, -- 電子郵件
+                    fcid      TEXT, -- 編號（自由文字）
+                    enabled   INTEGER DEFAULT 1, -- 軟刪除旗標，List 以 enabled>0 過濾
+                    open      INTEGER DEFAULT 1, -- 保留
+                    status    INTEGER DEFAULT 1  -- 保留
+               )";
+               createTable($pdo, $tableName, $sql);
+
+               // 種子資料：name 一併填入，讓 firmandcustomerList.php 的 ORDER BY name 有東西可排。
+               // 以下皆為虛構資料，email 用 RFC 2606 保留網域。
+               $adminSeeds = [
+                    ['name' => '甲方採購', 'fc' => '廠商', 'fcname' => '甲方採購', 'fcaddress' => '台北市中正區範例路 1 號', 'fcphone' => '(02) 1234-0001', 'fcphonem' => '0900-000-001', 'fcemail' => 'vendor1@example.com', 'fcid' => 'V-001'],
+                    ['name' => '乙方物流', 'fc' => '廠商', 'fcname' => '乙方物流', 'fcaddress' => '新北市板橋區範例街 22 號', 'fcphone' => '(02) 1234-0002', 'fcphonem' => '0900-000-002', 'fcemail' => 'vendor2@example.com', 'fcid' => 'V-002'],
+                    ['name' => '丙方客戶', 'fc' => '客戶', 'fcname' => '丙方客戶', 'fcaddress' => '台中市西區範例大道 333 號', 'fcphone' => '(04) 1234-0003', 'fcphonem' => '0900-000-003', 'fcemail' => 'client1@example.com', 'fcid' => 'C-001'],
+               ];
+               foreach ($adminSeeds as $seed) {
+                    try {
+                         $sql = "INSERT INTO admin
+                              (name, fc, fcname, fcaddress, fcphone, fcphonem, fcemail, fcid, enabled, open, status)
+                              VALUES
+                              (:name, :fc, :fcname, :fcaddress, :fcphone, :fcphonem, :fcemail, :fcid, 1, 1, 1)";
+                         $stmt = $pdo->prepare($sql);
+                         $stmt->execute($seed);
+                         echo "<p>admin row {$seed['fcid']} added.";
+                    } catch (PDOException $e) {
+                         echo "<p>Error inserting into admin: " . $e->getMessage();
+                    }
+               }
+
+               echo "<p><strong>完成。可以用 Admin / 123456 登入。</strong>";
                ?>
           </div>
      </div>
