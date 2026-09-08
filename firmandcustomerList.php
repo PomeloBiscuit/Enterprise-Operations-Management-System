@@ -28,7 +28,7 @@
           
           try {
                // 這條查詢沒有任何變數內插，本身不可注入，維持 query() 即可。
-               $sql="select * from admin where enabled>0 order by name";
+               $sql="select * from admin where enabled>0 order by fcname";
                $result = $pdo->query($sql);
           } catch (PDOException $e) {
                $error="Error fetching fmcr: " . $e->getMessage();

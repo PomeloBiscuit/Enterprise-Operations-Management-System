@@ -177,14 +177,20 @@ check_injection() {
 }
 
 check_routes() {
-    local act status route failures=""
+    local act body status route failures=""
     local -a acts=(100 105 110 115 160 200 210 220 230 240 250 260 265 270 300 335 375 415)
     for act in "${acts[@]}"; do
         route="index.php?Act=$act"
-        status="$(curl -sS -o /dev/null -b "$COOKIE_JAR" -w '%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
-        [[ "$status" =~ ^[23][0-9]{2}$ ]] || failures+="$route:$status "
+        body="$(curl -sS -b "$COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
+        status="${body##*$'\n'}"
+        body="${body%$'\n'*}"
+        if [[ ! "$status" =~ ^[23][0-9]{2}$ ]]; then
+            failures+="$route:$status "
+        elif [[ "$body" == *"Fatal error"* || "$body" == *"Error fetching"* ]]; then
+            failures+="$route:PHP-error "
+        fi
     done
-    [[ -z "$failures" ]] || { CHECK_DETAIL="非 2xx/3xx：${failures% }"; return 1; }
+    [[ -z "$failures" ]] || { CHECK_DETAIL="路由失敗：${failures% }"; return 1; }
     CHECK_DETAIL="18 個指定 Act 皆為 2xx/3xx"
 }
 

@@ -5,7 +5,7 @@
                try {
                     // $EK 已過 intval()，本身不可注入，但一併改成參數綁定，全模組寫法一致。
                     $sql="select * from admin where prikey = :prikey and
-                    enabled>0 order by name";
+                    enabled>0 order by fcname";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([':prikey' => $EK]);
                     $result = $stmt;
