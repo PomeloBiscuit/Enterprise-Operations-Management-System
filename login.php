@@ -143,17 +143,19 @@ body {
     $admpw = $_POST['admpw']; // 取得密碼
 
     try {
-        $query = "SELECT * FROM User WHERE id = :admid AND pw = MD5(:admpw) AND enabled > 0"; // 查詢使用者
+        // password_verify() 不能寫在 SQL 的 WHERE 裡：
+        // 先把該帳號的雜湊撈出來，再在 PHP 端比對。
+        $query = "SELECT * FROM User WHERE id = :admid AND enabled > 0"; // 查詢使用者
         $stmt = $pdo->prepare($query); // 準備 SQL
-        $stmt->execute(['admid' => $admid, 'admpw' => $admpw]); // 執行 SQL
+        $stmt->execute(['admid' => $admid]); // 執行 SQL
+        $user = $stmt->fetch(); // 取得使用者資料
 
-        if ($stmt->rowCount() > 0) { // 若有查詢結果
-            $user = $stmt->fetch(); // 取得使用者資料
-            $_SESSION["admprikey"] = $user["prikey"]; // 設定 prikey 
+        if ($user && password_verify($admpw, $user["pw"])) { // 帳號存在且密碼正確
+            $_SESSION["admprikey"] = $user["prikey"]; // 設定 prikey
             $_SESSION["admid"] = $user["id"];    // 設定 id
             $_SESSION["admemail"] = $user["email"]; // 設定 email
             $_SESSION["admlogin"] = $user["name"];  // 設定 name
-            $_SESSION["admclass"] = $user["class"]; // 設定 class
+            $_SESSION["admclass"] = $user["class"] ?? null; // 設定 class（User 表無此欄，用 null 合併避免 PHP 8 未定義索引警告）
             $_SESSION["admlimit"] = $user["limited"];   // 設定 limited
 
             if ($user["limited"] > 0) { // 權限大於 0

@@ -36,14 +36,14 @@ if ($_SESSION["admlimit"] > 0) {
             try {
                 $stmt = $pdo->prepare("
                     INSERT INTO User (datechg, dateadd, name, id, pw, phone, phonem, email, enabled, open, status, limited)
-                    VALUES (NOW(), NOW(), :name, :id, MD5(:pw), :phone, :phonem, :email, 1, 1, 1, 0)
+                    VALUES (datetime('now','localtime'), datetime('now','localtime'), :name, :id, :pw, :phone, :phonem, :email, 1, 1, 1, 0)
                 ");
                 $phone = "({$_POST['phone_area']}) {$_POST['phone_main']}";
                 $phonem = "09{$_POST['phonem1']}-{$_POST['phonem2']}-{$_POST['phonem3']}";
                 $stmt->execute([
                     ':name' => $_POST['name'],
                     ':id' => $_POST['id'],
-                    ':pw' => $_POST['pwa'],
+                    ':pw' => password_hash($_POST['pwa'], PASSWORD_DEFAULT),
                     ':phone' => $phone,
                     ':phonem' => $phonem,
                     ':email' => $_POST['email']
@@ -68,7 +68,9 @@ if ($_SESSION["admlimit"] > 0) {
                     <td>UserID</td>
                     <td>";
                     try {
-                        $stmt = $pdo->query("SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 'Fiance2024' AND TABLE_NAME = 'User'");
+                        // SQLite 沒有 information_schema。等價作法：讀 sqlite_sequence 的 seq + 1；
+                        // 表還沒插過資料時 sqlite_sequence 無該列，用 COALESCE 補 0 → 顯示 1。
+                        $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'User'), 0) + 1 AS AUTO_INCREMENT");
                         $row = $stmt->fetch();
                         $nextUserID = $row['AUTO_INCREMENT'];
                         echo "<input type='text' class='form-control' value='$nextUserID' disabled>";
