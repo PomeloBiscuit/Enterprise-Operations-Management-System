@@ -3,9 +3,12 @@
           $EK = intval($_GET['EK']);
           if (empty($_POST['btadd'])) {
                try {
-                    $sql="select * from admin where prikey='{$EK}' and
+                    // $EK 已過 intval()，本身不可注入，但一併改成參數綁定，全模組寫法一致。
+                    $sql="select * from admin where prikey = :prikey and
                     enabled>0 order by name";
-                    $result = $pdo->query($sql);
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([':prikey' => $EK]);
+                    $result = $stmt;
                } catch (PDOException $e) {
                     $error="Error fetching admin: " . $e->getMessage();
                     echo $error;
@@ -67,17 +70,28 @@
 
      } else {
           try {
+               // fc* 欄位走參數綁定修補注入；prikey 亦綁定（已過 intval()），寫法一致。
                $aa="update admin set
-                    fc='{$_POST['fc']}',
-                    fcname='{$_POST['fcname']}',
-                    fcaddress='{$_POST['fcaddress']}',
-                    fcphone='{$_POST['fcphone']}',
-                    fcphonem='{$_POST['fcphonem']}',
-                    fcemail='{$_POST['fcemail']}',
-                    fcid='{$_POST['fcid']}'
-                    where prikey='{$EK}'
+                    fc        = :fc,
+                    fcname    = :fcname,
+                    fcaddress = :fcaddress,
+                    fcphone   = :fcphone,
+                    fcphonem  = :fcphonem,
+                    fcemail   = :fcemail,
+                    fcid      = :fcid
+                    where prikey = :prikey
                     ";
-               $pdo->exec($aa);
+               $stmt = $pdo->prepare($aa);
+               $stmt->execute([
+                    ':fc'        => $_POST['fc'],
+                    ':fcname'    => $_POST['fcname'],
+                    ':fcaddress' => $_POST['fcaddress'],
+                    ':fcphone'   => $_POST['fcphone'],
+                    ':fcphonem'  => $_POST['fcphonem'],
+                    ':fcemail'   => $_POST['fcemail'],
+                    ':fcid'      => $_POST['fcid'],
+                    ':prikey'    => $EK,
+               ]);
           } catch (PDOException $e) {
                $output="Error insert $tableName : " . $e->getMessage();
                echo "<p>$output";

@@ -48,20 +48,26 @@
 
      } else {
           try {
-               $aa="insert into admin set
-                    fc='{$_POST['fc']}',
-                    fcname='{$_POST['fcname']}',
-                    fcaddress='{$_POST['fcaddress']}',
-                    fcphone='{$_POST['fcphone']}',
-                    fcphonem='{$_POST['fcphonem']}',
-                    fcemail='{$_POST['fcemail']}',
-                    fcid='{$_POST['fcid']}',
-                    enabled=1,
-                    open=1,
-                    status=1
-                    ";
-               $pdo->exec($aa);
-          } catch (fcPDOException $e) {
+               // 參數綁定：fc* 欄位一律走 prepared statement（修補 SQL injection）。
+               // enabled / open / status 是常數，不是使用者輸入，直接寫成字面值 1，
+               // 與舊版「insert ... set enabled=1, open=1, status=1」行為一致，
+               // 也確保列表頁 where enabled>0 一定篩得到（admin 表另有 DEFAULT 1 作後盾）。
+               // 同時把舊版 MySQL 專屬的 INSERT ... SET 改成 SQLite 相容的 (欄位) VALUES (...)。
+               $aa = "insert into admin
+                    (fc, fcname, fcaddress, fcphone, fcphonem, fcemail, fcid, enabled, open, status)
+                    values
+                    (:fc, :fcname, :fcaddress, :fcphone, :fcphonem, :fcemail, :fcid, 1, 1, 1)";
+               $stmt = $pdo->prepare($aa);
+               $stmt->execute([
+                    ':fc'        => $_POST['fc'],
+                    ':fcname'    => $_POST['fcname'],
+                    ':fcaddress' => $_POST['fcaddress'],
+                    ':fcphone'   => $_POST['fcphone'],
+                    ':fcphonem'  => $_POST['fcphonem'],
+                    ':fcemail'   => $_POST['fcemail'],
+                    ':fcid'      => $_POST['fcid'],
+               ]);
+          } catch (PDOException $e) {
                $output="Error insert $tableName : " . $e->getMessage();
                echo "<p>$output";
                //exit();

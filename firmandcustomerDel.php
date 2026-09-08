@@ -4,9 +4,10 @@
           try {
                $aa="update admin set
                enabled=0
-               where prikey='{$EK}'
+               where prikey = :prikey
                ";
-               $pdo->exec($aa);
+               $stmt = $pdo->prepare($aa);
+               $stmt->execute([':prikey' => $EK]);
           } catch (PDOException $e) {
           $output="Error insert $tableName : " . $e->getMessage();
           echo "<p>$output";
