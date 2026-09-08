@@ -131,6 +131,18 @@ if (!isset($_SESSION['admid'])) {
             case 160: // 註冊
                 include("register.php");
                 break;
+            case 200:   // 廠商/客戶列表
+                include("firmandcustomerList.php");
+                break;
+            case 210:   // 廠商/客戶新增
+                include("firmandcustomerAdd.php");
+                break;
+            case 220:   // 廠商/客戶刪除（軟刪除 enabled=0）
+                include("firmandcustomerDel.php");
+                break;
+            case 230:   // 廠商/客戶編輯
+                include("firmandcustomerEdit.php");
+                break;
             case "240": // 訂單/發票列表
                 include("orderandinvoiceList.php");
                 break;

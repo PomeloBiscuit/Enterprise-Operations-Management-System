@@ -1,6 +1,7 @@
 <?php
-     // 這個頁面沒有被 index.php 的路由收錄，只能被直接開啟；
-     // 補上 bootstrap 讓它拿得到 $pdo 與 $_SESSION（不動任何 SQL，SQL injection 仍歸 WO-02）。
+     // WO-02 起這個模組已收錄進 index.php 路由（Act=200/210/220/230）。
+     // 保留這行 require_once 讓本檔「被直接開啟」時仍拿得到 $pdo 與 $_SESSION；
+     // 經由 index.php include 時 require_once 會是 no-op。
      require_once __DIR__ . '/config.inc.php';
 
      if ($_SESSION["admlimit"]>0) {
@@ -26,9 +27,10 @@
 
           
           try {
+               // 這條查詢沒有任何變數內插，本身不可注入，維持 query() 即可。
                $sql="select * from admin where enabled>0 order by name";
                $result = $pdo->query($sql);
-          } catch (fcPDOException $e) {
+          } catch (PDOException $e) {
                $error="Error fetching fmcr: " . $e->getMessage();
                echo $error;
           }
