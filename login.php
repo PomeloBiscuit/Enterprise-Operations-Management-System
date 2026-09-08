@@ -22,7 +22,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url('./images/bg.jpg') no-repeat center center;
+    /* 原背景圖因版權疑慮已移入 _quarantine/images/，
+       暫以純 CSS 漸層頂替（刻意不找替代圖）。待補：自行產製的背景圖。 */
+    background: linear-gradient(135deg, #1f3a5f 0%, #486995 55%, #7fa3c4 100%) no-repeat center center;
     background-size: cover; /* 確保背景填滿螢幕 */
 }
 .wrapper-container {

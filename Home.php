@@ -45,7 +45,8 @@ if ($_SESSION["admlimit"] > 0) {
             position: relative;
         }
 
-        .hero-section img {
+        .hero-section img,
+        .hero-section .img-ph {
             position: absolute;
             top: 0;
             left: 0;
@@ -99,7 +100,8 @@ if ($_SESSION["admlimit"] > 0) {
             border: 1px solid #e0e0e0; /* 純白平面效果 */
         }
 
-        .service-item img {
+        .service-item img,
+        .service-item .img-ph {
             width: 240px;
             height: 240px;
             margin-bottom: 20px;
@@ -115,10 +117,37 @@ if ($_SESSION["admlimit"] > 0) {
             gap: 20px;
         }
 
-        .about img, .contact img {
+        .about img, .contact img,
+        .about .img-ph, .contact .img-ph {
             width: 150px;
             height: 150px;
             border: 1px solid #e0e0e0;
+        }
+
+        /* 圖片佔位框：原圖因版權疑慮已移入 _quarantine/，等待自行產製的替代圖。
+           刻意做成明顯的虛線空框，避免佔位被誤認為完成品。
+
+           1440x900 實測（HTTP，非 file://）：hero 1425x375、service-item 240x240、
+           about/contact 150x150，文字不溢出，頁面無水平捲動。
+           2. 選擇器要蓋過 .about img/.contact img 的 (0,2,0)，故此處也寫成兩層；
+              只用 .img-ph (0,1,0) 會被覆蓋成 1px solid，實測過。
+           3. flex-shrink:0 是必要的：.about/.contact 是 flex 容器，不寫的話這個框
+              會被旁邊的 <p> 壓到 73px（實測值）。註：原本的 <img> 也有同樣的壓縮
+              問題（宣告 150px、實測 60px），那是既有行為，本次不動。 */
+        .img-ph,
+        .about .img-ph, .contact .img-ph {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            padding: 8px;
+            border: 2px dashed #b0bcc9;
+            background-color: #f4f6f8;
+            color: #6b7a8c;
+            font-size: 0.95em;
+            line-height: 1.4;
+            text-align: center;
         }
 
         .about p, .contact p {
@@ -145,7 +174,7 @@ if ($_SESSION["admlimit"] > 0) {
         <p>這是您的首頁。</p>
     </div>
     <section class="hero-section">
-        <img src="images/chairs-2181980.jpg" alt="背景圖片">
+        <div class="img-ph" role="img" aria-label="待補：首頁主視覺背景圖">＜待補圖：首頁主視覺背景＞</div>
         <div class="hero-content">
             <h1>歡迎來到企業作業管理系統</h1>
             <p>我們提供最先進的作業管理解決方案，助力企業效率提升。</p>
@@ -156,15 +185,15 @@ if ($_SESSION["admlimit"] > 0) {
         <h2>系統功能</h2>
         <div class="services-container">
             <div class="service-item">
-                <img src="images/function1.png" alt="功能1">
+                <div class="img-ph" role="img" aria-label="待補：功能1 示意圖">＜待補圖：功能1＞</div>
                 <p>功能1：即時作業報表，讓您隨時掌握企業作業狀況。</p>
             </div>
             <div class="service-item">
-                <img src="images/function2.png" alt="功能2">
+                <div class="img-ph" role="img" aria-label="待補：功能2 示意圖">＜待補圖：功能2＞</div>
                 <p>功能2：自動化訂單與發票管理，減少人為錯誤。</p>
             </div>
             <div class="service-item">
-                <img src="images/function3.png" alt="功能3">
+                <div class="img-ph" role="img" aria-label="待補：功能3 示意圖">＜待補圖：功能3＞</div>
                 <p>功能3：員工與顧客資料管理，提升內部管理效率。</p>
             </div>
         </div>
@@ -173,7 +202,7 @@ if ($_SESSION["admlimit"] > 0) {
     <section class="section">
         <h2>關於我們</h2>
         <div class="about">
-            <img src="images/about_us.png" alt="關於我們">
+            <div class="img-ph" role="img" aria-label="待補：關於我們 示意圖">＜待補圖：關於我們＞</div>
             <p>我們是一家專注於提供企業作業管理解決方案的公司，幫助企業提升效率與效益。我們的系統功能強大、操作簡便，深受客戶信賴。
                 而其使命是簡化您的日常營運，讓您能將更多精力投入到業務的核心發展上。從訂單處理到資料分析，為您打造高效、智慧的管理體驗，
                 致力於為每位客戶提供量身訂製的解決方案!
@@ -184,7 +213,7 @@ if ($_SESSION["admlimit"] > 0) {
     <section class="section">
         <h2>聯絡我們</h2>
         <div class="contact">
-            <img src="images/contact_us.png" alt="聯絡我們">
+            <div class="img-ph" role="img" aria-label="待補：聯絡我們 示意圖">＜待補圖：聯絡我們＞</div>
             <p>如果您有任何問題或需要進一步了解我們的系統，請隨時聯絡我們。您可以通過電子郵件或電話與我們聯繫，我們的團隊將竭誠為您服務!</p>
         </div>
     </section>
