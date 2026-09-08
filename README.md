@@ -57,6 +57,19 @@ The container auto-runs `create.php` on first start, so the app comes up with se
 - App:      http://localhost:8080/login.php   — sign in as **`Admin`** / **`123456`**
 - Rebuild the database at any time: open http://localhost:8080/create.php
 
+### Smoke test
+
+容器啟動後，在容器內執行第一道可重跑的驗證關卡：
+
+```bash
+docker compose exec web bash scripts/smoke.sh
+```
+
+它會驗證 SQLite schema／種子資料／外鍵級聯、時區、登入、bcrypt 雜湊、
+prepared statement 的 injection 探針、指定 `Act` 路由與直接開檔的支出追蹤頁、
+Apache PHP 錯誤輸出與 Git 已追蹤檔衛生。測試中的刪除與清空都在 SQLite transaction
+內 rollback；injection 測試暫時新增的資料會在結束時移除。任一項失敗會以非 0 結束碼。
+
 ### Running without Docker
 
 You need PHP 8 with the `pdo_sqlite` extension (bundled by default):
