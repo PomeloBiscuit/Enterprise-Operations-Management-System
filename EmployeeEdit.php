@@ -1,5 +1,10 @@
 <?php
 require_once("config.inc.php"); // 引入資料庫設定
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 判斷是否為 POST 方法
     try {

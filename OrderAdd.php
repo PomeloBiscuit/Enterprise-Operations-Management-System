@@ -1,5 +1,10 @@
 <?php // OrderAdd.php
 require_once("config.inc.php"); // 引入資料庫設定檔
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 
 function generateTrackingNumber() { // 產生追蹤號碼
     return 'TN' . str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT); // 產生 6 位數的追蹤號碼

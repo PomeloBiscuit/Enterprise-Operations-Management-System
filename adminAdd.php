@@ -1,6 +1,10 @@
 <?php
 ob_start(); // 新增：啟動緩衝區
 require_once __DIR__ . '/auth.inc.php';
+if (!can_manage_users()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 
 $areaCodes = [
     '臺北' => '02',

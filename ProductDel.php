@@ -1,4 +1,10 @@
 <?php
+require_once __DIR__ . '/auth.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
+
 if (isset($_GET['id'])) {
     try {
         $stmt = $pdo->prepare("DELETE FROM Product WHERE ProductID = :id");

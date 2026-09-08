@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/auth.inc.php';
+if (!can_manage_users()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 if (can_manage_users()) {
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';

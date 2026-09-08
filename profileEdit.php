@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/config.inc.php';
 require_once __DIR__ . '/auth.inc.php';
+if (!can_access_self()) {
+    echo "<p align='center'>權限不足!</p>";
+    exit;
+}
 if (can_access_self()) {
     $admid = $_SESSION['admid'];
     $areaCodes = [
