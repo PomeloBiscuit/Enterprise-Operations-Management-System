@@ -161,6 +161,28 @@ check_invoice_snapshots() {
     CHECK_DETAIL="所有發票均有 order/customer 外鍵與非空快照"
 }
 
+check_order_totals() {
+    # 需要已登入的 $COOKIE_JAR（由檢查 7a 建立）才能開 OrderList。
+    local oid orphan expected wrong shown
+    # 每張訂單都至少要有一筆明細（遷移不能做一半）
+    orphan="$(db_scalar "SELECT count(*) FROM Orders WHERE OrderID NOT IN (SELECT OrderID FROM Contain)")" || return 1
+    [[ "$orphan" == "0" ]] || { CHECK_DETAIL="有 $orphan 張訂單沒有任何 Contain 明細"; return 1; }
+    # 找一張品項數 >= 2 的訂單（種子資料必須涵蓋多品項情境）
+    oid="$(db_scalar "SELECT OrderID FROM Contain GROUP BY OrderID HAVING count(*) >= 2 ORDER BY OrderID LIMIT 1")" || { CHECK_DETAIL="找不到品項數>=2 的訂單，種子資料未涵蓋多品項情境"; return 1; }
+    # 正確算式 SUM(數量 × 單價) 與「漏乘數量」的錯誤算式
+    expected="$(db_scalar "SELECT CAST(SUM(c.Quantity * p.UnitPrice) AS INT) FROM Contain c JOIN Product p ON p.ProductID = c.ProductID WHERE c.OrderID = $oid")" || return 1
+    wrong="$(db_scalar "SELECT CAST(SUM(p.UnitPrice) AS INT) FROM Contain c JOIN Product p ON p.ProductID = c.ProductID WHERE c.OrderID = $oid")" || return 1
+    # 這張訂單的數量若全為 1，兩個算式會相同，探針就沒有鑑別力
+    [[ "$expected" != "$wrong" ]] || { CHECK_DETAIL="訂單 $oid 的數量全為 1，無法辨別漏乘數量的錯誤（expected=wrong=$expected）"; return 1; }
+    # OrderList.php 走 HTTP 實際渲染出的金額（讀 <tr data-order-total>）
+    curl -sS -b "$COOKIE_JAR" -o "$TMP_DIR/order-list-$oid.html" \
+        "$BASE_URL/index.php?Act=430&searchColumn=OrderID&searchValue=$oid&resultsPerPage=50" || { CHECK_DETAIL="OrderList curl 失敗"; return 1; }
+    shown="$(sed -nE "s/.*data-order-id='$oid' data-order-total='([0-9]+)'.*/\1/p" "$TMP_DIR/order-list-$oid.html" | head -1)"
+    [[ -n "$shown" ]] || { CHECK_DETAIL="OrderList 未輸出訂單 $oid 的 data-order-total"; return 1; }
+    [[ "$shown" == "$expected" ]] || { CHECK_DETAIL="訂單 $oid：畫面金額=$shown，SUM(數量×單價)=$expected（漏乘數量會得 $wrong）"; return 1; }
+    CHECK_DETAIL="訂單 $oid：畫面金額=$shown = SUM(數量×單價)；漏乘數量會得 $wrong，可辨別"
+}
+
 check_login_success() {
     local body status
     status="$(curl -sS -L -c "$COOKIE_JAR" -b "$COOKIE_JAR" -o "$TMP_DIR/login-ok.html" -w '%{http_code}' \
@@ -424,6 +446,7 @@ for check in \
     'DIRECT-ACCESS check_direct_file_access' \
     'EXTERNAL-DIRECT-ACCESS check_external_direct_business_access' \
     '10 check_injection' \
+    'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \
     '11 check_error_log' \
     '12 check_git_hygiene'; do
