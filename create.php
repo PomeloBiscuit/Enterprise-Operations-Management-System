@@ -423,36 +423,6 @@
                     }
                }
 
-               // Create tksg table（流水帳 / trackonesspending）
-               $tableName = "tksg";
-               $sql = "CREATE TABLE $tableName (
-                    prikey   INTEGER PRIMARY KEY AUTOINCREMENT, -- 主鍵
-                    item     TEXT, -- 項目
-                    value    NUMERIC, -- 金額
-                    quantity INTEGER, -- 數量
-                    date     TEXT, -- 日期（YYYY-MM-DD）
-                    time     TEXT, -- 時間（HH:MM）
-                    checkid  TEXT  -- 帳目編號（自由文字，非外鍵）
-               )";
-               createTable($pdo, $tableName, $sql);
-
-               $tksgSeeds = [
-                    ['item' => '文具採購', 'value' => 350, 'quantity' => 5, 'date' => '2024-02-01', 'time' => '09:30', 'checkid' => 'CHK-001'],
-                    ['item' => '運費',     'value' => 180, 'quantity' => 1, 'date' => '2024-02-03', 'time' => '14:10', 'checkid' => 'CHK-002'],
-                    ['item' => '茶水費',   'value' => 90,  'quantity' => 3, 'date' => '2024-02-05', 'time' => '16:45', 'checkid' => 'CHK-003'],
-               ];
-               foreach ($tksgSeeds as $seed) {
-                    try {
-                         $sql = "INSERT INTO tksg (item, value, quantity, date, time, checkid)
-                                 VALUES (:item, :value, :quantity, :date, :time, :checkid)";
-                         $stmt = $pdo->prepare($sql);
-                         $stmt->execute($seed);
-                         echo "<p>tksg row {$seed['checkid']} added.";
-                    } catch (PDOException $e) {
-                         echo "<p>Error inserting into tksg: " . $e->getMessage();
-                    }
-               }
-
                // Create admin table（廠商與顧客；沿用 User 的欄位命名，但不是使用者表）
                $tableName = "admin";
                $sql = "CREATE TABLE $tableName (

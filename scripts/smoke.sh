@@ -53,14 +53,14 @@ db_scalar() {
 check_tables() {
     local count
     count="$(db_scalar "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")" || return 1
-    [[ "$count" == "9" ]] || { CHECK_DETAIL="資料表數=$count，預期 9"; return 1; }
-    CHECK_DETAIL="資料表數=9"
+    [[ "$count" == "8" ]] || { CHECK_DETAIL="資料表數=$count，預期 8"; return 1; }
+    CHECK_DETAIL="資料表數=8"
 }
 
 check_seed_counts() {
     local table count details=""
-    declare -A expected=([User]=11 [Employee]=10 [Product]=10 [Customer]=10 [Orders]=10 [Shipment]=10 [orderandinvoice]=3 [tksg]=3 [admin]=3)
-    for table in User Employee Product Customer Orders Shipment orderandinvoice tksg admin; do
+    declare -A expected=([User]=11 [Employee]=10 [Product]=10 [Customer]=10 [Orders]=10 [Shipment]=10 [orderandinvoice]=3 [admin]=3)
+    for table in User Employee Product Customer Orders Shipment orderandinvoice admin; do
         count="$(db_scalar "SELECT count(*) FROM \"$table\"")" || return 1
         details+="$table=$count "
         [[ "$count" == "${expected[$table]}" ]] || { CHECK_DETAIL="種子筆數不符：${details% }（$table 預期 ${expected[$table]}）"; return 1; }
@@ -117,14 +117,14 @@ check_empty_sequence() {
     value="$(php -r '
         require "/var/www/html/config.inc.php";
         $pdo->beginTransaction();
-        $pdo->exec("DELETE FROM tksg");
-        $pdo->exec("DELETE FROM sqlite_sequence WHERE name = \"tksg\"");
-        $value = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = \"tksg\"), 0) + 1")->fetchColumn();
+        $pdo->exec("DELETE FROM orderandinvoice");
+        $pdo->exec("DELETE FROM sqlite_sequence WHERE name = \"orderandinvoice\"");
+        $value = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = \"orderandinvoice\"), 0) + 1")->fetchColumn();
         $pdo->rollBack();
         echo $value;
     ')" || return 1
-    [[ "$value" == "1" ]] || { CHECK_DETAIL="清空 tksg 的下一號=$value，預期 1"; return 1; }
-    CHECK_DETAIL="清空 tksg 的下一號=1（交易已 rollback）"
+    [[ "$value" == "1" ]] || { CHECK_DETAIL="清空 orderandinvoice 的下一號=$value，預期 1"; return 1; }
+    CHECK_DETAIL="清空 orderandinvoice 的下一號=1（交易已 rollback）"
 }
 
 check_login_success() {
@@ -179,18 +179,13 @@ check_injection() {
 check_routes() {
     local act status route failures=""
     local -a acts=(100 105 110 115 160 200 210 220 230 240 250 260 265 270 300 335 375 415)
-    local -a direct=(trackonesspendingAdd.php trackonesspendingDel.php 'trackonesspendingEdit.php?id=1' trackonesspendingList.php)
     for act in "${acts[@]}"; do
         route="index.php?Act=$act"
         status="$(curl -sS -o /dev/null -b "$COOKIE_JAR" -w '%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
         [[ "$status" =~ ^[23][0-9]{2}$ ]] || failures+="$route:$status "
     done
-    for route in "${direct[@]}"; do
-        status="$(curl -sS -o /dev/null -b "$COOKIE_JAR" -w '%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
-        [[ "$status" =~ ^[23][0-9]{2}$ ]] || failures+="$route:$status "
-    done
     [[ -z "$failures" ]] || { CHECK_DETAIL="非 2xx/3xx：${failures% }"; return 1; }
-    CHECK_DETAIL="18 個指定 Act + 4 個直接支出追蹤頁皆為 2xx/3xx"
+    CHECK_DETAIL="18 個指定 Act 皆為 2xx/3xx"
 }
 
 check_error_log() {
