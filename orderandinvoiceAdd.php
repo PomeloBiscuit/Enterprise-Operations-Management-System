@@ -2,20 +2,39 @@
 if ($_SESSION["admlimit"] > 0) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
+            // 快照一律由外鍵指向的現行資料取得，不接受瀏覽器送來的名稱或編號。
+            $snapshotStmt = $pdo->prepare("
+                SELECT o.OrderID AS order_number, c.CustomerName AS customer_name
+                FROM Orders o CROSS JOIN Customer c
+                WHERE o.OrderID = :order_id AND c.CustomerID = :customer_id
+            ");
+            $snapshotStmt->execute([
+                ':order_id' => (int) $_POST['order_id'],
+                ':customer_id' => (int) $_POST['customer_id'],
+            ]);
+            $snapshot = $snapshotStmt->fetch(PDO::FETCH_ASSOC);
+            if ($snapshot === false) {
+                throw new RuntimeException('所選訂單或客戶不存在。');
+            }
+
             $stmt = $pdo->prepare("
-                INSERT INTO orderandinvoice (order_id, invoice_number, customer_id, amount, status, created_at)
-                VALUES (:order_id, :invoice_number, :customer_id, :amount, :status, datetime('now','localtime'))
+                INSERT INTO orderandinvoice
+                    (order_id, order_number, invoice_number, customer_id, customer_name, amount, status, created_at)
+                VALUES
+                    (:order_id, :order_number, :invoice_number, :customer_id, :customer_name, :amount, :status, datetime('now','localtime'))
             ");
             $stmt->execute([
-                ':order_id' => $_POST['order_id'],
+                ':order_id' => (int) $_POST['order_id'],
+                ':order_number' => $snapshot['order_number'],
                 ':invoice_number' => $_POST['invoice_number'],
-                ':customer_id' => $_POST['customer_id'],
+                ':customer_id' => (int) $_POST['customer_id'],
+                ':customer_name' => $snapshot['customer_name'],
                 ':amount' => $_POST['amount'],
                 ':status' => $_POST['status']
             ]);
             header("Location: index.php?Act=240");
             exit();
-        } catch (PDOException $e) {
+        } catch (Throwable $e) {
             echo "<p>新增失敗：" . htmlspecialchars($e->getMessage()) . "</p>";
         }
     }

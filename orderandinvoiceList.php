@@ -7,6 +7,13 @@ if ($_SESSION["admlimit"] > 0) {
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 10);
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
     $offset = ($page - 1) * $resultsPerPage;
+    $searchFields = [
+        'order_id' => 'oi.order_id',
+        'order_number' => 'oi.order_number',
+        'invoice_number' => 'oi.invoice_number',
+        'customer_name' => 'oi.customer_name',
+        'amount' => 'oi.amount',
+    ];
 
     echo "
     <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
@@ -30,7 +37,9 @@ if ($_SESSION["admlimit"] > 0) {
                 <option value=''>選擇搜尋條件</option>
                 <option value='all' " . ($searchColumn === 'all' ? 'selected' : '') . ">全部</option>
                 <option value='order_id' " . ($searchColumn === 'order_id' ? 'selected' : '') . ">訂單號碼</option>
+                <option value='order_number' " . ($searchColumn === 'order_number' ? 'selected' : '') . ">訂單編號快照</option>
                 <option value='invoice_number' " . ($searchColumn === 'invoice_number' ? 'selected' : '') . ">發票號碼</option>
+                <option value='customer_name' " . ($searchColumn === 'customer_name' ? 'selected' : '') . ">客戶名稱快照</option>
                 <option value='amount' " . ($searchColumn === 'amount' ? 'selected' : '') . ">金額</option>
                 <option value='status' " . ($searchColumn === 'status' ? 'selected' : '') . ">狀態</option>
             </select>
@@ -59,16 +68,18 @@ if ($_SESSION["admlimit"] > 0) {
 
     try {
         // 設定查詢條件
-        $query = "SELECT oi.*, o.OrderID AS order_id 
+        $query = "SELECT oi.*, o.OrderID AS linked_order_id
                   FROM orderandinvoice oi
-                  JOIN Orders o ON oi.order_number = o.OrderID";
+                  JOIN Orders o ON oi.order_id = o.OrderID";
         if ($searchColumn && $searchValue) {
             if ($searchColumn === 'all') {
-                $query .= " WHERE (o.OrderID LIKE :searchValue OR oi.invoice_number LIKE :searchValue)";
+                $query .= " WHERE (oi.order_id LIKE :searchValue OR oi.order_number LIKE :searchValue OR oi.invoice_number LIKE :searchValue OR oi.customer_name LIKE :searchValue OR oi.amount LIKE :searchValue)";
             } elseif ($searchColumn === 'status') {
                 $query .= " WHERE oi.status = :searchValue";
+            } elseif (isset($searchFields[$searchColumn])) {
+                $query .= " WHERE " . $searchFields[$searchColumn] . " LIKE :searchValue";
             } else {
-                $query .= " WHERE $searchColumn LIKE :searchValue";
+                $query .= " WHERE 1=0";
             }
         } elseif ($searchColumn && !$searchValue && $searchColumn !== 'all') {
             $query .= " WHERE 1=0"; // 當選擇搜尋條件但未輸入搜尋內容時，強制查無資料
@@ -94,7 +105,7 @@ if ($_SESSION["admlimit"] > 0) {
                 <tr>
                     <td style='text-align: center;'><input type='checkbox' name='selectedOrders[]' value='{$row['id']}'></td>
                     <td style='text-align: center;'>{$row['id']}</td>
-                    <td style='text-align: center;'>{$row['order_id']}</td>
+                    <td style='text-align: center;'>{$row['linked_order_id']}</td>
                     <td style='text-align: center;'>{$row['invoice_number']}</td>
                     <td style='text-align: center;'>{$row['amount']}</td>
                     <td style='text-align: center;'>" . ($row['status'] ? '完成' : '未完成') . "</td>
