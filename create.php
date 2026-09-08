@@ -382,9 +382,8 @@
                 * 欄位是從既有 SQL（Add / Edit / List / Del）反推出來的聯集。
                 * ---------------------------------------------------------
                 * 已知的既有矛盾（本工單刻意不修，留給使用者決定統一成哪一組）：
-                *  1) orderandinvoice：Add 寫 order_id / customer_id / created_at，
-                *     Edit 寫 order_number / customer_name；List 的 JOIN 用 order_number。
-                *  2) admin：List 用 ORDER BY name，Add 卻只寫 fcname，沒寫 name。
+                * orderandinvoice：Add 寫 order_id / customer_id / created_at，
+                * Edit 寫 order_number / customer_name；List 的 JOIN 用 order_number。
                 * ========================================================= */
 
                // Create orderandinvoice table（訂單與發票）
@@ -427,7 +426,6 @@
                $tableName = "admin";
                $sql = "CREATE TABLE $tableName (
                     prikey    INTEGER PRIMARY KEY AUTOINCREMENT, -- 主鍵
-                    name      TEXT DEFAULT '', -- firmandcustomerList.php 以此排序（Add 卻只寫 fcname，既有矛盾）
                     fc        TEXT, -- 廠商 / 客戶
                     fcname    TEXT, -- 姓名
                     fcaddress TEXT, -- 地址
@@ -441,19 +439,18 @@
                )";
                createTable($pdo, $tableName, $sql);
 
-               // 種子資料：name 一併填入，讓 firmandcustomerList.php 的 ORDER BY name 有東西可排。
                // 以下皆為虛構資料，email 用 RFC 2606 保留網域。
                $adminSeeds = [
-                    ['name' => '甲方採購', 'fc' => '廠商', 'fcname' => '甲方採購', 'fcaddress' => '台北市中正區範例路 1 號', 'fcphone' => '(02) 1234-0001', 'fcphonem' => '0900-000-001', 'fcemail' => 'vendor1@example.com', 'fcid' => 'V-001'],
-                    ['name' => '乙方物流', 'fc' => '廠商', 'fcname' => '乙方物流', 'fcaddress' => '新北市板橋區範例街 22 號', 'fcphone' => '(02) 1234-0002', 'fcphonem' => '0900-000-002', 'fcemail' => 'vendor2@example.com', 'fcid' => 'V-002'],
-                    ['name' => '丙方客戶', 'fc' => '客戶', 'fcname' => '丙方客戶', 'fcaddress' => '台中市西區範例大道 333 號', 'fcphone' => '(04) 1234-0003', 'fcphonem' => '0900-000-003', 'fcemail' => 'client1@example.com', 'fcid' => 'C-001'],
+                    ['fc' => '廠商', 'fcname' => '甲方採購', 'fcaddress' => '台北市中正區範例路 1 號', 'fcphone' => '(02) 1234-0001', 'fcphonem' => '0900-000-001', 'fcemail' => 'vendor1@example.com', 'fcid' => 'V-001'],
+                    ['fc' => '廠商', 'fcname' => '乙方物流', 'fcaddress' => '新北市板橋區範例街 22 號', 'fcphone' => '(02) 1234-0002', 'fcphonem' => '0900-000-002', 'fcemail' => 'vendor2@example.com', 'fcid' => 'V-002'],
+                    ['fc' => '客戶', 'fcname' => '丙方客戶', 'fcaddress' => '台中市西區範例大道 333 號', 'fcphone' => '(04) 1234-0003', 'fcphonem' => '0900-000-003', 'fcemail' => 'client1@example.com', 'fcid' => 'C-001'],
                ];
                foreach ($adminSeeds as $seed) {
                     try {
                          $sql = "INSERT INTO admin
-                              (name, fc, fcname, fcaddress, fcphone, fcphonem, fcemail, fcid, enabled, open, status)
+                              (fc, fcname, fcaddress, fcphone, fcphonem, fcemail, fcid, enabled, open, status)
                               VALUES
-                              (:name, :fc, :fcname, :fcaddress, :fcphone, :fcphonem, :fcemail, :fcid, 1, 1, 1)";
+                              (:fc, :fcname, :fcaddress, :fcphone, :fcphonem, :fcemail, :fcid, 1, 1, 1)";
                          $stmt = $pdo->prepare($sql);
                          $stmt->execute($seed);
                          echo "<p>admin row {$seed['fcid']} added.";
