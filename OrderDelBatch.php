@@ -1,8 +1,9 @@
 <?php // OrderDelBatch.php
 session_start(); // 確保會話已啟動
 require_once("config.inc.php"); // 引入資料庫設定檔
+require_once __DIR__ . '/auth.inc.php';
 
-if (isset($_SESSION["admlimit"]) && $_SESSION["admlimit"] > 0) {    // 判斷是否有登入
+if (can_view_business_data()) {    // 管理員與內部員工才可操作業務資料
     if (isset($_POST['selectedOrders'])) {  // 判斷是否有 POST 表單
         $selectedOrders = $_POST['selectedOrders']; // 取得選擇的訂單
         $resultsPerPage = $_POST['resultsPerPage']; // 取得顯示筆數

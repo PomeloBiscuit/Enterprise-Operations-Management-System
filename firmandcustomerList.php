@@ -3,8 +3,9 @@
      // 保留這行 require_once 讓本檔「被直接開啟」時仍拿得到 $pdo 與 $_SESSION；
      // 經由 index.php include 時 require_once 會是 no-op。
      require_once __DIR__ . '/config.inc.php';
+     require_once __DIR__ . '/auth.inc.php';
 
-     if ($_SESSION["admlimit"]>0) {
+     if (can_view_business_data()) {
 
           echo "
           <h3>廠商/客戶列表</h3><br><h5>新增 刪除 修改後會呈現空白頁面,請手動更新頁面(再按一次左邊列相同選項)</h5><hr>

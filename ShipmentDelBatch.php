@@ -1,8 +1,9 @@
 <?php
 session_start(); // 確保會話已啟動
 require_once("config.inc.php"); // 引入資料庫設定檔
+require_once __DIR__ . '/auth.inc.php';
 
-if (isset($_SESSION["admlimit"]) && $_SESSION["admlimit"] > 0) {
+if (can_view_business_data()) {
     if (isset($_POST['selectedShipments'])) {
         $selectedShipments = $_POST['selectedShipments'];
         try {

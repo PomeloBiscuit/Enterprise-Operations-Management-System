@@ -1,8 +1,9 @@
 <?php // ProductDelBatch.php
 session_start(); // 確保會話已啟動
 require_once("config.inc.php"); // 引入資料庫設定檔
+require_once __DIR__ . '/auth.inc.php';
 
-if (isset($_SESSION["admlimit"]) && $_SESSION["admlimit"] > 0) { // 判斷權限
+if (can_view_business_data()) { // 管理員與內部員工才可操作業務資料
     if (isset($_POST['selectedProducts'])) { // 判斷是否有選擇貨物
         $selectedProducts = $_POST['selectedProducts']; // 取得選擇的貨物
         $resultsPerPage = $_POST['resultsPerPage']; // 新增此行

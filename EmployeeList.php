@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) { // 判斷是否有登入
+require_once __DIR__ . '/auth.inc.php';
+if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資料
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC'; // 預設排序方式為 ASC
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc'; // 下一次排序方式
     $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'EmployeeID'; // 預設排序欄位為 EmployeeID

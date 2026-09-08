@@ -8,7 +8,10 @@ APACHE_ERROR_LOG="${APACHE_ERROR_LOG:-/tmp/eoms-apache-error.log}"
 TMP_DIR="$(mktemp -d)"
 COOKIE_JAR="$TMP_DIR/session.cookie"
 BAD_COOKIE_JAR="$TMP_DIR/bad-session.cookie"
+EXTERNAL_COOKIE_JAR="$TMP_DIR/external-session.cookie"
 INJECTION="test'); DROP TABLE admin;--"
+EXTERNAL_ID="smoke-external"
+EXTERNAL_PASSWORD="smoke-external-password"
 FAILURES=0
 
 delete_injection_rows() {
@@ -23,9 +26,18 @@ delete_injection_rows() {
     ' "$INJECTION" >/dev/null 2>&1 || true
 }
 
+delete_external_user() {
+    php -r '
+        require "/var/www/html/config.inc.php";
+        $stmt = $pdo->prepare("DELETE FROM User WHERE id = :id");
+        $stmt->execute([":id" => $argv[1]]);
+    ' "$EXTERNAL_ID" >/dev/null 2>&1 || true
+}
+
 cleanup() {
     # 第 10 項會暫時新增一筆資料；不論中途成功或失敗都移除它。
     delete_injection_rows
+    delete_external_user
     rm -rf "$TMP_DIR"
 }
 trap cleanup EXIT
@@ -166,6 +178,96 @@ check_password_hash() {
     CHECK_DETAIL="Admin.pw 為 \$2y\$、長度 60"
 }
 
+check_named_permission_guards() {
+    local entry file function_name failures=""
+    local -a expected_guards=(
+        'adminAdd.php:can_manage_users'
+        'adminDel.php:can_manage_users'
+        'adminDelBatch.php:can_manage_users'
+        'adminEdit.php:can_manage_users'
+        'adminList.php:can_manage_users'
+        'CustomerDelBatch.php:can_view_business_data'
+        'CustomerList.php:can_view_business_data'
+        'deleteSelectedUsers.php:can_manage_users'
+        'EmployeeDelBatch.php:can_view_business_data'
+        'EmployeeList.php:can_view_business_data'
+        'firmandcustomerAdd.php:can_view_business_data'
+        'firmandcustomerDel.php:can_view_business_data'
+        'firmandcustomerEdit.php:can_view_business_data'
+        'firmandcustomerList.php:can_view_business_data'
+        'Home.php:can_access_self'
+        'orderandinvoiceAdd.php:can_view_business_data'
+        'orderandinvoiceDelBatch.php:can_view_business_data'
+        'orderandinvoiceList.php:can_view_business_data'
+        'OrderDelBatch.php:can_view_business_data'
+        'OrderList.php:can_view_business_data'
+        'ProductDelBatch.php:can_view_business_data'
+        'ProductList.php:can_view_business_data'
+        'profile.php:can_access_self'
+        'profileEdit.php:can_access_self'
+        'ShipmentDelBatch.php:can_view_business_data'
+        'ShipmentList.php:can_view_business_data'
+        'UserList.php:can_manage_users'
+    )
+    for entry in "${expected_guards[@]}"; do
+        file="${entry%%:*}"
+        function_name="${entry##*:}"
+        if ! grep -Eq "if[[:space:]]*\\([[:space:]]*${function_name}\\(\\)[[:space:]]*\\)" "$APP_DIR/$file"; then
+            failures+="$file→$function_name "
+        fi
+    done
+    [[ -z "$failures" ]] || { CHECK_DETAIL="具名權限守衛缺失：${failures% }"; return 1; }
+    CHECK_DETAIL="27 個檔案均使用指定的具名權限守衛"
+}
+
+check_external_registration() {
+    local state status
+    delete_external_user
+    status="$(curl -sS -L -o "$TMP_DIR/external-register.html" -w '%{http_code}' \
+        --data-urlencode 'name=Smoke External' --data-urlencode "id=$EXTERNAL_ID" \
+        --data-urlencode "pw=$EXTERNAL_PASSWORD" --data-urlencode 'email=smoke-external@example.test' \
+        --data-urlencode 'party_type=廠商' \
+        "$BASE_URL/index.php?Act=160")" || { CHECK_DETAIL="curl 無法送出外部使用者註冊"; return 1; }
+    state="$(php -r '
+        require "/var/www/html/config.inc.php";
+        $stmt = $pdo->prepare("SELECT limited || \":\" || party_type FROM User WHERE id = :id ORDER BY prikey DESC LIMIT 1");
+        $stmt->execute([":id" => $argv[1]]);
+        echo $stmt->fetchColumn();
+    ' "$EXTERNAL_ID")" || { CHECK_DETAIL="無法讀取外部使用者註冊資料"; return 1; }
+    [[ "$status" =~ ^2[0-9]{2}$ && "$state" == "3:廠商" ]] || { CHECK_DETAIL="HTTP $status、註冊資料=$state（預期 3:廠商）"; return 1; }
+    CHECK_DETAIL="HTTP $status、limited=3、party_type=廠商"
+}
+
+check_external_login() {
+    local body status
+    status="$(curl -sS -L -c "$EXTERNAL_COOKIE_JAR" -b "$EXTERNAL_COOKIE_JAR" -o "$TMP_DIR/external-login.html" -w '%{http_code}' \
+        --data-urlencode "admid=$EXTERNAL_ID" --data-urlencode "admpw=$EXTERNAL_PASSWORD" --data-urlencode 'btemplogin=1' \
+        "$BASE_URL/login.php")" || { CHECK_DETAIL="curl 無法登入外部使用者"; return 1; }
+    body="$(<"$TMP_DIR/external-login.html")"
+    [[ "$status" =~ ^2[0-9]{2}$ && "$body" == *"歡迎"* && "$(grep -c 'PHPSESSID' "$EXTERNAL_COOKIE_JAR" || true)" -ge 1 ]] || { CHECK_DETAIL="HTTP $status、PHPSESSID 或「歡迎」缺失"; return 1; }
+    CHECK_DETAIL="HTTP $status、外部使用者取得 PHPSESSID、頁面含「歡迎」"
+}
+
+check_external_visibility() {
+    local body status route failures=""
+    body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/profile.php")" || { CHECK_DETAIL="profile.php curl 失敗"; return 1; }
+    status="${body##*$'\n'}"
+    body="${body%$'\n'*}"
+    if [[ ! "$status" =~ ^2[0-9]{2}$ || "$body" != *"個人資料"* || "$body" == *"權限不足!"* ]]; then
+        failures+="profile.php:$status "
+    fi
+    for route in 'index.php?Act=300' 'index.php?Act=200' 'index.php?Act=240'; do
+        body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
+        status="${body##*$'\n'}"
+        body="${body%$'\n'*}"
+        if [[ ! "$status" =~ ^2[0-9]{2}$ || "$body" != *"權限不足!"* ]]; then
+            failures+="$route:$status "
+        fi
+    done
+    [[ -z "$failures" ]] || { CHECK_DETAIL="外部使用者可見範圍不符：${failures% }"; return 1; }
+    CHECK_DETAIL="profile.php 可見；Act=300、200、240 均顯示「權限不足!」"
+}
+
 check_injection() {
     local state status response
     # 先移除上一次中斷執行留下的同一個測試 marker，避免讀到舊列。
@@ -252,6 +354,10 @@ for check in \
     '7b check_login_failure' \
     '8 check_invoice_snapshots' \
     '9 check_password_hash' \
+    'AUTH-GUARDS check_named_permission_guards' \
+    'EXTERNAL-REGISTER check_external_registration' \
+    'EXTERNAL-LOGIN check_external_login' \
+    'EXTERNAL-VISIBILITY check_external_visibility' \
     '10 check_injection' \
     'ROUTES check_routes' \
     '11 check_error_log' \

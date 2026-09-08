@@ -1,5 +1,6 @@
 <?php
-if ($_SESSION["admlimit"] > 0) {
+require_once __DIR__ . '/auth.inc.php';
+if (can_manage_users()) {
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
     $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
@@ -45,7 +46,7 @@ if ($_SESSION["admlimit"] > 0) {
             
             <button type='submit' class='btn btn-primary'>搜尋</button>
             <a href='index.php?Act=110&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>顯示所有資料</a>
-            <button type='button' class='btn btn-success' onclick=\"location.href='index.php?Act=140&resultsPerPage=$resultsPerPage';\" " . ($_SESSION["admlimit"] != 1 ? 'disabled' : '') . ">新增人員</button>
+            <button type='button' class='btn btn-success' onclick=\"location.href='index.php?Act=140&resultsPerPage=$resultsPerPage';\" " . (!is_admin() ? 'disabled' : '') . ">新增人員</button>
         </form>
 
         <form id='deleteForm' method='post' action='deleteSelectedUsers.php' onsubmit='return confirmDelete();'>
@@ -53,7 +54,7 @@ if ($_SESSION["admlimit"] > 0) {
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>
-                    <th style='width: 60px; text-align: center; vertical-align: middle;'>全選<br><input type='checkbox' id='selectAll' " . ($_SESSION["admlimit"] != 1 ? 'disabled' : '') . "></th>
+                    <th style='width: 60px; text-align: center; vertical-align: middle;'>全選<br><input type='checkbox' id='selectAll' " . (!is_admin() ? 'disabled' : '') . "></th>
                     <th style='width: 60px; text-align: center; vertical-align: middle;'><a href='?Act=110&sort=$nextSortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>UserID</a></th>
                     <th style='width: auto; text-align: center; vertical-align: middle;'>姓名</th>
                     <th style='width: auto; text-align: center; vertical-align: middle;'>帳號</th>
@@ -110,8 +111,8 @@ if ($_SESSION["admlimit"] > 0) {
         if (count($results) > 0) {
             foreach ($results as $row) {
                 $isAdmin = $row['limited'] == 1 ? '是' : '否';
-                $disableButtons = ($_SESSION["admlimit"] != 1) ? 'disabled' : '';
-                $editLink = ($_SESSION["admlimit"] == 1) ? "href='index.php?Act=120&EK={$row['prikey']}&resultsPerPage=$resultsPerPage'" : '';
+                $disableButtons = !is_admin() ? 'disabled' : '';
+                $editLink = is_admin() ? "href='index.php?Act=120&EK={$row['prikey']}&resultsPerPage=$resultsPerPage'" : '';
                 echo "
                 <tr>
                     <td style='text-align: center;'><input type='checkbox' name='selectedUsers[]' value='{$row['prikey']}' $disableButtons></td>
@@ -177,7 +178,7 @@ if ($_SESSION["admlimit"] > 0) {
             </tbody>
             </table>
             <div>
-                <button type='submit' class='btn btn-danger' " . ($_SESSION["admlimit"] != 1 ? 'disabled' : '') . ">刪除勾選的資料</button>
+                <button type='submit' class='btn btn-danger' " . (!is_admin() ? 'disabled' : '') . ">刪除勾選的資料</button>
             </div>
             <div style='margin-top: 15px; background-color: white; text-align: center;'>
     ";

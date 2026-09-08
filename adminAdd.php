@@ -1,5 +1,6 @@
 <?php
 ob_start(); // 新增：啟動緩衝區
+require_once __DIR__ . '/auth.inc.php';
 
 $areaCodes = [
     '臺北' => '02',
@@ -23,7 +24,7 @@ $areaCodes = [
     '馬祖' => '0836'
 ];
 
-if ($_SESSION["admlimit"] > 0) {
+if (can_manage_users()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (
             empty($_POST['name']) ||
