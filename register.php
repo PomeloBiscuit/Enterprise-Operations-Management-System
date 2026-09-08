@@ -3,19 +3,24 @@ require_once("config.inc.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        $partyType = $_POST['party_type'] ?? '';
+        if (!in_array($partyType, ['廠商', '客戶'], true)) {
+            throw new InvalidArgumentException('請選擇身分。');
+        }
         $stmt = $pdo->prepare("
-            INSERT INTO User (datechg, dateadd, name, id, pw, phone, phonem, email, enabled, open, status, limited)
-            VALUES (datetime('now','localtime'), datetime('now','localtime'), :name, :id, :pw, '', '', :email, 1, 1, 1, 2)
+            INSERT INTO User (datechg, dateadd, name, id, pw, phone, phonem, email, enabled, open, status, limited, party_type)
+            VALUES (datetime('now','localtime'), datetime('now','localtime'), :name, :id, :pw, '', '', :email, 1, 1, 1, 3, :party_type)
         ");
         $stmt->execute([
             ':name'  => $_POST['name'],
             ':id'    => $_POST['id'],
             ':pw'    => password_hash($_POST['pw'], PASSWORD_DEFAULT),
-            ':email' => $_POST['email']
+            ':email' => $_POST['email'],
+            ':party_type' => $partyType
         ]);
         header("Location: index.php");
         exit();
-    } catch (PDOException $e) {
+    } catch (PDOException | InvalidArgumentException $e) {
         echo "<p>註冊失敗：" . htmlspecialchars($e->getMessage()) . "</p>";
     }
 }
@@ -43,6 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label>Email</label>
                     <input type="email" name="email" class="form-control" placeholder="Example@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="party_type">身分</label>
+                    <select id="party_type" name="party_type" class="form-control" required>
+                        <option value="" selected disabled>請選擇身分</option>
+                        <option value="廠商">廠商</option>
+                        <option value="客戶">客戶</option>
+                    </select>
                 </div>
                 <br>
                 <div class="text-center">

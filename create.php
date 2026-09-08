@@ -173,7 +173,9 @@
                     enabled INTEGER, -- 啟用，1 為啟用，0 為禁用
                     open    INTEGER, -- 1 為開放或使用中，0 為不開放或刪除
                     status  INTEGER, -- 狀態
-                    limited INTEGER  -- 權限
+                    limited INTEGER, -- 權限
+                    -- 僅供外部註冊者標示其身分；內部帳號沒有此對應身分，保留 NULL。
+                    party_type TEXT CHECK (party_type IN ('廠商', '客戶') OR party_type IS NULL)
                )";
                createTable($pdo, $tableName, $sql);
 
