@@ -3,6 +3,7 @@
  * 導覽列與頁尾。
  */
 return [
+    'nav.label'         => '主要導覽',
     'nav.logout'        => '登出',
     'nav.profile'       => '個人資料',
     'nav.home'          => '首頁',
@@ -16,6 +17,10 @@ return [
     'nav.lang.label'    => '語言',
     'nav.lang.zh_tw'    => '繁體中文',
     'nav.lang.en'       => 'English',
+    'nav.sidebar.label' => '側邊選單',
+    'nav.sidebar.toggle' => '切換側邊選單',
+    'nav.theme.to_dark' => '切換為暗色主題',
+    'nav.theme.to_light' => '切換為亮色主題',
 
     'footer.copyright'  => '&copy; 2024–2026 Enterprise Operations Management System',
     'footer.notice'     => '本專案僅供學習與展示用途，不得用於商業目的或散布。',
