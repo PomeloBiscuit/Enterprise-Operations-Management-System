@@ -1,0 +1,43 @@
+<?php
+/**
+ * 資料庫與 session 設定範本
+ * ---------------------------------------------------------------
+ * 用法：複製本檔為 config.inc.php 即可（SQLite 版本沒有任何密碼，
+ *       通常不需要修改）。config.inc.php 本身在 .gitignore 內、不進版控。
+ *
+ * 從 MySQL 遷移到 SQLite 之後：
+ *   - 不再有資料庫帳號、密碼、GRANT、root 連線
+ *   - 資料庫就是一個檔案：data/fiance2024.sqlite（也在 .gitignore 內）
+ *   - 第一次使用請先執行 create.php 建立資料表與種子資料
+ */
+
+// UI 與 PHP 端的時間格式一律用台北時間
+date_default_timezone_set('Asia/Taipei');
+
+/*
+ * Session：不要寫進專案目錄。
+ * 舊版把 session 存到 __DIR__.'/sessionstmp'，導致含帳號的 sess_* 檔
+ * 被 commit 進公開 repo。這裡改用 PHP / 容器的預設路徑（容器內為 /tmp）。
+ */
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.gc_maxlifetime', 86400);
+    ini_set('session.gc_probability', 1);
+    ini_set('session.gc_divisor', 100);
+    session_start();
+}
+
+// SQLite 資料庫檔位置（本檔在 src/，資料庫在專案根的 data/）
+$dbFile = __DIR__ . '/../data/fiance2024.sqlite';
+
+try {
+    $pdo = new PDO('sqlite:' . $dbFile);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_BOTH);
+    // ★ 外鍵約束預設是關的，而且是「每個連線」都要開，否則 ON DELETE CASCADE 靜默失效
+    $pdo->exec('PRAGMA foreign_keys = ON');
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo '<p>資料庫連線失敗。請先執行 create.php 建立 data/fiance2024.sqlite。</p>';
+    echo '<p>' . htmlspecialchars($e->getMessage()) . '</p>';
+    exit();
+}
