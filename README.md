@@ -333,18 +333,56 @@ docker compose up -d
 一開起來就有種子資料。
 
 - 應用程式：<http://localhost:8080/login.php> — 以 **`Admin`** / **`123456`** 登入
-- 隨時重建資料庫：開啟 <http://localhost:8080/create.php>
 
-`create.php` 可重複執行：每次執行都會刪掉舊的資料庫檔、重新建表與塞種子資料。
+隨時重建資料庫（可重複執行，每次都會刪掉舊的資料庫檔、重新建表與塞種子資料）：
+
+```bash
+docker compose exec web php scripts/create.php
+```
+
+> `create.php` 位於 `scripts/`、在 DocumentRoot 之外，**不能從瀏覽器執行** ——
+> 避免任何人打一個網址就把資料庫清空。
 
 ### 不使用 Docker
 
-需要有 `pdo_sqlite` 擴充的 PHP 8（預設內建）：
+需要有 `pdo_sqlite` 擴充的 PHP 8（預設內建）。注意 DocumentRoot 是 `public/`：
 
 ```bash
-cp config.inc.php.example config.inc.php
-php -S localhost:8080          # 然後開一次 http://localhost:8080/create.php
+cp src/config.inc.php.example src/config.inc.php
+php scripts/create.php              # 建立資料庫與種子資料
+php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
 ```
+
+---
+
+## 五分鐘導覽
+
+用 `Admin` / `123456` 登入後，這四步能看到這個專案真正想展示的東西：
+
+1. **訂單列表**（左上導覽列 → 訂單列表）
+   每一列都有「品項數」與「訂單金額」。金額不是存在訂單上的欄位，而是由
+   `SUM(Contain.Quantity × Product.UnitPrice)` 即時算出來的 ——
+   一張訂單可以含多項產品，各自有數量。
+
+2. **訂單新增**
+   產品那一區可以按「新增一列」加多項產品與數量。這是 `Contain` 這張 M:N
+   關聯表的實際操作，也是 ER 圖上那個菱形的樣子。
+
+3. **註冊一個「廠商」身分的帳號，再用它登入**
+   你會發現顧客、員工、訂單、發票全部顯示「權限不足」，只剩自己的個人資料。
+   權限不是用「數字大小」判斷的 —— 新增一個角色不會自動繼承任何權限，
+   必須在 `src/auth.inc.php` 的允許清單裡明確加入。
+
+4. **跑一次驗證腳本**（約 20 秒）
+   ```bash
+   docker compose exec web bash scripts/smoke.sh
+   ```
+   21 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+   權限邊界、直接存取防護與訂單金額正確性。任一項失敗會以非 0 結束碼退出。
+
+順帶一提：試著直接開 <http://localhost:8080/src/pages/customer/CustomerAdd.php>
+會得到 **404** ——所有頁面檔都在 DocumentRoot 之外，只有
+`index.php`／`login.php`／`logout.php`／`register.php` 四個入口對外。
 
 ---
 
