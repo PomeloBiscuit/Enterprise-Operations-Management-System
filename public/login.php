@@ -23,9 +23,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* 原背景圖因版權疑慮已移入 _quarantine/images/，
-       暫以純 CSS 漸層頂替（刻意不找替代圖）。待補：自行產製的背景圖。 */
-    background: linear-gradient(135deg, #1f3a5f 0%, #486995 55%, #7fa3c4 100%) no-repeat center center;
+    /* 與 index.php 用同一張自行產製的背景圖（原第三方素材已因版權疑慮移除）。
+       漸層留作後備：圖片載入失敗時仍是可讀的深藍底，不會變成白底白字。 */
+    background: linear-gradient(135deg, #1f3a5f 0%, #486995 55%, #7fa3c4 100%);
+    background-image: url('images/hero-matterhorn.jpg'), linear-gradient(135deg, #1f3a5f 0%, #486995 55%, #7fa3c4 100%);
+    background-repeat: no-repeat;
+    background-position: center center;
     background-size: cover; /* 確保背景填滿螢幕 */
 }
 .wrapper-container {
@@ -132,7 +135,7 @@ body {
 
             <!-- 僅在無錯誤時顯示此提示 -->
             <div class="message-container"> <!-- 訊息容器 -->
-                首次使用請先執行 create.php 後再使用 admin 登入
+                示範帳號：Admin ／ 123456
             </div>
         <?php endif; ?> <!-- 結束錯誤判斷 -->
     </div> <!-- 結束登入容器 -->
