@@ -14,15 +14,14 @@ EXTERNAL_ID="smoke-external"
 EXTERNAL_PASSWORD="smoke-external-password"
 FAILURES=0
 
-# 這些檔案是公開入口或只提供 PHP bootstrap，直接存取不應被未登入 guard 擋下。
-declare -A DIRECT_FILE_EXEMPTIONS=(
-    [index.php]="公開前端控制器，未登入時必須呈現登入頁"
+# WO-10 後：DocumentRoot 是 public/。只有這幾個 public/ 入口檔該對外可達；
+# 其餘 public/*.php（例如頁面檔被誤放進 docroot）必須打不到。src/ 與 scripts/
+# 完全在 DocumentRoot 之外，任何檔案都應是 HTTP 404。
+declare -A PUBLIC_ENTRY_EXEMPTIONS=(
+    [index.php]="公開前端控制器，未登入時呈現登入頁"
     [login.php]="公開登入入口"
-    [register.php]="公開註冊入口"
-    [create.php]="初始化工具，不是應用程式頁面"
     [logout.php]="公開登出端點，必須可清除既有 session"
-    [config.inc.php]="資料庫 bootstrap，不直接呈現頁面"
-    [auth.inc.php]="權限函式 bootstrap，不直接呈現頁面"
+    [register.php]="公開註冊入口"
 )
 
 delete_injection_rows() {
@@ -211,63 +210,72 @@ check_password_hash() {
 }
 
 check_named_permission_guards() {
-    local entry file function_name failures=""
+    local entry file function_name failures="" checked=0
+    # <模組>/<檔名>:<應使用的具名守衛函式>。路徑相對於 $APP_DIR。
     local -a expected_guards=(
-        'adminAdd.php:can_manage_users'
-        'adminDel.php:can_manage_users'
-        'adminDelBatch.php:can_manage_users'
-        'adminEdit.php:can_manage_users'
-        'adminList.php:can_manage_users'
-        'CustomerDelBatch.php:can_view_business_data'
-        'CustomerAdd.php:can_view_business_data'
-        'CustomerDel.php:can_view_business_data'
-        'CustomerEdit.php:can_view_business_data'
-        'CustomerList.php:can_view_business_data'
-        'deleteSelectedUsers.php:can_manage_users'
-        'EmployeeDelBatch.php:can_view_business_data'
-        'EmployeeAdd.php:can_view_business_data'
-        'EmployeeDel.php:can_view_business_data'
-        'EmployeeEdit.php:can_view_business_data'
-        'EmployeeList.php:can_view_business_data'
-        'firmandcustomerAdd.php:can_view_business_data'
-        'firmandcustomerDel.php:can_view_business_data'
-        'firmandcustomerEdit.php:can_view_business_data'
-        'firmandcustomerList.php:can_view_business_data'
-        'Home.php:can_access_self'
-        'orderandinvoiceAdd.php:can_view_business_data'
-        'orderandinvoiceDel.php:can_view_business_data'
-        'orderandinvoiceDelBatch.php:can_view_business_data'
-        'orderandinvoiceEdit.php:can_view_business_data'
-        'orderandinvoiceList.php:can_view_business_data'
-        'OrderDelBatch.php:can_view_business_data'
-        'OrderAdd.php:can_view_business_data'
-        'OrderDel.php:can_view_business_data'
-        'OrderEdit.php:can_view_business_data'
-        'OrderList.php:can_view_business_data'
-        'ProductDelBatch.php:can_view_business_data'
-        'ProductAdd.php:can_view_business_data'
-        'ProductDel.php:can_view_business_data'
-        'ProductEdit.php:can_view_business_data'
-        'ProductList.php:can_view_business_data'
-        'profile.php:can_access_self'
-        'profileDelete.php:can_access_self'
-        'profileEdit.php:can_access_self'
-        'ShipmentAdd.php:can_view_business_data'
-        'ShipmentDel.php:can_view_business_data'
-        'ShipmentDelBatch.php:can_view_business_data'
-        'ShipmentEdit.php:can_view_business_data'
-        'ShipmentList.php:can_view_business_data'
-        'UserList.php:can_manage_users'
+        'src/pages/Home.php:can_access_self'
+        'src/pages/customer/CustomerAdd.php:can_view_business_data'
+        'src/pages/customer/CustomerDel.php:can_view_business_data'
+        'src/pages/customer/CustomerDelBatch.php:can_view_business_data'
+        'src/pages/customer/CustomerEdit.php:can_view_business_data'
+        'src/pages/customer/CustomerList.php:can_view_business_data'
+        'src/pages/employee/EmployeeAdd.php:can_view_business_data'
+        'src/pages/employee/EmployeeDel.php:can_view_business_data'
+        'src/pages/employee/EmployeeDelBatch.php:can_view_business_data'
+        'src/pages/employee/EmployeeEdit.php:can_view_business_data'
+        'src/pages/employee/EmployeeList.php:can_view_business_data'
+        'src/pages/product/ProductAdd.php:can_view_business_data'
+        'src/pages/product/ProductDel.php:can_view_business_data'
+        'src/pages/product/ProductDelBatch.php:can_view_business_data'
+        'src/pages/product/ProductEdit.php:can_view_business_data'
+        'src/pages/product/ProductList.php:can_view_business_data'
+        'src/pages/order/OrderAdd.php:can_view_business_data'
+        'src/pages/order/OrderDel.php:can_view_business_data'
+        'src/pages/order/OrderDelBatch.php:can_view_business_data'
+        'src/pages/order/OrderEdit.php:can_view_business_data'
+        'src/pages/order/OrderList.php:can_view_business_data'
+        'src/pages/shipment/ShipmentAdd.php:can_view_business_data'
+        'src/pages/shipment/ShipmentDel.php:can_view_business_data'
+        'src/pages/shipment/ShipmentDelBatch.php:can_view_business_data'
+        'src/pages/shipment/ShipmentEdit.php:can_view_business_data'
+        'src/pages/shipment/ShipmentList.php:can_view_business_data'
+        'src/pages/invoice/orderandinvoiceAdd.php:can_view_business_data'
+        'src/pages/invoice/orderandinvoiceDel.php:can_view_business_data'
+        'src/pages/invoice/orderandinvoiceDelBatch.php:can_view_business_data'
+        'src/pages/invoice/orderandinvoiceEdit.php:can_view_business_data'
+        'src/pages/invoice/orderandinvoiceList.php:can_view_business_data'
+        'src/pages/firm/firmandcustomerAdd.php:can_view_business_data'
+        'src/pages/firm/firmandcustomerDel.php:can_view_business_data'
+        'src/pages/firm/firmandcustomerEdit.php:can_view_business_data'
+        'src/pages/firm/firmandcustomerList.php:can_view_business_data'
+        'src/pages/user/adminAdd.php:can_manage_users'
+        'src/pages/user/adminDel.php:can_manage_users'
+        'src/pages/user/adminDelBatch.php:can_manage_users'
+        'src/pages/user/adminEdit.php:can_manage_users'
+        'src/pages/user/adminList.php:can_manage_users'
+        'src/pages/profile/profile.php:can_access_self'
+        'src/pages/profile/profileDelete.php:can_access_self'
+        'src/pages/profile/profileEdit.php:can_access_self'
     )
     for entry in "${expected_guards[@]}"; do
         file="${entry%%:*}"
         function_name="${entry##*:}"
+        [[ -f "$APP_DIR/$file" ]] || { failures+="$file:缺檔 "; continue; }
+        checked=$((checked + 1))
         if ! grep -Eq "if[[:space:]]*\\([[:space:]]*!?[[:space:]]*${function_name}\\(\\)[[:space:]]*\\)" "$APP_DIR/$file"; then
             failures+="$file→$function_name "
         fi
     done
+    # 反向：列舉 src/pages/ 下的每個 .php，確認沒有頁面檔漏掉守衛（清單母體＝檔案系統，不是 grep 特徵）。
+    local f rel
+    while IFS= read -r f; do
+        rel="${f#"$APP_DIR"/}"
+        grep -Eq "if[[:space:]]*\\([[:space:]]*!?[[:space:]]*(can_[a-z_]+|is_admin)\\(\\)[[:space:]]*\\)" "$f" \
+            || failures+="$rel:未呼叫任何具名守衛 "
+    done < <(find "$APP_DIR/src/pages" -type f -name '*.php' | sort)
+    [[ "$checked" -ge 43 ]] || { CHECK_DETAIL="只核對到 $checked 個檔（預期 43），清單或路徑有誤"; return 1; }
     [[ -z "$failures" ]] || { CHECK_DETAIL="具名權限守衛缺失：${failures% }"; return 1; }
-    CHECK_DETAIL="45 個檔案均使用指定的具名權限守衛"
+    CHECK_DETAIL="$checked 個頁面檔均使用指定的具名守衛；src/pages/ 全域列舉無漏網"
 }
 
 is_forbidden_without_application_content() {
@@ -278,31 +286,57 @@ is_forbidden_without_application_content() {
 }
 
 check_direct_file_access() {
-    local path file body status failures="" checked=0
-    for path in "$APP_DIR"/*.php; do
-        file="${path##*/}"
-        if [[ -n "${DIRECT_FILE_EXEMPTIONS[$file]+included}" ]]; then
-            continue
-        fi
-        checked=$((checked + 1))
-        body="$(curl -sS -o "$TMP_DIR/direct-$file.html" -w '%{http_code}' "$BASE_URL/$file")" || { failures+="$file:curl "; continue; }
-        status="$body"
-        body="$(<"$TMP_DIR/direct-$file.html")"
-        if ! is_forbidden_without_application_content "$body"; then
-            failures+="$file:HTTP-$status "
-        fi
-    done
-    [[ -z "$failures" ]] || { CHECK_DETAIL="未登入直接存取未被拒絕：${failures% }"; return 1; }
-    CHECK_DETAIL="列舉 $checked 個非例外 PHP；皆顯示「權限不足!」且不含應用程式內容"
+    # 母體＝檔案系統列舉，不是寫死清單。列舉整個 repo 的每個 .php：
+    #   - src/**、scripts/**：在 DocumentRoot 之外，任何檔案從網路上都必須是 HTTP 404
+    #   - public/**：只有 PUBLIC_ENTRY_EXEMPTIONS 那幾個入口可達；其餘 public/*.php
+    #     （例如頁面檔被誤放進 docroot）必須 404
+    # 這樣「頁面檔被搬回/誤放到 public/」會被抓到，而不是只驗固定幾個檔名。
+    local f rel base status failures="" checked=0
+    while IFS= read -r f; do
+        rel="${f#"$APP_DIR"/}"
+        case "$rel" in
+            public/*)
+                base="${rel#public/}"
+                # public/css、public/js 底下沒有 .php；這裡實際只會是 public/<name>.php
+                [[ "$base" == */* ]] && continue
+                checked=$((checked + 1))
+                status="$(curl -sS -o "$TMP_DIR/direct-$base.html" -w '%{http_code}' "$BASE_URL/$base")" \
+                    || { failures+="$rel:curl "; continue; }
+                if [[ -n "${PUBLIC_ENTRY_EXEMPTIONS[$base]+set}" ]]; then
+                    [[ "$status" =~ ^[23][0-9]{2}$ ]] \
+                        || failures+="$rel:入口應可達但為 HTTP $status "
+                else
+                    [[ "$status" == "404" ]] \
+                        || failures+="$rel:非入口的 public 檔可達(HTTP $status)——頁面檔不該放進 docroot "
+                fi
+                ;;
+            src/*|scripts/*)
+                checked=$((checked + 1))
+                status="$(curl -sS -o /dev/null -w '%{http_code}' "$BASE_URL/$rel")" \
+                    || { failures+="$rel:curl "; continue; }
+                [[ "$status" == "404" ]] \
+                    || failures+="$rel:DocumentRoot 外的檔案竟可達(HTTP $status) "
+                ;;
+        esac
+    done < <(find "$APP_DIR" -type f -name '*.php' \
+                 -not -path '*/.git/*' -not -path '*/_ops/*' | sort)
+    [[ "$checked" -ge 40 ]] \
+        || { CHECK_DETAIL="只列舉到 $checked 個 .php（預期約 50），find 範圍可能有誤"; return 1; }
+    [[ -z "$failures" ]] || { CHECK_DETAIL="直接存取未被擋下：${failures% }"; return 1; }
+    CHECK_DETAIL="列舉 $checked 個 .php：src/、scripts/ 全部 404；public/ 僅 index/login/logout/register 可達"
 }
 
 check_external_direct_business_access() {
-    local body status
-    body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -o "$TMP_DIR/external-ProductEdit.html" -w '%{http_code}' "$BASE_URL/ProductEdit.php?id=1")" || { CHECK_DETAIL="ProductEdit.php curl 失敗"; return 1; }
-    status="$body"
-    body="$(<"$TMP_DIR/external-ProductEdit.html")"
-    is_forbidden_without_application_content "$body" || { CHECK_DETAIL="ProductEdit.php 對 limited=3 未拒絕（HTTP $status）"; return 1; }
-    CHECK_DETAIL="limited=3 直接開 ProductEdit.php 仍顯示「權限不足!」且不含應用程式內容"
+    # WO-10 後：業務頁面檔已移出 DocumentRoot，對任何角色（含 limited=3）直接請求都應 404，
+    # 不論走舊的平面路徑還是新的 src/ 路徑。
+    local s_old s_new
+    s_old="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -o /dev/null -w '%{http_code}' "$BASE_URL/ProductEdit.php?id=1")" \
+        || { CHECK_DETAIL="舊路徑 /ProductEdit.php curl 失敗"; return 1; }
+    s_new="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -o /dev/null -w '%{http_code}' "$BASE_URL/src/pages/product/ProductEdit.php?id=1")" \
+        || { CHECK_DETAIL="新路徑 /src/pages/product/ProductEdit.php curl 失敗"; return 1; }
+    [[ "$s_old" == "404" && "$s_new" == "404" ]] \
+        || { CHECK_DETAIL="limited=3 直接開 ProductEdit.php：/ProductEdit.php=$s_old、/src/pages/product/ProductEdit.php=$s_new（預期皆 404）"; return 1; }
+    CHECK_DETAIL="limited=3 直接開 ProductEdit.php：舊路徑與 src/ 路徑皆 404"
 }
 
 check_external_registration() {
@@ -335,11 +369,12 @@ check_external_login() {
 
 check_external_visibility() {
     local body status route failures=""
-    body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/profile.php")" || { CHECK_DETAIL="profile.php curl 失敗"; return 1; }
+    # WO-10 後 profile.php 只能經前端控制器；外部使用者看自己的個人資料走 index.php?Act=100。
+    body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/index.php?Act=100")" || { CHECK_DETAIL="index.php?Act=100 curl 失敗"; return 1; }
     status="${body##*$'\n'}"
     body="${body%$'\n'*}"
     if [[ ! "$status" =~ ^2[0-9]{2}$ || "$body" != *"個人資料"* || "$body" == *"權限不足!"* ]]; then
-        failures+="profile.php:$status "
+        failures+="Act=100:$status "
     fi
     for route in 'index.php?Act=300' 'index.php?Act=200' 'index.php?Act=240'; do
         body="$(curl -sS -b "$EXTERNAL_COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
@@ -350,7 +385,7 @@ check_external_visibility() {
         fi
     done
     [[ -z "$failures" ]] || { CHECK_DETAIL="外部使用者可見範圍不符：${failures% }"; return 1; }
-    CHECK_DETAIL="profile.php 可見；Act=300、200、240 均顯示「權限不足!」"
+    CHECK_DETAIL="Act=100 個人資料可見；Act=300、200、240 均顯示「權限不足!」"
 }
 
 check_injection() {
