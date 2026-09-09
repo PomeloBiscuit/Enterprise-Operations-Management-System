@@ -27,6 +27,8 @@ if (!can_access_self()) {
     .home-page .about .home-icon-frame, .home-page .contact .home-icon-frame { width: 150px; height: 150px; }
     .home-page .home-icon { width: 55%; height: 55%; fill: currentColor; }
     .home-page .about p, .home-page .contact p { font-size: 1.2em; line-height: 1.6; }
+    .home-page .map-frame { aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--border-color); background: var(--surface-muted-color); }
+    .home-page .map-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
     /* HTTP/1280 與 HTTP/1024 的正式頁面驗收由 WO-13 瀏覽器量測記錄；此元件以 max-width 與 min-width:0 避免推擠側欄時產生水平捲動。 */
     @media (max-width: 640px) { .home-page .about, .home-page .contact { align-items: flex-start; flex-direction: column; } }
 </style>
@@ -39,5 +41,6 @@ if (!can_access_self()) {
         <div class="service-item"><div class="home-icon-frame"><svg class="home-icon" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m0-4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3m4.5 11H.5s-.5 0-.5-.5S.5 9 5 9c1.305 0 2.32.38 3.08.9l-.72.88C6.76 10.35 6.04 10 5 10c-3.4 0-3.96 2.05-4 3h8.5z"/><path fill-rule="evenodd" d="M8 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L5.06 6.767 3.404 9.044a.5.5 0 0 1-.808-.588l2-2.75a.5.5 0 0 1 .758-.06l2.609 2.61L11.445 4H8.5a.5.5 0 0 1-.5-.5"/></svg></div><p><?php echo t('home.features.item3'); ?></p></div>
     </div></section>
     <section class="section"><h2><?php echo t('home.about.title'); ?></h2><div class="about"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 15.5V5l6-4 6 4v10.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5M3 6v9h2V9h2v6h2V9h2v6h2V6L8 2.667 3 6z"/></svg></div><p><?php echo t('home.about.body'); ?></p></div></section>
+    <section class="section"><h2><?php echo t('home.location.title'); ?></h2><div class="map-frame"><iframe loading="lazy" title="<?php echo htmlspecialchars(t('home.location.map_title')); ?>" src="https://www.openstreetmap.org/export/embed.html?bbox=7.63861%2C45.95639%2C7.67861%2C45.99639&amp;layer=mapnik&amp;marker=45.97639%2C7.65861"></iframe></div></section>
     <section class="section"><h2><?php echo t('home.contact.title'); ?></h2><div class="contact"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.885.511a1.745 1.745 0 0 1 2.61.163l2.01 2.61c.329.428.372 1.01.11 1.48L5.49 6.74a.678.678 0 0 0 .15.82l3.63 3.63a.678.678 0 0 0 .82.15l1.976-1.125a1.745 1.745 0 0 1 1.48.11l2.61 2.01c.707.545.78 1.58.163 2.61l-.73 1.217C14.93 17.19 13.66 17.66 12.51 17.16c-2.31-1.006-4.8-2.97-7.15-5.32C3.01 9.49 1.046 7 0.04 4.69c-.5-1.15-.03-2.42 1-3.08z"/></svg></div><p><?php echo t('home.contact.body'); ?></p></div></section>
 </div>
