@@ -270,13 +270,9 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
 <?php if (isset($_SESSION['admid'])): ?>    <!-- 判斷是否有登入 -->
 <footer>    <!-- 頁尾 -->
     <div style="width: 100%; height: auto; background-color: rgba(255, 255, 255, 0.8); text-align: center; padding: 20px 0;">   <!-- 頁尾內容 -->
-        <p style="color:#000000; margin: 0;">&copy; 2024 &nbsp;
-            本專案僅供學習與展示用途，不得用於商業目的或散布。<br>  <!-- 禁止商業使用或分發 -->
-            <br><br>   <!-- 用於學術研究 -->
-            Official&nbsp;Email&nbsp;(Web/DB situation):&nbsp;[redacted] <br>  <!-- 官方電子郵件 -->
-            Official&nbsp;Email&nbsp;(Web/DB situation):&nbsp;[redacted] <br>  <!-- 官方電子郵件 -->
-            Web/DB Management and Development Engineering:&nbsp;[redacted] &nbsp; <br>   <!-- 網頁/資料庫管理和開發工程 -->
-            Web/DB Management and Development Engineering:&nbsp;[redacted] &nbsp; <br>  <!-- 網頁/資料庫管理和開發工程 -->
+        <p style="color:#000000; margin: 0;">
+            &copy; 2024–2026 Enterprise Operations Management System<br>
+            本專案僅供學習與展示用途，不得用於商業目的或散布。
         </p>
     </div>  <!-- 結束頁尾內容 -->
 </footer>   <!-- 結束頁尾 -->
