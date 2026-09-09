@@ -26,8 +26,8 @@ body {
     align-items: center;
     /* 與 index.php 用同一張自行產製的背景圖（原第三方素材已因版權疑慮移除）。
        漸層留作後備：圖片載入失敗時仍是可讀的深藍底，不會變成白底白字。 */
-    background: linear-gradient(135deg, #1f3a5f 0%, #486995 55%, #7fa3c4 100%);
-    background-image: url('images/hero-matterhorn.jpg'), linear-gradient(135deg, #1f3a5f 0%, #486995 55%, #7fa3c4 100%);
+    background-color: var(--page-background);
+    background-image: linear-gradient(var(--page-image-overlay), var(--page-image-overlay)), url('images/hero-matterhorn.jpg');
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover; /* 確保背景填滿螢幕 */
@@ -42,22 +42,22 @@ body {
 }
 
     .login-container {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: var(--surface-color);
         border-radius: 20px;
         padding: 40px 30px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 10px var(--shadow-color);
         text-align: center;
         width: 400px;
     }
     h3 {
         margin-bottom: 20px;
-        color: rgb(81, 100, 115);
+        color: var(--text-color);
     }
     input[type='text'], input[type='password'] {
         width: 100%;
         padding: 15px;
         margin: 15px 0;
-        border: 1px solid #ccc;
+        border: 1px solid var(--border-color);
         border-radius: 40px;
         font-size: 16px;
         box-sizing: border-box;
@@ -78,12 +78,12 @@ body {
         cursor: pointer;
     }
     .button-container input[type='submit'] {
-        background-color: rgb(59, 72, 89);
-        color: #fff;
+        background-color: var(--primary-color);
+        color: var(--primary-text-color);
     }
     .button-container input[type='reset'] {
-        background-color: #6c757d;
-        color: #fff;
+        background-color: var(--secondary-color);
+        color: var(--primary-text-color);
     }
     .button-container input[type='button'] {
         /* 與登入、清除相同的大小和圓角 */
@@ -93,13 +93,13 @@ body {
         border-radius: 40px;
         font-size: 16px;
         cursor: pointer;
-        background-color: #6c757d; /* 與清除相同，如需改色可自行調整 */
-        color: #fff;
+        background-color: var(--secondary-color);
+        color: var(--primary-text-color);
     }
     .message-container {
         margin-top: 20px;
         font-size: 14px;
-        color: rgb(81, 100, 115);
+        color: var(--text-color);
         text-align: center;
     }
 </style>
@@ -107,7 +107,7 @@ body {
 <div class="wrapper-container"> <!-- 包裹容器 -->
     <div class="login-container"> <!-- 登入容器 -->
         <?php if (!empty($_GET['error'])): ?> <!-- 若有錯誤 -->
-            <div style="color: red; font-size: 14px; margin-bottom: 10px;"> <!-- 顯示錯誤訊息 -->
+            <div style="color: var(--danger-color); font-size: 14px; margin-bottom: 10px;"> <!-- 顯示錯誤訊息 -->
                 <?php echo htmlspecialchars($_GET['error']); ?><br> <!-- 顯示錯誤訊息 -->
                 <?php echo t('auth.login.redirect_notice', ['seconds' => '<span id="countdown">5</span>']); ?> <!-- 顯示倒數計時 -->
             </div> <!-- 結束錯誤訊息 -->
@@ -174,8 +174,7 @@ body {
             exit(); // 結束程式
         }   // 結束查詢結果判斷
     } catch (PDOException $e) { // 例外處理
-        echo "<p style='color:red;'>" . t('common.db_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";    // 顯示錯誤訊息
+        echo "<p style='color:var(--danger-color);'>" . t('common.db_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";    // 顯示錯誤訊息
     }   // 結束例外處理
 }   // 結束登入按鈕判斷
 ?>  
-
