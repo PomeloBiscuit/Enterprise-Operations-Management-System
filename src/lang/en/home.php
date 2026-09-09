@@ -15,6 +15,9 @@ return [
     'home.about.title'   => 'About us',
     'home.about.body'    => 'We are a company focused on enterprise operations management solutions, helping businesses improve efficiency and results. Our system is powerful yet easy to use, and trusted by our customers. Our mission is to simplify your day-to-day operations so you can put more energy into the core of your business. From order processing to data analysis, we build an efficient, intelligent management experience and are committed to tailored solutions for every customer.',
 
+    'home.location.title'     => 'Location',
+    'home.location.map_title' => 'Map of the Matterhorn summit',
+
     'home.contact.title' => 'Contact us',
     'home.contact.body'  => 'If you have any questions or would like to learn more about our system, please get in touch at any time. You can reach us by email or phone, and our team will be glad to help.',
 
