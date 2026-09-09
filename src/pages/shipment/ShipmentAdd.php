@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     } catch (PDOException $e) {
         $pdo->rollBack();
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
     }
 }
 
@@ -74,72 +75,72 @@ $orderID = generateOrderID($pdo);
 ?>
 
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
-    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;">新增出貨紀錄</h3>
+    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;"><?php echo t('shipment.add.title'); ?></h3>
     <hr>
     <form method="POST">
         <div class="form-group">
-            <label>員工ID</label>
-            <input type="text" id="employeeSearch" class="form-control" placeholder="搜尋員工ID或名稱">
+            <label><?php echo t('shipment.field.employee_id'); ?></label>
+            <input type="text" id="employeeSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.add.employee_search_ph')); ?>">
             <select name="EmployeeID" id="employeeID" class="form-control" required>
-                <option value="">選擇員工</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.employee')); ?></option>
                 <?php foreach ($employees as $employee): ?>
                     <option value="<?php echo $employee['EmployeeID']; ?>"><?php echo $employee['EmployeeID'] . ' - ' . $employee['EmployeeName']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group">
-            <label>顧客ID</label>
-            <input type="text" id="customerSearch" class="form-control" placeholder="搜尋顧客ID或名稱">
+            <label><?php echo t('shipment.field.customer_id'); ?></label>
+            <input type="text" id="customerSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.add.customer_search_ph')); ?>">
             <select name="CustomerID" id="customerID" class="form-control" required>
-                <option value="">選擇顧客</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.customer')); ?></option>
                 <?php foreach ($customers as $customer): ?>
                     <option value="<?php echo $customer['CustomerID']; ?>"><?php echo $customer['CustomerID'] . ' - ' . $customer['CustomerName']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group">
-            <label>產品ID</label>
-            <input type="text" id="productSearch" class="form-control" placeholder="搜尋產品ID或名稱">
+            <label><?php echo t('shipment.field.product_id'); ?></label>
+            <input type="text" id="productSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.add.product_search_ph')); ?>">
             <select name="ProductID" id="productID" class="form-control" required>
-                <option value="">選擇產品</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.product')); ?></option>
                 <?php foreach ($products as $product): ?>
                     <option value="<?php echo $product['ProductID']; ?>"><?php echo $product['ProductID'] . ' - ' . $product['ProductName']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group">
-            <label>訂單ID</label>
+            <label><?php echo t('shipment.field.order_id'); ?></label>
             <input type="text" name="OrderID" class="form-control" value="<?php echo $orderID; ?>" readonly>
         </div>
         <div class="form-group">
-            <label>出貨日期</label>
+            <label><?php echo t('shipment.field.ship_date'); ?></label>
             <input type="date" name="ShipDate" class="form-control" required>
         </div>
         <div class="form-group">
-            <label>追蹤編號</label>
+            <label><?php echo t('shipment.field.tracking_number'); ?></label>
             <input type="text" name="TrackingNumber" class="form-control" value="<?php echo $trackingNumber; ?>" readonly>
         </div>
         <div class="form-group">
-            <label>運輸方式</label>
-            <input type="text" id="shipMethodSearch" class="form-control" placeholder="搜尋運輸方式">
+            <label><?php echo t('shipment.field.ship_method'); ?></label>
+            <input type="text" id="shipMethodSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.add.ship_method_search_ph')); ?>">
             <select name="ShipMethod" id="shipMethod" class="form-control" required>
-                <option value="">選擇運輸方式</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.ship_method')); ?></option>
                 <option value="Land">Land</option>
                 <option value="Sea">Sea</option>
                 <option value="Air">Air</option>
             </select>
         </div>
         <div class="form-group">
-            <label>狀態</label>
-            <input type="checkbox" name="status"> 完成
+            <label><?php echo t('shipment.field.status'); ?></label>
+            <input type="checkbox" name="status"> <?php echo t('shipment.status.done'); ?>
         </div>
         <br>
         <div style="text-align: center;">
-            <a href="index.php?Act=470" class="btn btn-secondary">返回</a>
+            <a href="index.php?Act=470" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
             <span style='display: inline-block; width: 20px;'></span>
-            <button type="reset" class="btn btn-warning text-white">清除</button>
+            <button type="reset" class="btn btn-warning text-white"><?php echo t('common.clear'); ?></button>
             <span style='display: inline-block; width: 20px;'></span>
-            <button type="submit" class="btn btn-primary">新增</button>
+            <button type="submit" class="btn btn-primary"><?php echo t('common.add'); ?></button>
         </div>
     </form>
 </div>
@@ -153,7 +154,7 @@ document.getElementById('employeeSearch').addEventListener('input', function() {
         option.EmployeeID.toString().includes(searchValue)
     );
     const employeeSelect = document.getElementById('employeeID');
-    employeeSelect.innerHTML = '<option value="">選擇員工</option>';
+    employeeSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.employee') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option.EmployeeID;
@@ -173,7 +174,7 @@ document.getElementById('customerSearch').addEventListener('input', function() {
         option.CustomerID.toString().includes(searchValue)
     );
     const customerSelect = document.getElementById('customerID');
-    customerSelect.innerHTML = '<option value="">選擇顧客</option>';
+    customerSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.customer') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option.CustomerID;
@@ -193,7 +194,7 @@ document.getElementById('productSearch').addEventListener('input', function() {
         option.ProductID.toString().includes(searchValue)
     );
     const productSelect = document.getElementById('productID');
-    productSelect.innerHTML = '<option value="">選擇產品</option>';
+    productSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.product') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option.ProductID;
@@ -212,7 +213,7 @@ document.getElementById('shipMethodSearch').addEventListener('input', function()
         option.toLowerCase().includes(searchValue)
     );
     const shipMethodSelect = document.getElementById('shipMethod');
-    shipMethodSelect.innerHTML = '<option value="">選擇運輸方式</option>';
+    shipMethodSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.ship_method') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option;

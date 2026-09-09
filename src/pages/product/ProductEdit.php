@@ -1,8 +1,9 @@
 <?php // ProductEdit.php
 require_once __DIR__ . '/../../config.inc.php'; // 引入資料庫設定檔
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -49,35 +50,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
 <div class="container mt-5"> <!-- 容器 -->
     <div class="card" style="border-radius: 15px;"> <!-- 卡片 -->
         <div class="card-header text-center"> <!-- 卡片標題 -->
-            <h3>編輯貨物</h3> <!-- 標題 -->
+            <h3><?php echo t('product.edit.title'); ?></h3> <!-- 標題 -->
         </div>
         <div class="card-body"> <!-- 卡片內容 -->
             <form method="POST"> <!-- 表單 -->
                 <input type="hidden" name="resultsPerPage" value="<?php echo $resultsPerPage; ?>"> <!-- 新增此行 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>貨物編號</label> <!-- 標籤 -->
+                    <label><?php echo t('product.field.id'); ?></label> <!-- 標籤 -->
                     <input type="text" class="form-control" value="<?php echo $row['ProductID']; ?>" disabled> <!-- 顯示貨物編號但不開放修改 -->
                     <input type="hidden" name="id" value="<?php echo $row['ProductID']; ?>"> <!-- 隱藏欄位 -->
                 </div> <!-- 結束表單群組 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>貨物名稱</label> <!-- 標籤 -->
+                    <label><?php echo t('product.field.name'); ?></label> <!-- 標籤 -->
                     <input type="text" name="ProductName" class="form-control" value="<?php echo $row['ProductName']; ?>" required> <!-- 輸入框 -->
                 </div> <!-- 結束表單群組 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>貨物類別</label> <!-- 標籤 -->
+                    <label><?php echo t('product.field.category'); ?></label> <!-- 標籤 -->
                     <input type="text" name="ProductCategory" class="form-control" value="<?php echo $row['ProductCategory']; ?>" required> <!-- 輸入框 -->
                 </div> <!-- 結束表單群組 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>單價</label> <!-- 標籤 -->
+                    <label><?php echo t('product.field.unit_price'); ?></label> <!-- 標籤 -->
                     <input type="number" step="0.01" name="UnitPrice" class="form-control" value="<?php echo $row['UnitPrice']; ?>" required> <!-- 輸入框 -->
                 </div> <!-- 結束表單群組 -->
                 <br> <!-- 斷行 -->
                 <div class="text-center"> <!-- 文字置中 -->
-                    <a href="index.php?Act=390&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary">返回</a> <!-- 返回按鈕 -->
+                    <a href="index.php?Act=390&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回按鈕 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-                    <button type="reset" class="btn btn-warning">清除</button> <!-- 清除按鈕 -->
+                    <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button> <!-- 清除按鈕 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-                    <button type="submit" class="btn btn-primary">更新</button> <!-- 更新按鈕 -->
+                    <button type="submit" class="btn btn-primary"><?php echo t('common.update'); ?></button> <!-- 更新按鈕 -->
                 </div> <!-- 結束文字置中 -->
             </form> <!-- 結束表單 -->
         </div> <!-- 結束卡片內容 -->

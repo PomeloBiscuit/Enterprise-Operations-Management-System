@@ -1,47 +1,60 @@
 <?php
      require_once __DIR__ . '/../../auth.inc.php';
+     require_once __DIR__ . '/../../i18n.inc.php';
      if (can_view_business_data()) {
           if (empty($_POST['btadd'])) {
 
+               $L_addTitle = t('firm.add.title');
+               $L_blankHint = t('firm.notice.blank_page');
+               $L_fc = t('firm.field.fc');
+               $L_name = t('field.name');
+               $L_address = t('field.address');
+               $L_phone = t('field.phone');
+               $L_mobile = t('field.mobile');
+               $L_email = t('firm.field.email');
+               $L_id = t('firm.field.id');
+               $L_add = t('common.add');
+               $L_clear = t('common.clear');
+
                echo "
                <form method=post action=index.php?Act=$Act>
-               <h3 >新增廠商/客戶</h3><h5>新增 刪除 修改後會呈現空白頁面,請手動更新頁面(再按一次左邊列相同選項)</h5><hr>
+               <h3 >$L_addTitle</h3><h5>$L_blankHint</h5><hr>
                <table class=\"table table-bordered table-hover\">
                     <tr>
-                         <td>廠商/客戶*
+                         <td>$L_fc*
                          <td><input type='text' name=fc value=''
                          class=\"form-control\">
                     <tr>
-                         <td>姓名*
+                         <td>$L_name*
                          <td><input type='text' name=fcname value=''
                          class=\"form-control\">
                     <tr>
-                         <td>地址*
+                         <td>$L_address*
                          <td><input type='text' name=fcaddress value=''
                          class=\"form-control\">
-                   
+
                     <tr>
-                         <td>電話
+                         <td>$L_phone
                          <td><input type='text' name=fcphone value=''
                          class=\"form-control\">
                     <tr>
-                         <td>行動電話
+                         <td>$L_mobile
                          <td><input type='text' name=fcphonem value=''
                          class=\"form-control\">
                     <tr>
-                         <td>電子郵件
+                         <td>$L_email
                          <td><input type='text' name=fcemail value=''
                          class=\"form-control\">
                     <tr>
-                         <td>編號
+                         <td>$L_id
                          <td><input type='text' name=fcid value=''
                          class=\"form-control\">
                     <tr>
                          <td>
                          <td>
-                         <input type='submit' name=btadd value='新增'
+                         <input type='submit' name=btadd value='$L_add'
                          class=\"btn btn-default\">
-                         <input type='reset' value='清除'
+                         <input type='reset' value='$L_clear'
                          class=\"btn btn-default\">
                </table>
                </form>
@@ -76,6 +89,6 @@
           header("refresh:1;url=index.php?Act=200");
           }
      } else {
-          echo "<br><br><br><br><p align=center>權限不足!";
+          echo "<br><br><br><br><p align=center>" . t('common.permission_denied');
      }
      ?>

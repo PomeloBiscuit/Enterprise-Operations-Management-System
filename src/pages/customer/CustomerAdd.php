@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/../../config.inc.php'; // 引入資料庫設定
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -38,13 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
 <div class="container mt-5"> <!-- 容器 -->
     <div class="card" style="border-radius: 15px;"> <!-- 卡片 -->
         <div class="card-header text-center"> <!-- 卡片標題 -->
-            <h3>新增顧客</h3> <!-- 標題 -->
+            <h3><?php echo t('customer.add.title'); ?></h3> <!-- 標題 -->
         </div> <!-- 卡片標題結束 -->
         <div class="card-body"> <!-- 卡片內容 -->
             <form method="POST"> <!-- 表單 -->
                 <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>"> <!-- 隱藏欄位 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>顧客編號</label> <!-- 標籤 -->
+                    <label><?php echo t('customer.field.id'); ?></label> <!-- 標籤 -->
                     <?php // 取得下一個顧客編號
                     try { // 嘗試執行
                         $stmt = $pdo->query("SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name = 'Customer'), 0) + 1 AS AUTO_INCREMENT"); // SQLite：sqlite_sequence 取代 information_schema
@@ -52,29 +53,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
                         $nextCustomerID = $row['AUTO_INCREMENT']; // 取得 AUTO_INCREMENT 欄位值
                         echo "<input type='text' class='form-control' value='$nextCustomerID' disabled>"; // 顯示顧客編號
                     } catch (PDOException $e) { // 捕捉錯誤
-                        echo "<p>無法取得顧客編號：" . htmlspecialchars($e->getMessage()) . "</p>"; // 顯示錯誤訊息
+                        echo "<p>" . t('customer.add.id_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>"; // 顯示錯誤訊息
                     }   // 結束執行
                     ?> <!-- 結束 PHP 區塊 -->
                 </div> <!-- 表單群組結束 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>顧客姓名</label> <!-- 標籤 -->
-                    <input type="text" name="CustomerName" class="form-control" placeholder="請輸入顧客姓名" required> <!-- 輸入框 -->
+                    <label><?php echo t('customer.field.name'); ?></label> <!-- 標籤 -->
+                    <input type="text" name="CustomerName" class="form-control" placeholder="<?php echo htmlspecialchars(t('customer.add.name_ph')); ?>" required> <!-- 輸入框 -->
                 </div> <!-- 表單群組結束 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>顧客電話</label> <!-- 標籤 -->
-                    <input type="text" name="CustomerPhoneNumber" class="form-control" placeholder="請輸入顧客電話" required> <!-- 輸入框 -->
+                    <label><?php echo t('customer.field.phone'); ?></label> <!-- 標籤 -->
+                    <input type="text" name="CustomerPhoneNumber" class="form-control" placeholder="<?php echo htmlspecialchars(t('customer.add.phone_ph')); ?>" required> <!-- 輸入框 -->
                 </div> <!-- 表單群組結束 -->
                 <div class="form-group"> <!-- 表單群組 -->
-                    <label>顧客地址</label> <!-- 標籤 -->
-                    <input type="text" name="CustomerAddress" class="form-control" placeholder="請輸入顧客地址" required> <!-- 輸入框 -->
+                    <label><?php echo t('customer.field.address'); ?></label> <!-- 標籤 -->
+                    <input type="text" name="CustomerAddress" class="form-control" placeholder="<?php echo htmlspecialchars(t('customer.add.address_ph')); ?>" required> <!-- 輸入框 -->
                 </div> <!-- 表單群組結束 -->
                 <br> <!-- 斷行 -->
                 <div class="text-center"> <!-- 文字置中 -->
-                    <a href="index.php?Act=300&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary">返回</a> <!-- 返回按鈕 -->
+                    <a href="index.php?Act=300&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回按鈕 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-                    <button type="reset" class="btn btn-warning">清除</button> <!-- 清除按鈕 -->
+                    <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button> <!-- 清除按鈕 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-                    <button type="submit" class="btn btn-primary">送出</button> <!-- 送出按鈕 -->
+                    <button type="submit" class="btn btn-primary"><?php echo t('common.submit'); ?></button> <!-- 送出按鈕 -->
                 </div> <!-- 文字置中結束 -->
             </form> <!-- 表單結束 -->
         </div> <!-- 卡片內容結束 -->

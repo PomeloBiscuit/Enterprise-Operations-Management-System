@@ -4,6 +4,10 @@ return [
     'common.no_data'           => 'No records found',
     'common.error_prefix'      => 'Error: ',
     'common.db_error_prefix'   => 'Database error: ',
+    'common.delete_fail_prefix' => 'Deletion failed: ',
+    'common.update'            => 'Update',
+    'common.select_area'       => 'Select area',
+    'common.invalid_id'       => 'Invalid ID!',
 
     'common.action'        => 'Actions',
     'common.edit'          => 'Edit',

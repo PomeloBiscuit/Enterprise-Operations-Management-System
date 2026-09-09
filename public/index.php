@@ -3,6 +3,7 @@ ob_start();
 session_start();
 require_once __DIR__ . '/../src/config.inc.php';
 require_once __DIR__ . '/../src/auth.inc.php';
+require_once __DIR__ . '/../src/i18n.inc.php';
 
 // 1) 移除原強制轉 int，改以直接取得 GET 參數
 $ActParam = $_GET["Act"] ?? 0;
@@ -31,11 +32,11 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
 ?>
 
 <!doctype html> <!-- 文件類型 -->
-<html lang="zh-TW"> <!-- 語言設定 -->
+<html lang="<?php echo t('html.lang'); ?>"> <!-- 語言設定（隨 i18n 切換） -->
 <head>  <!-- 標頭 -->
     <meta charset="utf-8">  <!-- 編碼 -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">  <!-- RWD -->
-    <title>企業作業管理系統</title>   <!-- 網頁標題 -->
+    <title><?php echo t('html.title'); ?></title>   <!-- 網頁標題 -->
     <link rel="stylesheet" href="css/bootstrap.min.css">    <!-- 引入 bootstrap -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">  <!-- 標楷體 -->
     <style> /* CSS 樣式 */
@@ -68,6 +69,15 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
         nav a:hover {   /* 滑鼠移入 */
             text-decoration: underline; /* 底線 */
         }
+        nav .lang-switch { /* 語言切換 */
+            margin-left: 25px;
+            border-left: 1px solid rgba(255, 255, 255, 0.4);
+            padding-left: 15px;
+        }
+        nav .lang-switch a.active { /* 目前語言 */
+            text-decoration: underline;
+            color: #ffd54f;
+        }
         main {  /* 主要內容 */
             margin-top: 20px; /* 確保內容與導覽列有間距 */
             flex: 1;    /* 佔滿剩餘空間 */
@@ -85,24 +95,29 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
     </style>
 </head>
 <body>  <!-- 頁面主體 -->
-<?php if (isset($_SESSION['admid'])): ?>    <!-- 判斷是否有登入 -->
+<?php $__locale = current_locale(); ?>
     <nav>   <!-- 導覽列 -->
-        <a href="logout.php">登出</a>    <!-- 登出 -->
+        <?php if (isset($_SESSION['admid'])): ?>    <!-- 判斷是否有登入 -->
+        <a href="logout.php"><?php echo t('nav.logout'); ?></a>    <!-- 登出 -->
         <?php if (can_access_self()): ?>
-        <a href="index.php?Act=100">個人資料</a>    <!-- 個人資料 -->  
-        <a href="index.php?Act=150">Home</a>    <!-- 修改目標頁面 -->
+        <a href="index.php?Act=100"><?php echo t('nav.profile'); ?></a>    <!-- 個人資料 -->
+        <a href="index.php?Act=150"><?php echo t('nav.home'); ?></a>    <!-- 首頁 -->
         <?php endif; ?>
         <?php if (can_manage_users()): ?>
-        <a href="index.php?Act=110">使用者列表</a>  <!-- 使用者列表 -->
+        <a href="index.php?Act=110"><?php echo t('nav.users'); ?></a>  <!-- 使用者列表 -->
         <?php endif; ?>
         <?php if (can_view_business_data()): ?>
-        <a href="index.php?Act=350">員工列表</a>      <!-- 員工列表 -->
-        <a href="index.php?Act=300">顧客列表</a>      <!-- 顧客列表 -->
-        <a href="index.php?Act=390">貨物列表</a>    <!-- 貨物列表 -->
-        <a href="index.php?Act=430">訂單列表</a>  <!-- 訂單列表 -->
+        <a href="index.php?Act=350"><?php echo t('nav.employees'); ?></a>      <!-- 員工列表 -->
+        <a href="index.php?Act=300"><?php echo t('nav.customers'); ?></a>      <!-- 顧客列表 -->
+        <a href="index.php?Act=390"><?php echo t('nav.products'); ?></a>    <!-- 貨物列表 -->
+        <a href="index.php?Act=430"><?php echo t('nav.orders'); ?></a>  <!-- 訂單列表 -->
         <?php endif; ?>
-    </nav>  
-<?php endif; ?> <!-- 結束判斷是否有登入 -->
+        <?php endif; ?> <!-- 結束判斷是否有登入 -->
+        <span class="lang-switch"><!-- 語言切換：停在原本那一頁，只換 lang -->
+            <a href="<?php echo htmlspecialchars(i18n_switch_url('zh-TW')); ?>"<?php echo $__locale === 'zh-TW' ? ' class="active"' : ''; ?>><?php echo t('nav.lang.zh_tw'); ?></a>
+            <a href="<?php echo htmlspecialchars(i18n_switch_url('en')); ?>"<?php echo $__locale === 'en' ? ' class="active"' : ''; ?>><?php echo t('nav.lang.en'); ?></a>
+        </span>
+    </nav>
 <main>  <!-- 主要內容 -->
     <div class='container'> <!-- 容器 -->
         <?php   // 判斷要顯示的內容
@@ -128,28 +143,28 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
                 if (is_admin()) {
                     include $PAGES . '/user/adminEdit.php';
                 } else {
-                    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+                    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
                 }
                 break;
             case "130": // 使用者刪除
                 if (is_admin()) {
                     include $PAGES . '/user/adminDel.php';
                 } else {
-                    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+                    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
                 }
                 break;
             case "135": // 使用者批量刪除
                 if (is_admin()) {
                     include $PAGES . '/user/adminDelBatch.php';
                 } else {
-                    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+                    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
                 }
                 break;
             case "140": // 使用者新增
                 if (is_admin()) {
                     include $PAGES . '/user/adminAdd.php';
                 } else {
-                    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+                    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
                 }
                 break;
             case "150": // 首頁
@@ -261,7 +276,7 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
                 include $PAGES . '/shipment/ShipmentDelBatch.php';
                 break;
             case "forbidden":
-                echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+                echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
                 break;
         }
         ?>
@@ -271,8 +286,8 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
 <footer>    <!-- 頁尾 -->
     <div style="width: 100%; height: auto; background-color: rgba(255, 255, 255, 0.8); text-align: center; padding: 20px 0;">   <!-- 頁尾內容 -->
         <p style="color:#000000; margin: 0;">
-            &copy; 2024–2026 Enterprise Operations Management System<br>
-            本專案僅供學習與展示用途，不得用於商業目的或散布。
+            <?php echo t('footer.copyright'); ?><br>
+            <?php echo t('footer.notice'); ?>
         </p>
     </div>  <!-- 結束頁尾內容 -->
 </footer>   <!-- 結束頁尾 -->

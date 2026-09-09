@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/../../config.inc.php'; // 引入資料庫設定
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -43,26 +44,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 判斷是否為 POST 方法
 ?>
 
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'> <!-- 卡片 -->
-    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;">編輯員工</h3> <!-- 標題 -->
+    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;"><?php echo t('employee.edit.title'); ?></h3> <!-- 標題 -->
     <hr> <!-- 分隔線 -->
     <form method="POST"> <!-- 表單 -->
         <input type="hidden" name="id" value="<?php echo $row['EmployeeID']; ?>"> <!-- 保留員工 ID -->
         <input type="hidden" name="resultsPerPage" value="<?php echo $resultsPerPage; ?>"> <!-- 保留每頁顯示筆數 -->
         <div class="form-group"> <!-- 表單群組 -->
-            <label>員工ID</label> <!-- 標籤 -->
+            <label><?php echo t('employee.edit.id'); ?></label> <!-- 標籤 -->
             <input type="text" name="EmployeeID" class="form-control" value="<?php echo $row['EmployeeID']; ?>" readonly> <!-- 員工 ID -->
         </div>
         <div class="form-group"> <!-- 表單群組 -->
-            <label>員工姓名</label> <!-- 標籤 -->
+            <label><?php echo t('employee.field.name'); ?></label> <!-- 標籤 -->
             <input type="text" name="EmployeeName" class="form-control" value="<?php echo $row['EmployeeName']; ?>" required> <!-- 員工姓名 -->
-        </div> 
+        </div>
         <br>
         <div style="text-align: center;"> <!-- 文字置中 -->
-            <a href="index.php?Act=350&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary">返回</a> <!-- 返回 -->
+            <a href="index.php?Act=350&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回 -->
             <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-            <button type="reset" class="btn btn-warning text-white">清除</button> <!-- 清除 -->
+            <button type="reset" class="btn btn-warning text-white"><?php echo t('common.clear'); ?></button> <!-- 清除 -->
             <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-            <button type="submit" class="btn btn-success">修改</button> <!-- 修改 -->
+            <button type="submit" class="btn btn-success"><?php echo t('employee.edit.submit'); ?></button> <!-- 修改 -->
         </div>
     </form>
 </div>

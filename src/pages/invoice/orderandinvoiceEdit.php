@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -19,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         $snapshot = $snapshotStmt->fetch(PDO::FETCH_ASSOC);
         if ($snapshot === false) {
-            throw new RuntimeException('所選訂單或客戶不存在。');
+            throw new RuntimeException(t('invoice.add.err_not_found'));
         }
 
         $stmt = $pdo->prepare("
@@ -46,14 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php?Act=240");
         exit();
     } catch (PDOException $e) {
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
     }
 } else {
     $stmt = $pdo->prepare("SELECT * FROM orderandinvoice WHERE id = :id");
     $stmt->execute([':id' => $_GET['id']]);
     $row = $stmt->fetch();
     if ($row === false) {
-        echo "<p>找不到指定的訂單與發票資料。</p>";
+        echo "<p>" . t('invoice.edit.not_found') . "</p>";
         return;
     }
 
@@ -62,31 +63,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<h3>編輯訂單與發票</h3>
+<h3><?php echo t('invoice.edit.title'); ?></h3>
 <form method="POST">
     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-    <label>訂單關聯</label>
+    <label><?php echo t('invoice.edit.order_link'); ?></label>
     <select name="order_id" class="form-control" required>
         <?php foreach ($orders as $order): ?>
             <option value="<?php echo $order['OrderID']; ?>" <?php echo (int) $row['order_id'] === (int) $order['OrderID'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($order['TrackingNumber'], ENT_QUOTES, 'UTF-8'); ?>（<?php echo $order['OrderID']; ?>）</option>
         <?php endforeach; ?>
     </select>
-    <label>訂單號碼快照</label>
+    <label><?php echo t('invoice.field.order_number_snapshot'); ?></label>
     <input type="text" class="form-control" value="<?php echo htmlspecialchars((string) $row['order_number'], ENT_QUOTES, 'UTF-8'); ?>" readonly>
-    <label>發票號碼</label>
+    <label><?php echo t('invoice.field.invoice_number'); ?></label>
     <input type="text" name="invoice_number" class="form-control" value="<?php echo htmlspecialchars($row['invoice_number'], ENT_QUOTES, 'UTF-8'); ?>" required>
-    <label>客戶關聯</label>
+    <label><?php echo t('invoice.edit.customer_link'); ?></label>
     <select name="customer_id" class="form-control" required>
         <?php foreach ($customers as $customer): ?>
             <option value="<?php echo $customer['CustomerID']; ?>" <?php echo (int) $row['customer_id'] === (int) $customer['CustomerID'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($customer['CustomerName'], ENT_QUOTES, 'UTF-8'); ?>（<?php echo $customer['CustomerID']; ?>）</option>
         <?php endforeach; ?>
     </select>
-    <label>客戶名稱快照</label>
+    <label><?php echo t('invoice.field.customer_name_snapshot'); ?></label>
     <input type="text" class="form-control" value="<?php echo htmlspecialchars($row['customer_name'], ENT_QUOTES, 'UTF-8'); ?>" readonly>
-    <label>金額</label>
+    <label><?php echo t('invoice.field.amount'); ?></label>
     <input type="number" name="amount" class="form-control" value="<?php echo htmlspecialchars((string) $row['amount'], ENT_QUOTES, 'UTF-8'); ?>" required>
-    <label>狀態</label>
-    <input type="checkbox" name="status" <?php echo $row['status'] ? 'checked' : ''; ?>> 完成
+    <label><?php echo t('invoice.field.status'); ?></label>
+    <input type="checkbox" name="status" <?php echo $row['status'] ? 'checked' : ''; ?>> <?php echo t('invoice.status.done'); ?>
     <br>
-    <button type="submit" class="btn btn-primary">更新</button>
+    <button type="submit" class="btn btn-primary"><?php echo t('common.update'); ?></button>
 </form>

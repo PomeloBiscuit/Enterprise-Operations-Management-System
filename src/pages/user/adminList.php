@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_manage_users()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 if (can_manage_users()) {
@@ -17,14 +18,38 @@ if (can_manage_users()) {
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
     $offset = ($page - 1) * $resultsPerPage;
 
+    $L_title = t('user.list.title');
+    $L_perPage = t('common.search.per_page');
+    $L_pickColumn = t('common.search.pick_column');
+    $L_allColumns = t('common.search.all_columns');
+    $L_name = t('field.name');
+    $L_account = t('field.account');
+    $L_email = t('user.field.email');
+    $L_landline = t('user.field.landline');
+    $L_mobile = t('user.field.mobile');
+    $L_isAdmin = t('user.field.is_admin');
+    $L_searchPh = t('common.search.placeholder');
+    $L_search = t('common.search');
+    $L_showAll = t('common.show_all');
+    $L_addUser = t('user.list.add_button');
+    $L_selectAll = t('common.select_all');
+    $L_action = t('common.action');
+    $L_edit = t('user.action.edit');
+    $L_deleteSelected = t('common.delete_selected');
+    $L_noData = t('common.no_data');
+    $L_prev = t('common.page.prev');
+    $L_next = t('common.page.next');
+    $L_yes = t('user.value.yes');
+    $L_no = t('user.value.no');
+
     echo "
     <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
-        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>使用者列表</h3><hr>
+        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_title</h3><hr>
 
         <!-- 搜尋框和新增按鈕 -->
         <form method='post' action='' style='display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;'>
             <div style='display: flex; align-items: center; gap: 10px;'>
-                <label for='resultsPerPage' style='margin-right: 10px; text-align: center; align-self: center;'>顯示筆數</label>
+                <label for='resultsPerPage' style='margin-right: 10px; text-align: center; align-self: center;'>$L_perPage</label>
                 <select name='resultsPerPage' id='resultsPerPage' class='form-select' style='max-width: 100px;' onchange='this.form.submit()'>
                     <option value='5' " . ($resultsPerPage === 5 ? 'selected' : '') . ">5</option>
                     <option value='10' " . ($resultsPerPage === 10 ? 'selected' : '') . ">10</option>
@@ -36,21 +61,21 @@ if (can_manage_users()) {
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <select name='searchColumn' class='form-select' style='max-width: 200px;'>
-                <option value=''>選擇搜尋條件</option>
-                <option value='all' " . ($searchColumn === 'all' ? 'selected' : '') . ">全部</option>
+                <option value=''>$L_pickColumn</option>
+                <option value='all' " . ($searchColumn === 'all' ? 'selected' : '') . ">$L_allColumns</option>
                 <option value='prikey' " . ($searchColumn === 'prikey' ? 'selected' : '') . ">UserID</option>
-                <option value='name' " . ($searchColumn === 'name' ? 'selected' : '') . ">姓名</option>
-                <option value='id' " . ($searchColumn === 'id' ? 'selected' : '') . ">帳號</option>
-                <option value='email' " . ($searchColumn === 'email' ? 'selected' : '') . ">電子郵件</option>
-                <option value='phone' " . ($searchColumn === 'phone' ? 'selected' : '') . ">固定電話</option>
-                <option value='phonem' " . ($searchColumn === 'phonem' ? 'selected' : '') . ">行動電話</option>
-                <option value='limited' " . ($searchColumn === 'limited' ? 'selected' : '') . ">管理員身份</option>
+                <option value='name' " . ($searchColumn === 'name' ? 'selected' : '') . ">$L_name</option>
+                <option value='id' " . ($searchColumn === 'id' ? 'selected' : '') . ">$L_account</option>
+                <option value='email' " . ($searchColumn === 'email' ? 'selected' : '') . ">$L_email</option>
+                <option value='phone' " . ($searchColumn === 'phone' ? 'selected' : '') . ">$L_landline</option>
+                <option value='phonem' " . ($searchColumn === 'phonem' ? 'selected' : '') . ">$L_mobile</option>
+                <option value='limited' " . ($searchColumn === 'limited' ? 'selected' : '') . ">$L_isAdmin</option>
             </select>
-            <input type='text' name='searchValue' placeholder='輸入搜尋內容' class='form-control' value='$searchValue' style='max-width: 300px;'>
-            
-            <button type='submit' class='btn btn-primary'>搜尋</button>
-            <a href='index.php?Act=110&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>顯示所有資料</a>
-            <button type='button' class='btn btn-success' onclick=\"location.href='index.php?Act=140&resultsPerPage=$resultsPerPage';\" " . (!is_admin() ? 'disabled' : '') . ">新增人員</button>
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>
+
+            <button type='submit' class='btn btn-primary'>$L_search</button>
+            <a href='index.php?Act=110&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a>
+            <button type='button' class='btn btn-success' onclick=\"location.href='index.php?Act=140&resultsPerPage=$resultsPerPage';\" " . (!is_admin() ? 'disabled' : '') . ">$L_addUser</button>
         </form>
 
         <form id='deleteForm' method='post' action='index.php?Act=135' onsubmit='return confirmDelete();'>
@@ -58,15 +83,15 @@ if (can_manage_users()) {
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>
-                    <th style='width: 60px; text-align: center; vertical-align: middle;'>全選<br><input type='checkbox' id='selectAll' " . (!is_admin() ? 'disabled' : '') . "></th>
+                    <th style='width: 60px; text-align: center; vertical-align: middle;'>$L_selectAll<br><input type='checkbox' id='selectAll' " . (!is_admin() ? 'disabled' : '') . "></th>
                     <th style='width: 60px; text-align: center; vertical-align: middle;'><a href='?Act=110&sort=$nextSortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>UserID</a></th>
-                    <th style='width: auto; text-align: center; vertical-align: middle;'>姓名</th>
-                    <th style='width: auto; text-align: center; vertical-align: middle;'>帳號</th>
-                    <th style='width: auto; text-align: center; vertical-align: middle;'>固定電話</th>
-                    <th style='width: auto; text-align: center; vertical-align: middle;'>行動電話</th>
-                    <th style='width: auto; text-align: center; vertical-align: middle;'>電子郵件</th>
-                    <th style='width: auto; text-align: center; vertical-align: middle;'>管理員身份</th>
-                    <th style='width: 75px; text-align: center; vertical-align: middle;'>功能</th>
+                    <th style='width: auto; text-align: center; vertical-align: middle;'>$L_name</th>
+                    <th style='width: auto; text-align: center; vertical-align: middle;'>$L_account</th>
+                    <th style='width: auto; text-align: center; vertical-align: middle;'>$L_landline</th>
+                    <th style='width: auto; text-align: center; vertical-align: middle;'>$L_mobile</th>
+                    <th style='width: auto; text-align: center; vertical-align: middle;'>$L_email</th>
+                    <th style='width: auto; text-align: center; vertical-align: middle;'>$L_isAdmin</th>
+                    <th style='width: 75px; text-align: center; vertical-align: middle;'>$L_action</th>
                 </tr>
             </thead>
             <tbody>
@@ -114,7 +139,7 @@ if (can_manage_users()) {
         $results = $stmt->fetchAll();
         if (count($results) > 0) {
             foreach ($results as $row) {
-                $isAdmin = $row['limited'] == 1 ? '是' : '否';
+                $isAdmin = $row['limited'] == 1 ? $L_yes : $L_no;
                 $disableButtons = !is_admin() ? 'disabled' : '';
                 $editLink = is_admin() ? "href='index.php?Act=120&EK={$row['prikey']}&resultsPerPage=$resultsPerPage'" : '';
                 echo "
@@ -129,14 +154,14 @@ if (can_manage_users()) {
                     <td style='text-align: center;'>$isAdmin</td>
                     <td style='text-align: center;'>
                         <div style='display: flex; justify-content: center; gap: 10px;'>
-                            <a $editLink class='btn btn-primary btn-sm' $disableButtons>修改</a>
+                            <a $editLink class='btn btn-primary btn-sm' $disableButtons>$L_edit</a>
                         </div>
                     </td>
                 </tr>
                 ";
             }
         } else {
-            echo "<tr><td colspan='9' style='text-align: center;'>查無資料</td></tr>";
+            echo "<tr><td colspan='9' style='text-align: center;'>$L_noData</td></tr>";
         }
 
         // 計算總頁數
@@ -175,14 +200,14 @@ if (can_manage_users()) {
         $totalPages = $totalResults > 0 ? ceil($totalResults / $resultsPerPage) : 1; // 確保 totalPages 至少為 1
 
     } catch (PDOException $e) {
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
     }
 
     echo "
             </tbody>
             </table>
             <div>
-                <button type='submit' class='btn btn-danger' " . (!is_admin() ? 'disabled' : '') . ">刪除勾選的資料</button>
+                <button type='submit' class='btn btn-danger' " . (!is_admin() ? 'disabled' : '') . ">$L_deleteSelected</button>
             </div>
             <div style='margin-top: 15px; background-color: white; text-align: center;'>
     ";
@@ -192,13 +217,13 @@ if (can_manage_users()) {
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>";
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>";
         if ($page > 1) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page - 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>上一頁</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page - 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>";
         }
         for ($i = 1; $i <= $totalPages; $i++) {
             echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=110&page=$i&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>";
         }
         if ($page < $totalPages) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page + 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>下一頁</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page + 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>";
         }
         echo "</ul></nav>";
     }
@@ -209,7 +234,7 @@ if (can_manage_users()) {
     </div>
     ";
 } else {
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
 }
 ?>
 
@@ -222,13 +247,13 @@ document.getElementById('selectAll').addEventListener('click', function(event) {
 function confirmDelete() {
     const checkboxes = document.querySelectorAll('input[name="selectedUsers[]"]:checked');
     if (checkboxes.length === 0) {
-        alert('未選擇任何使用者！');
+        alert(<?php echo json_encode(t('user.none_selected')); ?>);
         return false;
     }
     const selfDelete = Array.from(checkboxes).some(checkbox => checkbox.value === '<?php echo $_SESSION["admprikey"]; ?>');
     if (selfDelete) {
-        return confirm('執行此操作會刪除此帳號，您確定要繼續執行嗎？');
+        return confirm(<?php echo json_encode(t('user.confirm_self_delete')); ?>);
     }
-    return confirm('確定要刪除選中的使用者嗎？');
+    return confirm(<?php echo json_encode(t('user.confirm_delete')); ?>);
 }
 </script>

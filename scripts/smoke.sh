@@ -428,6 +428,105 @@ check_routes() {
     CHECK_DETAIL="18 個指定 Act 皆為 2xx/3xx"
 }
 
+# WO-11：英文模式下，指定頁面的「介面文字」不得殘留 CJK 字元。
+#
+# 「介面文字」與「資料庫資料」怎麼區分：
+#   介面文字＝寫在 PHP 檔裡、經 t() 取用的字串；漏翻時會以 zh-TW 值回退，
+#   於是在英文頁面顯示為中文。資料庫資料＝顧客名、地址、廠商名等 seed / 使用者
+#   輸入的值，本來就可能是任何語言，不該被當成「漏翻」。
+#
+# 做法：先向 SQLite 動態列舉每張表每個欄位，撈出所有「含 CJK 的值」，
+#       從英文模式抓回的 HTML 中把這些子字串剝掉，再斷言剩餘內容不含
+#       [\x{4e00}-\x{9fff}]。這樣對「產品名是英文、廠商名是中文」不會誤判：
+#       我們剝除的是所有 DB 文字值、不論其語言。
+# 另外剝除：
+#   - HTML 註解（<!-- -->）：不是使用者可見文字；會回報剝除的則數，不靜默。
+#   - 語言選單裡刻意以原文呈現的語言自稱（繁體中文）：語言選單顯示目標語言的
+#     原生名稱是正確的 i18n 慣例，不是漏翻。這是唯一一個明文允許清單項目。
+I18N_CJK_ALLOWLIST=$'繁體中文'
+
+check_i18n_english_no_cjk() {
+    # 依賴檢查 7a 建立的已登入 $COOKIE_JAR。
+    local db_values page name route mode html report residual ctx comments
+    local failures="" scanned=0 total_comments=0
+    local US=$'\x1f'
+
+    db_values="$(php -r '
+        require "/var/www/app/src/config.inc.php";
+        $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type=\"table\" AND name NOT LIKE \"sqlite_%\"")->fetchAll(PDO::FETCH_COLUMN);
+        $seen = [];
+        foreach ($tables as $t) {
+            foreach ($pdo->query("SELECT * FROM \"$t\"", PDO::FETCH_ASSOC) as $row) {
+                foreach ($row as $v) {
+                    if (is_string($v) && preg_match("/[\x{4e00}-\x{9fff}]/u", $v)) {
+                        $seen[$v] = strlen($v);
+                    }
+                }
+            }
+        }
+        arsort($seen);
+        foreach (array_keys($seen) as $v) { echo $v, "\n"; }
+    ')" || { CHECK_DETAIL="無法列舉資料庫 CJK 值"; return 1; }
+
+    # <name>|<route>|<cookie|nocookie>
+    for page in \
+        "login${US}index.php?lang=en${US}nocookie" \
+        "home${US}index.php?Act=150&lang=en${US}cookie" \
+        "customer-list${US}index.php?Act=300&lang=en${US}cookie" \
+        "customer-add${US}index.php?Act=320&lang=en${US}cookie" \
+        "order-list${US}index.php?Act=430&lang=en${US}cookie" \
+        "order-add${US}index.php?Act=440&lang=en${US}cookie" \
+        "invoice-list${US}index.php?Act=240&lang=en${US}cookie" \
+        "firm-customer-list${US}index.php?Act=200&lang=en${US}cookie" \
+        "user-list${US}index.php?Act=110&lang=en${US}cookie" \
+        "profile${US}index.php?Act=100&lang=en${US}cookie"; do
+        IFS="$US" read -r name route mode <<< "$page"
+        if [[ "$mode" == "nocookie" ]]; then
+            html="$(curl -sS "$BASE_URL/$route")" || { failures+="$name:curl "; continue; }
+        else
+            html="$(curl -sS -b "$COOKIE_JAR" "$BASE_URL/$route")" || { failures+="$name:curl "; continue; }
+        fi
+        scanned=$((scanned + 1))
+        report="$(DB_VALUES="$db_values" ALLOW="$I18N_CJK_ALLOWLIST" php -r '
+            $html = stream_get_contents(STDIN);
+            $comments = 0;
+            $strip = function ($re) use (&$html, &$comments) {
+                $html = preg_replace_callback($re, function ($m) use (&$comments) {
+                    if (preg_match("/[\x{4e00}-\x{9fff}]/u", $m[0])) { $comments++; }
+                    return "";
+                }, $html);
+            };
+            // 非使用者可見文字：HTML 註解、CSS/JS 區塊註解、含中文的 // 行註解。
+            // 這些依 WO-11 第 7 點屬「註解，不算漏字串」；剝除但回報則數，不靜默。
+            $strip("/<!--.*?-->/s");
+            $strip("#/\*.*?\*/#s");
+            $strip("#//[^\n]*[\x{4e00}-\x{9fff}][^\n]*#u");
+            foreach (preg_split("/\n/", (string) getenv("DB_VALUES"), -1, PREG_SPLIT_NO_EMPTY) as $v) {
+                $html = str_replace($v, "", $html);
+            }
+            foreach (preg_split("/\n/", (string) getenv("ALLOW"), -1, PREG_SPLIT_NO_EMPTY) as $v) {
+                $html = str_replace($v, "", $html);
+            }
+            preg_match_all("/[\x{4e00}-\x{9fff}]/u", $html, $mm);
+            $n = count($mm[0]);
+            $ctx = "";
+            if ($n > 0 && preg_match("/.{0,50}[\x{4e00}-\x{9fff}].{0,50}/su", $html, $c)) {
+                $ctx = preg_replace("/\s+/", " ", $c[0]);
+            }
+            echo $n, "\x1f", $ctx, "\x1f", $comments;
+        ' <<< "$html")"
+        IFS="$US" read -r residual ctx comments <<< "$report"
+        total_comments=$((total_comments + ${comments:-0}))
+        if [[ "${residual:-1}" != "0" ]]; then
+            failures+="${name}:殘留${residual}字(…${ctx}…) "
+        fi
+    done
+
+    [[ "$scanned" -ge 10 ]] || { CHECK_DETAIL="只掃到 $scanned 頁（預期 10）"; return 1; }
+    [[ -z "$failures" ]] || { CHECK_DETAIL="英文模式仍有中文介面文字：${failures% }"; return 1; }
+    CHECK_DETAIL="10 頁英文模式均無 CJK 介面殘留（已剝除 DB 值；另剝除 $total_comments 則含中文的 HTML 註解）"
+}
+
 check_error_log() {
     local count
     [[ -r "$APACHE_ERROR_LOG" ]] || { CHECK_DETAIL="無法讀取 $APACHE_ERROR_LOG"; return 1; }
@@ -483,6 +582,7 @@ for check in \
     '10 check_injection' \
     'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \
+    'I18N-EN-CJK check_i18n_english_no_cjk' \
     '11 check_error_log' \
     '12 check_git_hygiene'; do
     number="${check%% *}"

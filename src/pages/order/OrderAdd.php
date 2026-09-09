@@ -1,8 +1,9 @@
 <?php // OrderAdd.php
 require_once __DIR__ . '/../../config.inc.php'; // 引入資料庫設定檔
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -41,12 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
                 continue; // 略過沒有選產品的空列
             }
             if ($qty <= 0) {
-                throw new Exception("產品 $pid 的數量必須大於 0");
+                throw new Exception(t('order.add.err_qty', ['pid' => $pid]));
             }
             $lineItems[$pid] = ($lineItems[$pid] ?? 0) + $qty;
         }
         if (count($lineItems) === 0) {
-            throw new Exception("訂單至少要有一項產品");
+            throw new Exception(t('order.add.err_no_items'));
         }
         foreach (array_keys($lineItems) as $pid) {
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM Product WHERE ProductID = :ProductID");
@@ -123,7 +124,7 @@ $productOptionsHtml = ob_get_clean();
 ?>  <!-- 結束 PHP 區塊 -->
 
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
-    <h3 style='text-align: center; font-family: "Noto Sans TC", "Times New Roman", serif;'>新增訂單</h3><hr>
+    <h3 style='text-align: center; font-family: "Noto Sans TC", "Times New Roman", serif;'><?php echo t('order.add.title'); ?></h3><hr>
     <form action="index.php?Act=440" method="post" id="orderAddForm">
         <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>">
         <div class="form-group">
@@ -132,9 +133,9 @@ $productOptionsHtml = ob_get_clean();
         </div>
         <div class="form-group">
             <label for="EmployeeID">Employee ID</label>
-            <input type="text" id="employeeSearch" class="form-control" placeholder="輸入Employee ID or Name">
+            <input type="text" id="employeeSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('order.add.employee_search_ph')); ?>">
             <select name="EmployeeID" id="EmployeeID" class="form-control mt-2">
-                <option value="">選擇Employee</option>
+                <option value=""><?php echo t('order.form.select_employee'); ?></option>
                 <?php foreach ($employees as $employee): ?>
                     <option value="<?php echo $employee['EmployeeID']; ?>"><?php echo $employee['EmployeeID'] . ' - ' . $employee['EmployeeName']; ?></option>
                 <?php endforeach; ?>
@@ -142,9 +143,9 @@ $productOptionsHtml = ob_get_clean();
         </div>
         <div class="form-group">
             <label for="CustomerID">Customer ID</label>
-            <input type="text" id="customerSearch" class="form-control" placeholder="搜尋 Customer ID, Name or Phone">
+            <input type="text" id="customerSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('order.add.customer_search_ph')); ?>">
             <select name="CustomerID" id="customerID" class="form-control mt-2" required>
-                <option value="">選擇Customer</option>
+                <option value=""><?php echo t('order.form.select_customer'); ?></option>
                 <?php foreach ($customers as $customer): ?>
                     <option value="<?php echo $customer['CustomerID']; ?>"><?php echo $customer['CustomerID'] . ' - ' . $customer['CustomerName']; ?></option>
                 <?php endforeach; ?>
@@ -152,18 +153,18 @@ $productOptionsHtml = ob_get_clean();
         </div>
 
         <div class="form-group">
-            <label>訂單明細（產品與數量）</label>
+            <label><?php echo t('order.field.line_items'); ?></label>
             <table class="table table-sm" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>產品</th>
-                        <th style="width: 120px;">數量</th>
-                        <th style="width: 90px;">操作</th>
+                        <th><?php echo t('order.field.product'); ?></th>
+                        <th style="width: 120px;"><?php echo t('order.field.quantity'); ?></th>
+                        <th style="width: 90px;"><?php echo t('common.action'); ?></th>
                     </tr>
                 </thead>
                 <tbody id="lineItemsBody"></tbody>
             </table>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="addLineItem">＋ 新增一列</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="addLineItem"><?php echo t('order.add.add_row'); ?></button>
         </div>
 
         <!-- 動態新增列用的樣板；不會被送出 -->
@@ -171,7 +172,7 @@ $productOptionsHtml = ob_get_clean();
             <tr class="line-item">
                 <td>
                     <select name="ProductID[]" class="form-control line-product">
-                        <option value="">選擇Product</option>
+                        <option value=""><?php echo t('order.form.select_product'); ?></option>
                         <?php echo $productOptionsHtml; ?>
                     </select>
                 </td>
@@ -179,7 +180,7 @@ $productOptionsHtml = ob_get_clean();
                     <input type="number" name="Quantity[]" class="form-control line-qty" min="1" step="1" value="1">
                 </td>
                 <td>
-                    <button type="button" class="btn btn-danger btn-sm remove-line">刪除</button>
+                    <button type="button" class="btn btn-danger btn-sm remove-line"><?php echo t('common.delete'); ?></button>
                 </td>
             </tr>
         </template>
@@ -206,11 +207,11 @@ $productOptionsHtml = ob_get_clean();
         </div>
         <br>
         <div style="text-align: center;">
-            <a href="index.php?Act=430&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary">返回</a>
+            <a href="index.php?Act=430&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
             <span style='display: inline-block; width: 20px;'></span>
-            <button type="reset" class="btn btn-warning text-white">清除</button>
+            <button type="reset" class="btn btn-warning text-white"><?php echo t('common.clear'); ?></button>
             <span style='display: inline-block; width: 20px;'></span>
-            <button type="submit" class="btn btn-primary">新增</button>
+            <button type="submit" class="btn btn-primary"><?php echo t('common.add'); ?></button>
         </div>
     </form>
 </div>
@@ -233,7 +234,7 @@ $(document).ready(function() {
         if (lineItemsBody.querySelectorAll('.line-item').length > 1) {
             $(this).closest('.line-item').remove();
         } else {
-            alert('至少要保留一列明細');
+            alert(<?php echo json_encode(t('order.js.keep_one_row')); ?>);
         }
     });
 
@@ -248,7 +249,7 @@ $(document).ready(function() {
         });
         if (!hasValidLine) {
             e.preventDefault();
-            alert('請至少選擇一項產品並填入大於 0 的數量');
+            alert(<?php echo json_encode(t('order.js.need_valid_line')); ?>);
         }
     });
 
@@ -300,7 +301,7 @@ document.getElementById('customerSearch').addEventListener('input', function() {
             option.CustomerID.toString().includes(searchValue);
     });
     var customerSelect = document.getElementById('customerID');
-    customerSelect.innerHTML = '<option value="">選擇顧客</option>';
+    customerSelect.innerHTML = <?php echo json_encode('<option value="">' . t('order.form.select_customer') . '</option>'); ?>;
     filteredOptions.forEach(function(option) {
         var opt = document.createElement('option');
         opt.value = option.CustomerID;
@@ -320,7 +321,7 @@ document.getElementById('employeeSearch').addEventListener('input', function() {
             option.EmployeeID.toString().includes(searchValue);
     });
     var employeeSelect = document.getElementById('EmployeeID');
-    employeeSelect.innerHTML = '<option value="">選擇員工</option>';
+    employeeSelect.innerHTML = <?php echo json_encode('<option value="">' . t('order.form.select_employee') . '</option>'); ?>;
     filteredOptions.forEach(function(option) {
         var opt = document.createElement('option');
         opt.value = option.EmployeeID;
