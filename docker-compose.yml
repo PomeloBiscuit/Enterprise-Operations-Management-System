@@ -2,9 +2,13 @@
 # 換成 SQLite 之後不再需要獨立的資料庫服務。
 #
 # 用法：
-#   docker compose up -d        # 第一次會自動跑 create.php 建立種子資料
+#   docker compose up -d        # 第一次會自動跑 scripts/create.php 建立種子資料
 #   開瀏覽器 http://localhost:8080/login.php   帳號 Admin / 密碼 123456
-#   要重建資料庫：瀏覽器開 http://localhost:8080/create.php
+#   要重建資料庫：docker compose exec web php scripts/create.php
+#
+# WO-10 起：整個專案掛到 /var/www/app，Apache 的 DocumentRoot 由
+# docker/apache-docroot.conf 指到 /var/www/app/public。頁面檔在 src/、
+# CLI 工具在 scripts/，都在 DocumentRoot 之外，無法從網路直接開啟。
 
 services:
   web:
@@ -13,11 +17,12 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./:/var/www/html
+      - ./:/var/www/app
       - ./docker/php.ini:/usr/local/etc/php/conf.d/zz-eoms.ini:ro
+      - ./docker/apache-docroot.conf:/etc/apache2/sites-enabled/000-default.conf:ro
     environment:
       TZ: "Asia/Taipei"
     # 用 bash 直接呼叫，避免 Windows bind mount 沒有帶執行權限
-    entrypoint: ["bash", "/var/www/html/docker/entrypoint.sh"]
+    entrypoint: ["bash", "/var/www/app/docker/entrypoint.sh"]
     command: ["apache2-foreground"]
     restart: unless-stopped

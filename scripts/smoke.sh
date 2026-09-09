@@ -2,7 +2,7 @@
 # 可重跑的容器內 smoke test。只使用 bash、curl 與容器既有的 PHP/SQLite。
 set -uo pipefail
 
-APP_DIR="${APP_DIR:-/var/www/html}"
+APP_DIR="${APP_DIR:-/var/www/app}"
 BASE_URL="${BASE_URL:-http://127.0.0.1}"
 APACHE_ERROR_LOG="${APACHE_ERROR_LOG:-/tmp/eoms-apache-error.log}"
 TMP_DIR="$(mktemp -d)"
@@ -27,7 +27,7 @@ declare -A DIRECT_FILE_EXEMPTIONS=(
 
 delete_injection_rows() {
     php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         try {
             $stmt = $pdo->prepare("DELETE FROM admin WHERE fcname = :name");
             $stmt->execute([":name" => $argv[1]]);
@@ -39,7 +39,7 @@ delete_injection_rows() {
 
 delete_external_user() {
     php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $stmt = $pdo->prepare("DELETE FROM User WHERE id = :id");
         $stmt->execute([":id" => $argv[1]]);
     ' "$EXTERNAL_ID" >/dev/null 2>&1 || true
@@ -63,7 +63,7 @@ result() {
 
 db_scalar() {
     php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $value = $pdo->query($argv[1])->fetchColumn();
         if ($value === false) {
             fwrite(STDERR, "query returned no scalar\n");
@@ -101,7 +101,7 @@ check_foreign_keys() {
 check_fk_cascade() {
     local value before after
     value="$(php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $pdo->beginTransaction();
         $pdo->exec("INSERT INTO Customer (CustomerName, CustomerPhoneNumber, CustomerAddress) VALUES (\"smoke-fk-cascade\", \"0000\", \"smoke\")");
         $id = $pdo->lastInsertId();
@@ -128,7 +128,7 @@ check_fk_cascade() {
 check_timezone() {
     local value php_epoch sqlite_local_epoch sqlite_utc_epoch local_gap utc_gap
     value="$(php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $row = $pdo->query("SELECT datetime(\"now\", \"localtime\"), datetime(\"now\")")->fetch(PDO::FETCH_NUM);
         echo strtotime(date("Y-m-d H:i:s")) . ":" . strtotime($row[0]) . ":" . strtotime($row[1]);
     ')" || return 1
@@ -142,7 +142,7 @@ check_timezone() {
 check_empty_sequence() {
     local value
     value="$(php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $pdo->beginTransaction();
         $pdo->exec("DELETE FROM orderandinvoice");
         $pdo->exec("DELETE FROM sqlite_sequence WHERE name = \"orderandinvoice\"");
@@ -314,7 +314,7 @@ check_external_registration() {
         --data-urlencode 'party_type=廠商' \
         "$BASE_URL/index.php?Act=160")" || { CHECK_DETAIL="curl 無法送出外部使用者註冊"; return 1; }
     state="$(php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $stmt = $pdo->prepare("SELECT limited || \":\" || party_type FROM User WHERE id = :id ORDER BY prikey DESC LIMIT 1");
         $stmt->execute([":id" => $argv[1]]);
         echo $stmt->fetchColumn();
@@ -363,7 +363,7 @@ check_injection() {
         --data-urlencode 'fcemail=smoke@example.test' --data-urlencode 'fcid=SMOKE-INJECTION' \
         "$BASE_URL/index.php?Act=210")" || { CHECK_DETAIL="curl 無法送出 injection 探針"; return 1; }
     state="$(php -r '
-        require "/var/www/html/config.inc.php";
+        require "/var/www/app/src/config.inc.php";
         $table = $pdo->query("SELECT count(*) FROM sqlite_master WHERE type = \"table\" AND name = \"admin\"")->fetchColumn();
         $stmt = $pdo->prepare("SELECT enabled || \":\" || open || \":\" || status FROM admin WHERE fcname = :name ORDER BY prikey DESC LIMIT 1");
         $stmt->execute([":name" => $argv[1]]);
@@ -404,7 +404,7 @@ check_error_log() {
 check_git_hygiene() {
     local tracked bad
     tracked="$(php -r '
-        $index = file_get_contents("/var/www/html/.git/index");
+        $index = file_get_contents("/var/www/app/.git/index");
         if (substr($index, 0, 4) !== "DIRC") { fwrite(STDERR, "非 Git index\\n"); exit(2); }
         $version = unpack("N", substr($index, 4, 4))[1];
         $entries = unpack("N", substr($index, 8, 4))[1];
