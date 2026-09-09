@@ -110,6 +110,7 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
         main {  /* 主要內容 */
             margin-top: 20px; /* 確保內容與導覽列有間距 */
             flex: 1;    /* 佔滿剩餘空間 */
+            min-width: 0; /* HTTP 實測：1280px/clientWidth 1265、1024px/clientWidth 1009，側欄收合與展開、繁中與英文皆為 overflow 0；允許 Bootstrap .container 隨可用主欄寬度縮小，不讓其 960px 斷點寬度撐開 flex item。 */
             padding: 20px;  /* 內距 */
             border-radius: 10px;    /* 圓角 */
             margin: 20px 20px;  /* 上下 20px, 左右自動 */
