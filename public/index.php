@@ -19,7 +19,7 @@ $userManagementActs = [110, 120, 130, 135, 140];
 $businessDataActs = [
     200, 210, 220, 230, 240, 250, 260, 265, 270,
     300, 320, 330, 335, 340, 350, 360, 370, 375, 380,
-    390, 400, 410, 415, 420, 430, 440, 450, 460,
+    390, 400, 410, 415, 420, 430, 440, 450, 455, 460,
     470, 480, 490, 500, 510,
 ];
 
@@ -238,6 +238,9 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
                 break;
             case "450": // 訂單刪除
                 include $PAGES . '/order/OrderDel.php';
+                break;
+            case 455:   // 訂單批量刪除（OrderList 的刪除表單改走前端控制器；原本直接 POST 到 OrderDelBatch.php）
+                include $PAGES . '/order/OrderDelBatch.php';
                 break;
             case "460": // 訂單編輯
                 include $PAGES . '/order/OrderEdit.php';

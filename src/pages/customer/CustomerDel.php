@@ -9,7 +9,7 @@ if (isset($_GET['id'])) { // 若有 ID
     try { // 嘗試執行
         $stmt = $pdo->prepare("DELETE FROM customer WHERE customer_id = :id"); // SQL 語法
         $stmt->execute([':id' => $_GET['id']]); 
-        header("Location: CustomerList.php");
+        header("Location: index.php?Act=300");
         exit();
     } catch (PDOException $e) {
         echo "<p>錯誤：" . $e->getMessage() . "</p>";
