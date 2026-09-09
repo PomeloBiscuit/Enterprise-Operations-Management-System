@@ -4,24 +4,38 @@
      // 經由 index.php include 時 require_once 會是 no-op。
      require_once __DIR__ . '/../../config.inc.php';
      require_once __DIR__ . '/../../auth.inc.php';
+     require_once __DIR__ . '/../../i18n.inc.php';
 
      if (can_view_business_data()) {
 
+          $L_title = t('firm.list.title');
+          $L_blankHint = t('firm.notice.blank_page');
+          $L_addTitle = t('firm.add.title');
+          $L_fc = t('firm.field.fc');
+          $L_name = t('field.name');
+          $L_address = t('field.address');
+          $L_phone = t('field.phone');
+          $L_mobile = t('field.mobile');
+          $L_id = t('firm.field.id');
+          $L_action = t('common.action');
+          $L_edit = t('firm.action.edit');
+          $L_delete = t('common.delete');
+
           echo "
-          <h3>廠商/客戶列表</h3><br><h5>新增 刪除 修改後會呈現空白頁面,請手動更新頁面(再按一次左邊列相同選項)</h5><hr>
-          <a href=index.php?Act=210 class='btn btn-primary'>新增廠商/客戶</a><br><br>
+          <h3>$L_title</h3><br><h5>$L_blankHint</h5><hr>
+          <a href=index.php?Act=210 class='btn btn-primary'>$L_addTitle</a><br><br>
 
           <table class=\"table table-bordered table-hover\" >
           <thead border rules=none cellspacing=0 align=center font-weight:bold>
                <tr >
-                    <th>廠商/客戶
-                    <th>姓名
-                    <th>地址
-                    <th>電話
-                    <th>行動電話
+                    <th>$L_fc
+                    <th>$L_name
+                    <th>$L_address
+                    <th>$L_phone
+                    <th>$L_mobile
                     <th>Email
-                    <th>編號
-                    <th width=160>功能
+                    <th>$L_id
+                    <th width=160>$L_action
           </thead>
           <tbody>
           ";
@@ -47,9 +61,9 @@
                          <td>{$row['fcid']}
                          <td>
                          <a href=index.php?Act=230&EK={$row['prikey']}
-                         class=\"btn btn-primary\">修改</a>
+                         class=\"btn btn-primary\">$L_edit</a>
                          <a href=index.php?Act=220&EK={$row['prikey']}
-                         class=\"btn btn-primary\" onClick=\"return confirmSubmit()\">刪除</a>
+                         class=\"btn btn-primary\" onClick=\"return confirmSubmit()\">$L_delete</a>
                     ";
           }
 
@@ -58,6 +72,6 @@
           </table>
           ";
           } else {
-               echo "<p style='text-align:center; color:red;'>權限不足!";
+               echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied');
           }
 ?>

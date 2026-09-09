@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../src/config.inc.php'; // 確保包含資料庫連接配置
 require_once __DIR__ . '/../src/auth.inc.php';
+require_once __DIR__ . '/../src/i18n.inc.php'; // 介面文字取字（直接開啟 login.php 時也要有 t()）
 
 if (empty($_POST["btemplogin"])) {
 ?>
@@ -108,7 +109,7 @@ body {
         <?php if (!empty($_GET['error'])): ?> <!-- 若有錯誤 -->
             <div style="color: red; font-size: 14px; margin-bottom: 10px;"> <!-- 顯示錯誤訊息 -->
                 <?php echo htmlspecialchars($_GET['error']); ?><br> <!-- 顯示錯誤訊息 -->
-                即將在 <span id="countdown">5</span> 秒後自動跳轉 <!-- 顯示倒數計時 -->
+                <?php echo t('auth.login.redirect_notice', ['seconds' => '<span id="countdown">5</span>']); ?> <!-- 顯示倒數計時 -->
             </div> <!-- 結束錯誤訊息 -->
             <script>
             let count = 5; // 設定倒數秒數
@@ -123,19 +124,19 @@ body {
             </script> <!-- 結束倒數計時 -->
         <?php else: ?> <!-- 若無錯誤 -->
             <form method="post" action="?login"> <!-- 登入表單 -->
-                <h3>登入</h3> <!-- 標題 -->
-                <input type="text" name="admid" placeholder="帳號*" required> <!-- 帳號輸入框 -->
-                <input type="password" name="admpw" placeholder="密碼*" required> <!-- 密碼輸入框 -->
+                <h3><?php echo t('auth.login.title'); ?></h3> <!-- 標題 -->
+                <input type="text" name="admid" placeholder="<?php echo htmlspecialchars(t('auth.login.id_placeholder')); ?>" required> <!-- 帳號輸入框 -->
+                <input type="password" name="admpw" placeholder="<?php echo htmlspecialchars(t('auth.login.pw_placeholder')); ?>" required> <!-- 密碼輸入框 -->
                 <div class="button-container"> <!-- 按鈕容器 -->
-                    <input type="submit" name="btemplogin" value="登入"> <!-- 登入按鈕 -->
-                    <input type="reset" value="清除"> <!-- 清除按鈕 -->
-                    <input type="button" value="註冊" onclick="location.href='index.php?Act=160';" /> <!-- 註冊按鈕 -->
+                    <input type="submit" name="btemplogin" value="<?php echo htmlspecialchars(t('auth.login.submit')); ?>"> <!-- 登入按鈕 -->
+                    <input type="reset" value="<?php echo htmlspecialchars(t('common.clear')); ?>"> <!-- 清除按鈕 -->
+                    <input type="button" value="<?php echo htmlspecialchars(t('auth.login.register')); ?>" onclick="location.href='index.php?Act=160';" /> <!-- 註冊按鈕 -->
                 </div> <!-- 結束按鈕容器 -->
             </form> <!-- 結束登入表單 -->
 
             <!-- 僅在無錯誤時顯示此提示 -->
             <div class="message-container"> <!-- 訊息容器 -->
-                示範帳號：Admin ／ 123456
+                <?php echo t('auth.login.demo_hint'); ?>
             </div>
         <?php endif; ?> <!-- 結束錯誤判斷 -->
     </div> <!-- 結束登入容器 -->
@@ -165,15 +166,15 @@ body {
             if (is_logged_in()) { // 已登入角色才可進入首頁；頁面權限另由具名守衛判斷
                 @header("Location: index.php?Act=150"); // 修改為跳轉至 case 150
             } else {    // 權限不足
-                @header("Location: ?error=權限不足，請聯絡管理員"); // 修改為跳轉至 case 150
+                @header("Location: ?error=" . urlencode(t('auth.login.err_permission'))); // 修改為跳轉至 case 150
                 exit(); // 結束程式
             }   // 結束權限判斷
         } else {
-            @header("Location: ?error=帳號或密碼不符，請重新輸入"); // 修改為跳轉至 case 150
+            @header("Location: ?error=" . urlencode(t('auth.login.err_bad_credentials'))); // 修改為跳轉至 case 150
             exit(); // 結束程式
         }   // 結束查詢結果判斷
     } catch (PDOException $e) { // 例外處理
-        echo "<p style='color:red;'>資料庫錯誤：" . htmlspecialchars($e->getMessage()) . "</p>";    // 顯示錯誤訊息
+        echo "<p style='color:red;'>" . t('common.db_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";    // 顯示錯誤訊息
     }   // 結束例外處理
 }   // 結束登入按鈕判斷
 ?>  

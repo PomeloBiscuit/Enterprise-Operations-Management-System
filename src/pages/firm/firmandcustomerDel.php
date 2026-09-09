@@ -1,5 +1,6 @@
 <?php
      require_once __DIR__ . '/../../auth.inc.php';
+     require_once __DIR__ . '/../../i18n.inc.php';
      if (can_view_business_data()) {
           $EK = intval($_GET['EK']);
           try {
@@ -16,6 +17,6 @@
           }
           header("refresh:1;url=index.php?Act=200");
      } else {
-          echo "<br><br><br><br><p align=center>權限不足!";
+          echo "<br><br><br><br><p align=center>" . t('common.permission_denied');
      }
 ?>

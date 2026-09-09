@@ -2,6 +2,7 @@
 session_start(); // 確保會話已啟動
 require_once __DIR__ . '/../../config.inc.php'; // 引入資料庫設定檔
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 
 if (can_view_business_data()) { // 管理員與內部員工才可操作業務資料
     if (isset($_POST['selectedProducts'])) { // 判斷是否有選擇貨物
@@ -14,14 +15,14 @@ if (can_view_business_data()) { // 管理員與內部員工才可操作業務資
             header("Location: index.php?Act=390&resultsPerPage=$resultsPerPage"); // 維持顯示筆數
             exit(); // 結束程式
         } catch (PDOException $e) { // 例外處理
-            echo "<p>錯誤：" . $e->getMessage() . "</p>"; // 顯示錯誤訊息
-        } 
+            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        }
     } else { // 如果未選擇任何貨物
-        echo "<p>未選擇任何貨物！</p>"; // 顯示錯誤訊息
-    }   
+        echo "<p>" . t('product.none_selected') . "</p>"; // 顯示錯誤訊息
+    }
 } else { // 如果權限不足
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>"; // 顯示錯誤訊息
-} 
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>"; // 顯示錯誤訊息
+}
 ?> 
 
 

@@ -1,5 +1,6 @@
 <?php // CustomerDelBatch.php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (can_view_business_data()) { // 僅管理員與內部員工可刪除
     if (isset($_POST['selectedCustomers'])) { // 若有選擇顧客
         $selectedCustomers = $_POST['selectedCustomers']; // 取得選擇的顧客
@@ -11,12 +12,12 @@ if (can_view_business_data()) { // 僅管理員與內部員工可刪除
             header("Location: index.php?Act=300&resultsPerPage=$resultsPerPage"); // 導向顧客列表
             exit(); // 結束程式
         } catch (PDOException $e) { // 若有錯誤
-            echo "<p>錯誤：" . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
         } // 結束執行
     } else { // 若未選擇顧客
-        echo "<p>未選擇任何顧客！</p>"; // 顯示錯誤訊息
+        echo "<p>" . t('customer.none_selected') . "</p>"; // 顯示錯誤訊息
     } // 結束判斷是否有選擇顧客
 } else { // 若非管理員
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>"; // 顯示錯誤訊息
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>"; // 顯示錯誤訊息
 } // 結束判斷是否為管理員
 ?> <!-- 結束 PHP 區塊 -->

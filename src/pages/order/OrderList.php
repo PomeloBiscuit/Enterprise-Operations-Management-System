@@ -1,7 +1,8 @@
 <?php // OrderList.php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資料
@@ -14,14 +15,31 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算偏移量
 
+    $L_title = t('order.list.title');
+    $L_perPage = t('common.search.per_page');
+    $L_pickColumn = t('common.search.pick_column');
+    $L_searchPh = t('common.search.placeholder');
+    $L_search = t('common.search');
+    $L_showAll = t('common.show_all');
+    $L_addOrder = t('order.add.title');
+    $L_selectAll = t('common.select_all');
+    $L_itemCount = t('order.field.item_count');
+    $L_orderTotal = t('order.field.order_total');
+    $L_action = t('common.action');
+    $L_edit = t('common.edit');
+    $L_deleteSelected = t('common.delete_selected');
+    $L_noData = t('common.no_data');
+    $L_prev = t('common.page.prev');
+    $L_next = t('common.page.next');
+
     echo "
     <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'> <!-- 容器 -->
-        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>訂單列表</h3><hr> <!-- 標題 -->
+        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_title</h3><hr> <!-- 標題 -->
 
-        <!-- 搜尋框和新增按鈕 --> 
+        <!-- 搜尋框和新增按鈕 -->
         <form method='post' action='' style='display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;'> <!-- 表單 -->
             <div style='display: flex; align-items: center; gap: 10px;'> <!-- 顯示筆數和搜尋欄位 -->
-                <label for='resultsPerPage' style='margin-right: 10px; text-align: center; align-self: center;'>顯示筆數</label> <!-- 顯示筆數標籤 -->
+                <label for='resultsPerPage' style='margin-right: 10px; text-align: center; align-self: center;'>$L_perPage</label> <!-- 顯示筆數標籤 -->
                 <select name='resultsPerPage' id='resultsPerPage' class='form-select' style='max-width: 100px;' onchange='this.form.submit()'> <!-- 顯示筆數下拉式選單 -->
                     <option value='5' " . ($resultsPerPage === 5 ? 'selected' : '') . ">5</option> <!-- 選項 -->
                     <option value='10' " . ($resultsPerPage === 10 ? 'selected' : '') . ">10</option> <!-- 選項 -->
@@ -33,7 +51,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             </div> <!-- 結束顯示筆數和搜尋欄位 -->
             &nbsp;&nbsp;&nbsp;&nbsp; <!-- 空白 -->
             <select name='searchColumn' class='form-select' style='max-width: 200px;'> <!-- 搜尋欄位下拉式選單 -->
-                <option value=''>選擇搜尋條件</option> <!-- 選項 -->
+                <option value=''>$L_pickColumn</option> <!-- 選項 -->
                 <option value='all' " . ($searchColumn === 'all' ? 'selected' : '') . ">All</option> <!-- 選項 -->
                 <option value='OrderID' " . ($searchColumn === 'OrderID' ? 'selected' : '') . ">Order ID</option> <!-- 選項 -->
                 <option value='CustomerID' " . ($searchColumn === 'CustomerID' ? 'selected' : '') . ">Customer ID</option>  <!-- 選項 -->
@@ -42,11 +60,11 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                 <option value='TrackingNumber' " . ($searchColumn === 'TrackingNumber' ? 'selected' : '') . ">Tracking Number</option>  <!-- 選項 -->
                 <option value='ShipMethod' " . ($searchColumn === 'ShipMethod' ? 'selected' : '') . ">Ship Method</option>  <!-- 選項 -->
             </select>   <!-- 結束搜尋欄位下拉式選單 -->
-            <input type='text' name='searchValue' placeholder='輸入搜尋內容' class='form-control' value='$searchValue' style='max-width: 300px;'>   <!-- 搜尋內容輸入框 -->
-            
-            <button type='submit' class='btn btn-primary'>搜尋</button> <!-- 搜尋按鈕 -->
-            <a href='index.php?Act=430&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>顯示所有資料</a>   <!-- 顯示所有資料按鈕 -->
-            <a href='index.php?Act=440&resultsPerPage=$resultsPerPage' class='btn btn-success'>新增訂單</a> <!-- 新增訂單按鈕 -->
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>   <!-- 搜尋內容輸入框 -->
+
+            <button type='submit' class='btn btn-primary'>$L_search</button> <!-- 搜尋按鈕 -->
+            <a href='index.php?Act=430&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a>   <!-- 顯示所有資料按鈕 -->
+            <a href='index.php?Act=440&resultsPerPage=$resultsPerPage' class='btn btn-success'>$L_addOrder</a> <!-- 新增訂單按鈕 -->
         </form> <!-- 結束表單 -->
 
         <form id='deleteForm' method='post' action='index.php?Act=455' onsubmit='return confirmDelete();'>  <!-- 刪除表單（改走前端控制器） -->
@@ -54,7 +72,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             <table class=\"table table-bordered table-hover\" style='width: 100%;'> <!-- 表格 -->
             <thead> <!-- 表頭 -->
                 <tr>    <!-- 表頭 -->
-                    <th style='text-align: center; vertical-align: middle; width: 60px;'>全選<br><input type='checkbox' id='selectAll'></th>    <!-- 全選 -->
+                    <th style='text-align: center; vertical-align: middle; width: 60px;'>$L_selectAll<br><input type='checkbox' id='selectAll'></th>    <!-- 全選 -->
                     <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=$nextSortOrder&sortColumn=OrderID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>OrderID</a></th>   <!-- 訂單編號 -->
                     <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'EmployeeID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>    <!-- 員工編號 -->
                     <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'CustomerID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=CustomerID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>CustomerID</a></th>    <!-- 顧客編號 -->
@@ -62,9 +80,9 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                     <th style='text-align: center; vertical-align: middle;'>ShipDate</th>   <!-- 出貨日期 -->
                     <th style='text-align: center; vertical-align: middle;'>TrackingNumber</th> <!-- 追蹤號碼 -->
                     <th style='text-align: center; vertical-align: middle;'>ShipMethod</th> <!-- 運送方式 -->
-                    <th style='text-align: center; vertical-align: middle;'>品項數</th> <!-- Contain 明細列數 -->
-                    <th style='text-align: center; vertical-align: middle;'>訂單金額</th> <!-- SUM(數量 × 單價) -->
-                    <th style='text-align: center; vertical-align: middle; width: 75px;'>功能</th>  <!-- 功能 -->
+                    <th style='text-align: center; vertical-align: middle;'>$L_itemCount</th> <!-- Contain 明細列數 -->
+                    <th style='text-align: center; vertical-align: middle;'>$L_orderTotal</th> <!-- SUM(數量 × 單價) -->
+                    <th style='text-align: center; vertical-align: middle; width: 75px;'>$L_action</th>  <!-- 功能 -->
                 </tr>
             </thead>
             <tbody>
@@ -136,13 +154,13 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                     <td style='text-align: center;'>{$itemCount}</td> <!-- 品項數 -->
                     <td style='text-align: center;'>{$orderTotalInt}</td> <!-- 訂單金額 SUM(數量 × 單價) -->
                     <td style='text-align: center;'>
-                        <a href='index.php?Act=460&id={$row['OrderID']}&resultsPerPage=$resultsPerPage' class='btn btn-primary btn-sm'>編輯</a> <!-- 編輯按鈕 -->
+                        <a href='index.php?Act=460&id={$row['OrderID']}&resultsPerPage=$resultsPerPage' class='btn btn-primary btn-sm'>$L_edit</a> <!-- 編輯按鈕 -->
                     </td> <!-- 結束功能欄 -->
                 </tr> <!-- 結束資料列 -->
                 "; // 結束顯示每一筆資料
             } // 結束顯示每一筆資料
         } else { // 如果沒有資料
-            echo "<tr><td colspan='11' style='text-align: center;'>查無資料</td></tr>"; // 顯示查無資料
+            echo "<tr><td colspan='11' style='text-align: center;'>$L_noData</td></tr>"; // 顯示查無資料
         } // 結束顯示資料
 
         // 計算總頁數
@@ -184,14 +202,14 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $totalPages = ceil($totalResults / $resultsPerPage); // 計算總頁數
 
     } catch (PDOException $e) { // 例外處理
-        echo "<p>錯誤：" . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
     }
 
     echo " <!-- 分頁導航 -->
             </tbody>
             </table>
             <div> <!-- 功能按鈕 -->
-                <button type='submit' class='btn btn-danger'>刪除勾選的資料</button> <!-- 刪除按鈕 -->
+                <button type='submit' class='btn btn-danger'>$L_deleteSelected</button> <!-- 刪除按鈕 -->
             </div> <!-- 結束功能按鈕 -->
             <div style='margin-top: 15px; background-color: white; text-align: center;'> <!-- 分頁導航 -->
     ";
@@ -201,13 +219,13 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>"; // 分頁導航
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>"; // 分頁樣式
         if ($page > 1) { // 如果當前頁數大於 1
-            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>上一頁</a></li>"; // 上一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
         } // 上一頁按鈕
         for ($i = 1; $i <= $totalPages; $i++) { // 顯示所有頁數
             echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=430&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 顯示頁數
         } // 顯示所有頁數
         if ($page < $totalPages) { // 如果當前頁數小於總頁數
-            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>下一頁</a></li>"; // 下一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
         } // 下一頁按鈕
         echo "</ul></nav>";  // 結束分頁樣式
     }
@@ -218,7 +236,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     </div>  <!-- 結束容器 -->
     ";
 } else {    // 如果沒有登入
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>";  // 顯示權限不足
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";  // 顯示權限不足
 }
 ?>
 
@@ -231,9 +249,9 @@ document.getElementById('selectAll').addEventListener('click', function(event) {
 function confirmDelete() {  // 確認刪除
     const checkboxes = document.querySelectorAll('input[name="selectedOrders[]"]:checked'); // 取得所有勾選框
     if (checkboxes.length === 0) {  // 如果沒有勾選框
-        alert('未選擇任何訂單！');  // 顯示警告
+        alert(<?php echo json_encode(t('order.none_selected')); ?>);  // 顯示警告
         return false;   // 結束
     }   // 如果沒有勾選框
-    return confirm('確定要刪除選中的訂單嗎？');   // 確認刪除
+    return confirm(<?php echo json_encode(t('order.confirm_delete')); ?>);   // 確認刪除
 }   // 確認刪除
 </script>   <!-- 結束 JavaScript -->

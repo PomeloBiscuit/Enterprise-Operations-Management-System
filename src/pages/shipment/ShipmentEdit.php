@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php?Act=470");
         exit();
     } catch (PDOException $e) {
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
     }
 } else {
     $stmt = $pdo->prepare("SELECT * FROM Shipment WHERE ShipmentID = :ShipmentID");
@@ -43,57 +44,57 @@ $orders = $pdo->query("SELECT OrderID FROM Orders")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
-    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;">編輯出貨紀錄</h3>
+    <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;"><?php echo t('shipment.edit.title'); ?></h3>
     <hr>
     <form method="POST">
         <input type="hidden" name="ShipmentID" value="<?php echo $row['ShipmentID']; ?>">
         <div class="form-group">
-            <label>員工ID</label>
-            <input type="text" id="employeeSearch" class="form-control" placeholder="搜尋員工ID或名稱">
+            <label><?php echo t('shipment.field.employee_id'); ?></label>
+            <input type="text" id="employeeSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.add.employee_search_ph')); ?>">
             <select name="EmployeeID" id="employeeID" class="form-control" required>
-                <option value="">選擇員工</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.employee')); ?></option>
                 <?php foreach ($employees as $employee): ?>
                     <option value="<?php echo $employee['EmployeeID']; ?>" <?php echo $employee['EmployeeID'] == $row['EmployeeID'] ? 'selected' : ''; ?>><?php echo $employee['EmployeeID'] . ' - ' . $employee['EmployeeName']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group">
-            <label>訂單ID</label>
-            <input type="text" id="orderSearch" class="form-control" placeholder="搜尋訂單ID">
+            <label><?php echo t('shipment.field.order_id'); ?></label>
+            <input type="text" id="orderSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.edit.order_search_ph')); ?>">
             <select name="OrderID" id="orderID" class="form-control" required>
-                <option value="">選擇訂單</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.order')); ?></option>
                 <?php foreach ($orders as $order): ?>
                     <option value="<?php echo $order['OrderID']; ?>" <?php echo $order['OrderID'] == $row['OrderID'] ? 'selected' : ''; ?>><?php echo $order['OrderID']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group">
-            <label>出貨日期</label>
+            <label><?php echo t('shipment.field.ship_date'); ?></label>
             <input type="date" name="ShipDate" class="form-control" value="<?php echo $row['ShipDate']; ?>" required>
         </div>
         <div class="form-group">
-            <label>追蹤編號</label>
+            <label><?php echo t('shipment.field.tracking_number'); ?></label>
             <input type="text" name="TrackingNumber" class="form-control" value="<?php echo $row['TrackingNumber']; ?>" required>
         </div>
         <div class="form-group">
-            <label>運輸方式</label>
-            <input type="text" id="shipMethodSearch" class="form-control" placeholder="搜尋運輸方式">
+            <label><?php echo t('shipment.field.ship_method'); ?></label>
+            <input type="text" id="shipMethodSearch" class="form-control" placeholder="<?php echo htmlspecialchars(t('shipment.add.ship_method_search_ph')); ?>">
             <select name="ShipMethod" id="shipMethod" class="form-control" required>
-                <option value="">選擇運輸方式</option>
+                <option value=""><?php echo htmlspecialchars(t('shipment.opt.ship_method')); ?></option>
                 <option value="Land" <?php echo $row['ShipMethod'] == 'Land' ? 'selected' : ''; ?>>Land</option>
                 <option value="Sea" <?php echo $row['ShipMethod'] == 'Sea' ? 'selected' : ''; ?>>Sea</option>
                 <option value="Air" <?php echo $row['ShipMethod'] == 'Air' ? 'selected' : ''; ?>>Air</option>
             </select>
         </div>
         <div class="form-group">
-            <label>狀態</label>
-            <input type="checkbox" name="status" <?php echo $row['status'] ? 'checked' : ''; ?>> 完成
+            <label><?php echo t('shipment.field.status'); ?></label>
+            <input type="checkbox" name="status" <?php echo $row['status'] ? 'checked' : ''; ?>> <?php echo t('shipment.status.done'); ?>
         </div>
         <br>
         <div style="text-align: center;">
-            <a href="index.php?Act=470" class="btn btn-secondary">返回</a>
-            <button type="reset" class="btn btn-warning text-white">清除</button>
-            <button type="submit" class="btn btn-primary">更新</button>
+            <a href="index.php?Act=470" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+            <button type="reset" class="btn btn-warning text-white"><?php echo t('common.clear'); ?></button>
+            <button type="submit" class="btn btn-primary"><?php echo t('common.update'); ?></button>
         </div>
     </form>
 </div>
@@ -107,7 +108,7 @@ document.getElementById('employeeSearch').addEventListener('input', function() {
         option.EmployeeID.toString().includes(searchValue)
     );
     const employeeSelect = document.getElementById('employeeID');
-    employeeSelect.innerHTML = '<option value="">選擇員工</option>';
+    employeeSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.employee') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option.EmployeeID;
@@ -126,7 +127,7 @@ document.getElementById('orderSearch').addEventListener('input', function() {
         option.OrderID.toString().includes(searchValue)
     );
     const orderSelect = document.getElementById('orderID');
-    orderSelect.innerHTML = '<option value="">選擇訂單</option>';
+    orderSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.order') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option.OrderID;
@@ -145,7 +146,7 @@ document.getElementById('shipMethodSearch').addEventListener('input', function()
         option.toLowerCase().includes(searchValue)
     );
     const shipMethodSelect = document.getElementById('shipMethod');
-    shipMethodSelect.innerHTML = '<option value="">選擇運輸方式</option>';
+    shipMethodSelect.innerHTML = <?php echo json_encode('<option value="">' . t('shipment.opt.ship_method') . '</option>'); ?>;
     filteredOptions.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option;

@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -14,12 +15,12 @@ if (isset($_GET['id'])) {
     } catch (PDOException $e) {
         // Contain.ProductID 是 ON DELETE RESTRICT：被訂單引用的產品不准刪。
         if (strpos($e->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
-            echo "<p>無法刪除：仍有訂單引用此產品。請先移除相關訂單的該項明細。</p>";
+            echo "<p>" . t('product.del.fk_blocked') . "</p>";
         } else {
-            echo "<p>錯誤：" . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p>" . t('common.error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
         }
     }
 } else {
-    echo "<p>無效的 ID！</p>";
+    echo "<p>" . t('common.invalid_id') . "</p>";
 }
 ?>

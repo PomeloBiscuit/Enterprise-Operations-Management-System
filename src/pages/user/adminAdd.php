@@ -1,8 +1,9 @@
 <?php
 ob_start(); // 新增：啟動緩衝區
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_manage_users()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -28,6 +29,16 @@ $areaCodes = [
     '馬祖' => '0836'
 ];
 
+// 縣市顯示文字在英文模式改用羅馬拼音（多個縣市共用同一區碼，無法用區碼當翻譯鍵，
+// 故比照 profileEdit.php 在頁內維護對照表）。
+$areaLabels = [
+    '臺北' => 'Taipei', '桃園' => 'Taoyuan', '新竹' => 'Hsinchu', '花蓮' => 'Hualien',
+    '宜蘭' => 'Yilan', '苗栗' => 'Miaoli', '臺中' => 'Taichung', '彰化' => 'Changhua',
+    '南投' => 'Nantou', '嘉義' => 'Chiayi', '雲林' => 'Yunlin', '臺南' => 'Tainan',
+    '澎湖' => 'Penghu', '高雄' => 'Kaohsiung', '屏東' => 'Pingtung', '臺東' => 'Taitung',
+    '金門' => 'Kinmen', '烏坵' => 'Wuqiu', '馬祖' => 'Matsu',
+];
+
 if (can_manage_users()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (
@@ -36,7 +47,7 @@ if (can_manage_users()) {
             empty($_POST['pwa']) ||
             $_POST['pwa'] !== $_POST['pwb']
         ) {
-            $error = "資料未填完整或密碼不一致，請重新檢查！";
+            $error = t('user.add.err_incomplete');
         } else {
             try {
                 $stmt = $pdo->prepare("
@@ -56,17 +67,36 @@ if (can_manage_users()) {
                 header("Location: index.php?Act=110&resultsPerPage=" . ($_POST['resultsPerPage'] ?? 10));
                 exit();
             } catch (PDOException $e) {
-                $error = "新增失敗：" . $e->getMessage();
+                $error = t('user.add.err_prefix') . $e->getMessage();
             }
         }
     }
     if (!isset($error)) $error = "";
+    $L_addTitle = t('user.add.title');
+    $L_confirmSubmit = json_encode(t('user.add.confirm_submit'));
+    $L_name = t('field.name');
+    $L_account = t('field.account');
+    $L_password = t('field.password');
+    $L_confirmPassword = t('user.add.confirm_password');
+    $L_landline = t('user.field.landline');
+    $L_mobile = t('user.field.mobile');
+    $L_email = t('user.field.email');
+    $L_selectArea = t('common.select_area');
+    $L_areaHint = t('user.add.area_hint');
+    $L_areaPh = t('user.add.area_ph');
+    $L_phone4Hint = t('user.add.phone4_hint');
+    $L_mobileHint = t('user.add.mobile_hint');
+    $L_landlineFormat = t('user.add.landline_format');
+    $L_mobileFormat = t('user.add.mobile_format');
+    $L_back = t('common.back');
+    $L_clear = t('common.clear');
+    $L_add = t('common.add');
     // 只在此輸出表單與錯誤訊息
     echo "
     <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);'>
-        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>新增使用者</h3><hr>
+        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_addTitle</h3><hr>
         <p style='color: red; text-align: center;'>$error</p>
-        <form method='post' action='' onsubmit='return confirm(\"確認資料無誤？\");'>
+        <form method='post' action='' onsubmit='return confirm($L_confirmSubmit);'>
             <input type='hidden' name='resultsPerPage' value='" . ($_GET['resultsPerPage'] ?? 10) . "'>
             <table class=\"table table-bordered table-hover\">
                 <tr>
@@ -80,20 +110,20 @@ if (can_manage_users()) {
                         $nextUserID = $row['AUTO_INCREMENT'];
                         echo "<input type='text' class='form-control' value='$nextUserID' disabled>";
                     } catch (PDOException $e) {
-                        echo "<p>無法取得UserID：" . htmlspecialchars($e->getMessage()) . "</p>";
+                        echo "<p>" . t('user.add.userid_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
                     }
                     echo "</td>
                 </tr>
                 <tr>
-                    <td>姓名*</td>
+                    <td>$L_name*</td>
                     <td><input type='text' name='name' class=\"form-control\" required></td>
                 </tr>
                 <tr>
-                    <td>帳號*</td>
+                    <td>$L_account*</td>
                     <td><input type='text' name='id' class=\"form-control\" required></td>
                 </tr>
                 <tr>
-                    <td>密碼*</td>
+                    <td>$L_password*</td>
                     <td>
                         <div class='input-group'>
                             <input type='password' name='pwa' id='pwa' class=\"form-control\" required>
@@ -104,7 +134,7 @@ if (can_manage_users()) {
                     </td>
                 </tr>
                 <tr>
-                    <td>確認密碼*</td>
+                    <td>$L_confirmPassword*</td>
                     <td>
                         <div class='input-group'>
                             <input type='password' name='pwb' id='pwb' class=\"form-control\" required>
@@ -115,57 +145,59 @@ if (can_manage_users()) {
                     </td>
                 </tr>
                 <tr>
-                    <td>固定電話</td>
+                    <td>$L_landline</td>
                     <td>
                         <div class='input-group'>
                             <select id='areaSelect' class='form-select' required>
-                                <option value=''>選擇地區</option>";
+                                <option value=''>$L_selectArea</option>";
+                                $isEn = current_locale() === 'en';
                                 foreach ($areaCodes as $area => $code) {
-                                    echo "<option value='$code'>$area</option>";
+                                    $areaText = $isEn ? ($areaLabels[$area] ?? $area) : $area;
+                                    echo "<option value='$code'>$areaText</option>";
                                 }
                                 echo "
                             </select>
                             <span class='input-group-text'>(</span>
-                            <input type='text' id='phoneArea' name='phone_area' class='form-control' pattern='\\d{2,4}' title='請輸入有效的區碼，2到4個數字' maxlength='4' placeholder='區碼' required>
+                            <input type='text' id='phoneArea' name='phone_area' class='form-control' pattern='\\d{2,4}' title='$L_areaHint' maxlength='4' placeholder='$L_areaPh' required>
                             <span class='input-group-text'>) </span>
-                            <input type='text' name='phone_main' class='form-control' pattern='\\d{4}' title='請輸入有效的電話號碼，格式為 4個數字' maxlength='4' placeholder='1234' required>
+                            <input type='text' name='phone_main' class='form-control' pattern='\\d{4}' title='$L_phone4Hint' maxlength='4' placeholder='1234' required>
                             <span class='input-group-text'>-</span>
-                            <input type='text' name='phone_ext' class='form-control' pattern='\\d{4}' title='請輸入有效的電話號碼，格式為 4個數字' maxlength='4' placeholder='5678'>
+                            <input type='text' name='phone_ext' class='form-control' pattern='\\d{4}' title='$L_phone4Hint' maxlength='4' placeholder='5678'>
                         </div>
-                        <small class='form-text text-muted'>(格式: (區碼) 1234-5678)</small>
+                        <small class='form-text text-muted'>$L_landlineFormat</small>
                     </td>
                 </tr>
                 <tr>
-                    <td>行動電話</td>
+                    <td>$L_mobile</td>
                     <td>
                         <div class='input-group'>
                             <span class='input-group-text'>09</span>
-                            <input type='text' name='phonem1' class='form-control' pattern='\\d{2}' title='請輸入有效的行動電話號碼，格式為 09xx-xxx-xxx' maxlength='2' placeholder='12' required>
+                            <input type='text' name='phonem1' class='form-control' pattern='\\d{2}' title='$L_mobileHint' maxlength='2' placeholder='12' required>
                             <span class='input-group-text'>-</span>
-                            <input type='text' name='phonem2' class='form-control' pattern='\\d{3}' title='請輸入有效的行動電話號碼，格式為 09xx-xxx-xxx' maxlength='3' placeholder='345' required>
+                            <input type='text' name='phonem2' class='form-control' pattern='\\d{3}' title='$L_mobileHint' maxlength='3' placeholder='345' required>
                             <span class='input-group-text'>-</span>
-                            <input type='text' name='phonem3' class='form-control' pattern='\\d{3}' title='請輸入有效的行動電話號碼，格式為 09xx-xxx-xxx' maxlength='3' placeholder='678' required>
+                            <input type='text' name='phonem3' class='form-control' pattern='\\d{3}' title='$L_mobileHint' maxlength='3' placeholder='678' required>
                         </div>
-                        <small class='form-text text-muted'>(格式: 09xx-xxx-xxx)</small>
+                        <small class='form-text text-muted'>$L_mobileFormat</small>
                     </td>
                 </tr>
                 <tr>
-                    <td>電子郵件</td>
+                    <td>$L_email</td>
                     <td><input type='email' name='email' class=\"form-control\" required></td>
                 </tr>
             </table>
             <div style='text-align: center;'>
-                <a href='index.php?Act=110&resultsPerPage=" . ($_GET['resultsPerPage'] ?? 10) . "' class='btn btn-secondary' style='background-color: #6c757d; color: white;'>返回</a>
+                <a href='index.php?Act=110&resultsPerPage=" . ($_GET['resultsPerPage'] ?? 10) . "' class='btn btn-secondary' style='background-color: #6c757d; color: white;'>$L_back</a>
                 <span style='display: inline-block; width: 20px;'></span>
-                <input type='reset' value='清除' class=\"btn btn-warning\" style='background-color: #ffc107; color: white;'>
+                <input type='reset' value='$L_clear' class=\"btn btn-warning\" style='background-color: #ffc107; color: white;'>
                 <span style='display: inline-block; width: 20px;'></span>
-                <input type='submit' name='btadd' value='新增' class=\"btn btn-primary\" style='background-color: #007bff; color: white;'>
+                <input type='submit' name='btadd' value='$L_add' class=\"btn btn-primary\" style='background-color: #007bff; color: white;'>
             </div>
         </form>
     </div>
     ";
 } else {
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
 }
 ?>
 

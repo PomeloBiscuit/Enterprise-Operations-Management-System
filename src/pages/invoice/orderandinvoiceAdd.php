@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 if (can_view_business_data()) {
@@ -19,7 +20,7 @@ if (can_view_business_data()) {
             ]);
             $snapshot = $snapshotStmt->fetch(PDO::FETCH_ASSOC);
             if ($snapshot === false) {
-                throw new RuntimeException('所選訂單或客戶不存在。');
+                throw new RuntimeException(t('invoice.add.err_not_found'));
             }
 
             $stmt = $pdo->prepare("
@@ -40,7 +41,7 @@ if (can_view_business_data()) {
             header("Location: index.php?Act=240");
             exit();
         } catch (Throwable $e) {
-            echo "<p>新增失敗：" . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p>" . t('invoice.add.fail_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
         }
     }
 
@@ -57,7 +58,7 @@ if (can_view_business_data()) {
     <div class="container mt-5">
         <div class="card" style="border-radius: 15px;">
             <div class="card-header text-center">
-                <h3>新增訂單與發票</h3>
+                <h3><?php echo t('invoice.add.title'); ?></h3>
             </div>
             <div class="card-body">
                 <form method="POST">
@@ -66,7 +67,7 @@ if (can_view_business_data()) {
                         <input type="text" name="invoice_id" class="form-control" value="<?php echo $nextId; ?>" readonly>
                     </div>
                     <div class="form-group">
-                        <label>訂單號碼 (OrderID)</label>
+                        <label><?php echo t('invoice.add.order_label'); ?></label>
                         <select name="order_id" class="form-control select2" required>
                             <?php foreach ($orders as $order): ?>
                                 <option value="<?php echo $order['OrderID']; ?>"><?php echo $order['TrackingNumber']; ?></option>
@@ -74,11 +75,11 @@ if (can_view_business_data()) {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>發票號碼</label>
-                        <input type="text" name="invoice_number" class="form-control" placeholder="請輸入發票號碼" required>
+                        <label><?php echo t('invoice.field.invoice_number'); ?></label>
+                        <input type="text" name="invoice_number" class="form-control" placeholder="<?php echo htmlspecialchars(t('invoice.add.invoice_number_ph')); ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>客戶ID</label>
+                        <label><?php echo t('invoice.add.customer_label'); ?></label>
                         <select name="customer_id" class="form-control select2" required>
                             <?php foreach ($customers as $customer): ?>
                                 <option value="<?php echo $customer['CustomerID']; ?>"><?php echo $customer['CustomerName']; ?></option>
@@ -86,23 +87,23 @@ if (can_view_business_data()) {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>金額</label>
-                        <input type="number" name="amount" class="form-control" placeholder="請輸入金額" required>
+                        <label><?php echo t('invoice.field.amount'); ?></label>
+                        <input type="number" name="amount" class="form-control" placeholder="<?php echo htmlspecialchars(t('invoice.add.amount_ph')); ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>狀態</label>
+                        <label><?php echo t('invoice.field.status'); ?></label>
                         <select name="status" class="form-control" required>
-                            <option value="1">已完成</option>
-                            <option value="0">未完成</option>
+                            <option value="1"><?php echo t('invoice.status.done'); ?></option>
+                            <option value="0"><?php echo t('invoice.status.pending'); ?></option>
                         </select>
                     </div>
                     <br>
                     <div class="text-center">
-                        <a href="index.php?Act=240" class="btn btn-secondary">返回</a>
+                        <a href="index.php?Act=240" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
                         <span style='display: inline-block; width: 20px;'></span>
-                        <button type="reset" class="btn btn-warning">清除</button>
+                        <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button>
                         <span style='display: inline-block; width: 20px;'></span>
-                        <button type="submit" class="btn btn-primary">送出</button>
+                        <button type="submit" class="btn btn-primary"><?php echo t('common.submit'); ?></button>
                     </div>
                 </form>
             </div>
@@ -111,7 +112,7 @@ if (can_view_business_data()) {
 
     <?php
 } else {
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
 }
 ?>
 

@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資料
@@ -14,14 +15,30 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算位移量
 
+    $L_title = t('employee.list.title');
+    $L_perPage = t('common.search.per_page');
+    $L_pickColumn = t('common.search.pick_column');
+    $L_allColumns = t('common.search.all_columns');
+    $L_searchPh = t('common.search.placeholder');
+    $L_search = t('common.search');
+    $L_showAll = t('common.show_all');
+    $L_addEmployee = t('employee.add.title');
+    $L_selectAll = t('common.select_all');
+    $L_action = t('common.action');
+    $L_edit = t('common.edit');
+    $L_deleteSelected = t('common.delete_selected');
+    $L_noData = t('common.no_data');
+    $L_prev = t('common.page.prev');
+    $L_next = t('common.page.next');
+
     echo "
     <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
-        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>員工列表</h3><hr>
+        <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_title</h3><hr>
 
         <!-- 搜尋框和新增按鈕 -->
         <form method='post' action='' style='display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;'>
             <div style='display: flex; align-items: center; gap: 10px;'>
-                <label for='resultsPerPage' style='margin-right: 10px; text-align: center; align-self: center;'>顯示筆數</label> <!-- 顯示筆數標籤 -->
+                <label for='resultsPerPage' style='margin-right: 10px; text-align: center; align-self: center;'>$L_perPage</label> <!-- 顯示筆數標籤 -->
                 <select name='resultsPerPage' id='resultsPerPage' class='form-select' style='max-width: 100px;' onchange='this.form.submit()'>
                     <option value='5' " . ($resultsPerPage === 5 ? 'selected' : '') . ">5</option> <!-- 預設顯示 5 筆資料 -->
                     <option value='10' " . ($resultsPerPage === 10 ? 'selected' : '') . ">10</option> <!-- 選擇顯示 10 筆資料 -->
@@ -33,16 +50,16 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             </div>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <select name='searchColumn' class='form-select' style='max-width: 200px;'>
-                <option value=''>選擇搜尋條件</option>
-                <option value='all' " . ($searchColumn === 'all' ? 'selected' : '') . ">全部</option>
+                <option value=''>$L_pickColumn</option>
+                <option value='all' " . ($searchColumn === 'all' ? 'selected' : '') . ">$L_allColumns</option>
                 <option value='EmployeeID' " . ($searchColumn === 'EmployeeID' ? 'selected' : '') . ">Employee ID</option>
                 <option value='EmployeeName' " . ($searchColumn === 'EmployeeName' ? 'selected' : '') . ">Employee Name</option>
             </select>
-            <input type='text' name='searchValue' placeholder='輸入搜尋內容' class='form-control' value='$searchValue' style='max-width: 300px;'>
-            
-            <button type='submit' class='btn btn-primary'>搜尋</button>
-            <a href='index.php?Act=350&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>顯示所有資料</a>
-            <a href='index.php?Act=360&resultsPerPage=$resultsPerPage' class='btn btn-success'>新增員工</a>
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>
+
+            <button type='submit' class='btn btn-primary'>$L_search</button>
+            <a href='index.php?Act=350&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a>
+            <a href='index.php?Act=360&resultsPerPage=$resultsPerPage' class='btn btn-success'>$L_addEmployee</a>
         </form>
 
         <form id='deleteForm' method='post' action='index.php?Act=375' onsubmit='return confirmDelete();'>
@@ -50,10 +67,10 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>
-                    <th style='text-align: center; vertical-align: middle; width: 60px;'>全選<br><input type='checkbox' id='selectAll'></th>
+                    <th style='text-align: center; vertical-align: middle; width: 60px;'>$L_selectAll<br><input type='checkbox' id='selectAll'></th>
                     <th style='text-align: center; vertical-align: middle; width: auto;'><a href='?Act=350&sort=$nextSortOrder&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>
                     <th style='text-align: center; vertical-align: middle; width: auto;'><a href='?Act=350&sort=" . ($sortColumn === 'EmployeeName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=EmployeeName&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeName</a></th>
-                    <th style='text-align: center; vertical-align: middle; width: 75px;'>功能</th>
+                    <th style='text-align: center; vertical-align: middle; width: 75px;'>$L_action</th>
                 </tr>
             </thead>
             <tbody>
@@ -90,23 +107,23 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                     <td style='text-align: center;'>{$row['EmployeeID']}</td>
                     <td style='text-align: center;'>{$row['EmployeeName']}</td>
                     <td style='text-align: center;'>
-                        <a href='index.php?Act=380&id={$row['EmployeeID']}&resultsPerPage=$resultsPerPage' class='btn btn-primary btn-sm'>編輯</a>
+                        <a href='index.php?Act=380&id={$row['EmployeeID']}&resultsPerPage=$resultsPerPage' class='btn btn-primary btn-sm'>$L_edit</a>
                     </td>
                 </tr>
                 ";
             }
         } else {
-            echo "<tr><td colspan='4' style='text-align: center;'>查無資料</td></tr>";
+            echo "<tr><td colspan='4' style='text-align: center;'>$L_noData</td></tr>";
         }
     } catch (PDOException $e) {
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
     }
 
     echo "
             </tbody>
             </table>
             <div>
-                <button type='submit' class='btn btn-danger'>刪除勾選的資料</button>
+                <button type='submit' class='btn btn-danger'>$L_deleteSelected</button>
             </div>
             <div style='margin-top: 15px; background-color: white; text-align: center;'>
     ";
@@ -135,13 +152,13 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>";
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>";
         if ($page > 1) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>上一頁</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>";
         }
         for ($i = 1; $i <= $totalPages; $i++) {
             echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=350&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>";
         }
         if ($page < $totalPages) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>下一頁</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>";
         }
         echo "</ul></nav>";
     }
@@ -152,7 +169,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     </div>
     ";
 } else {
-    echo "<p style='text-align:center; color:red;'>權限不足!</p>";
+    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
 }
 ?>
 
@@ -165,9 +182,9 @@ document.getElementById('selectAll').addEventListener('click', function(event) {
 function confirmDelete() {
     const checkboxes = document.querySelectorAll('input[name="selectedEmployees[]"]:checked');
     if (checkboxes.length === 0) {
-        alert('未選擇任何員工！');
+        alert(<?php echo json_encode(t('employee.none_selected')); ?>);
         return false;
     }
-    return confirm('確定要刪除選中的員工嗎？');
+    return confirm(<?php echo json_encode(t('employee.confirm_delete')); ?>);
 }
 </script>

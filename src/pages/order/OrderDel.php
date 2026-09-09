@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -13,9 +14,9 @@ if (isset($_GET['id'])) {
         header("Location: index.php?Act=430&resultsPerPage=$resultsPerPage");
         exit();
     } catch (PDOException $e) {
-        echo "<p>錯誤：" . $e->getMessage() . "</p>";
+        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
     }
 } else {
-    echo "<p>無效的 ID！</p>";
+    echo "<p>" . t('common.invalid_id') . "</p>";
 }
 ?>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (can_manage_users()) {
     $EK = intval($_GET['EK']);
     try {
@@ -11,6 +12,6 @@ if (can_manage_users()) {
     }
     header("refresh:1; url=index.php?Act=110");
 } else {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
 }
 ?>

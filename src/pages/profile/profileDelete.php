@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/../../config.inc.php';
 require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_access_self()) {
-    echo "<p align='center'>權限不足!</p>";
+    echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
 }
 
@@ -26,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: login.php");
             exit();
         } else {
-            echo "<p>管理員帳號無法刪除。</p>";
+            echo "<p>" . t('profile.delete.admin_only_msg') . "</p>";
         }
     } catch (PDOException $e) {
-        echo "<p>刪除失敗：" . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p>" . t('common.delete_fail_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
     }
 }
 ?>
