@@ -1,226 +1,43 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 require_once __DIR__ . '/../auth.inc.php';
 require_once __DIR__ . '/../i18n.inc.php';
-if (can_access_self()) {
-?>
-<!DOCTYPE html>
-<html lang="<?php echo t('html.lang'); ?>">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="<?php echo htmlspecialchars(t('html.meta.keywords')); ?>">
-    <meta name="description" content="<?php echo htmlspecialchars(t('html.meta.description')); ?>">
-    <title><?php echo t('html.title.home'); ?></title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f5f5f5;
-        }
-
-        nav {
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            width: 100%;
-            display: flex;
-            justify-content: flex-end; /* 讓導覽列內容靠右 */
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 15px;
-            font-weight: bold;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-
-        .hero-section {
-            text-align: center;
-            color: #486995;
-            padding: 80px 20px;
-            position: relative;
-        }
-
-        .hero-section img,
-        .hero-section .img-ph {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* 確保圖片覆蓋整個區塊並保持比例 */
-            z-index: 0; /* 讓圖片位於文字下方 */
-            opacity: 0.7; /* 加入半透明效果 */
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1; /* 確保文字顯示在圖片上方 */
-        }
-
-        .hero-section h1 {
-            font-size: 3.5em;
-            font-weight: bold;
-        }
-
-        .hero-section p {
-            font-size: 1.5em;
-            margin-top: 20px;
-        }
-
-        .section {
-            background-color: #ffffff; /* 純白背景 */
-            padding: 40px 20px;
-            margin: 20px auto;
-            max-width: 1200px;
-        }
-
-        .section h2 {
-            text-align: center;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #486995;
-            margin-bottom: 40px;
-        }
-
-        .services-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .service-item {
-            text-align: center;
-            background: #ffffff;
-            padding: 20px;
-            border: 1px solid #e0e0e0; /* 純白平面效果 */
-        }
-
-        .service-item img,
-        .service-item .img-ph {
-            width: 240px;
-            height: 240px;
-            margin-bottom: 20px;
-        }
-
-        .service-item p {
-            font-size: 1.1em;
-        }
-
-        .about, .contact {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .about img, .contact img,
-        .about .img-ph, .contact .img-ph {
-            width: 150px;
-            height: 150px;
-            border: 1px solid #e0e0e0;
-        }
-
-        /* 圖片佔位框：原圖因版權疑慮已移入 _quarantine/，等待自行產製的替代圖。
-           刻意做成明顯的虛線空框，避免佔位被誤認為完成品。
-
-           1440x900 實測（HTTP，非 file://）：hero 1425x375、service-item 240x240、
-           about/contact 150x150，文字不溢出，頁面無水平捲動。
-           2. 選擇器要蓋過 .about img/.contact img 的 (0,2,0)，故此處也寫成兩層；
-              只用 .img-ph (0,1,0) 會被覆蓋成 1px solid，實測過。
-           3. flex-shrink:0 是必要的：.about/.contact 是 flex 容器，不寫的話這個框
-              會被旁邊的 <p> 壓到 73px（實測值）。註：原本的 <img> 也有同樣的壓縮
-              問題（宣告 150px、實測 60px），那是既有行為，本次不動。 */
-        .img-ph,
-        .about .img-ph, .contact .img-ph {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            flex-shrink: 0;
-            padding: 8px;
-            border: 2px dashed #b0bcc9;
-            background-color: #f4f6f8;
-            color: #6b7a8c;
-            font-size: 0.95em;
-            line-height: 1.4;
-            text-align: center;
-        }
-
-        .about p, .contact p {
-            font-size: 1.2em;
-            line-height: 1.6;
-        }
-
-        footer {
-            text-align: center;
-            background-color: #123456;
-            color: white;
-            padding: 20px;
-            margin-top: 40px;
-        }
-    </style>
-</head>
-<body>
-    <nav>
-        <!-- 在此可放置導覽連結，如需連至 index.php?Act=150 -->
-        <!-- 您可自行新增或修改 navbar 內容 -->
-    </nav>
-    <div class="container">
-        <h1><?php echo t('home.greeting', ['name' => $_SESSION["admlogin"] ?? '']); ?></h1>
-        <p><?php echo t('home.subtitle'); ?></p>
-    </div>
-    <section class="hero-section">
-        <div class="img-ph" role="img" aria-label="<?php echo htmlspecialchars(t('home.ph.hero_aria')); ?>"><?php echo t('home.ph.hero'); ?></div>
-        <div class="hero-content">
-            <h1><?php echo t('home.hero.title'); ?></h1>
-            <p><?php echo t('home.hero.subtitle'); ?></p>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2><?php echo t('home.features.title'); ?></h2>
-        <div class="services-container">
-            <div class="service-item">
-                <div class="img-ph" role="img" aria-label="<?php echo htmlspecialchars(t('home.ph.feature1_aria')); ?>"><?php echo t('home.ph.feature1'); ?></div>
-                <p><?php echo t('home.features.item1'); ?></p>
-            </div>
-            <div class="service-item">
-                <div class="img-ph" role="img" aria-label="<?php echo htmlspecialchars(t('home.ph.feature2_aria')); ?>"><?php echo t('home.ph.feature2'); ?></div>
-                <p><?php echo t('home.features.item2'); ?></p>
-            </div>
-            <div class="service-item">
-                <div class="img-ph" role="img" aria-label="<?php echo htmlspecialchars(t('home.ph.feature3_aria')); ?>"><?php echo t('home.ph.feature3'); ?></div>
-                <p><?php echo t('home.features.item3'); ?></p>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2><?php echo t('home.about.title'); ?></h2>
-        <div class="about">
-            <div class="img-ph" role="img" aria-label="<?php echo htmlspecialchars(t('home.ph.about_aria')); ?>"><?php echo t('home.ph.about'); ?></div>
-            <p><?php echo t('home.about.body'); ?></p>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2><?php echo t('home.contact.title'); ?></h2>
-        <div class="contact">
-            <div class="img-ph" role="img" aria-label="<?php echo htmlspecialchars(t('home.ph.contact_aria')); ?>"><?php echo t('home.ph.contact'); ?></div>
-            <p><?php echo t('home.contact.body'); ?></p>
-        </div>
-    </section>
-
-</body>
-</html>
-<?php
-} else {
-    echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";
+if (!can_access_self()) {
+    echo "<p style='text-align:center; color:var(--danger-color);'>" . t('common.permission_denied') . "</p>";
+    return;
 }
 ?>
+<style>
+    .home-page { color: var(--text-color); }
+    .home-page .home-intro { max-width: 1200px; margin: 0 auto 20px; }
+    .home-page .hero-section { position: relative; overflow: hidden; padding: 80px 20px; color: var(--text-color); background: var(--surface-muted-color); text-align: center; }
+    .home-page .hero-art { position: absolute; inset: 0; z-index: 0; background: var(--surface-muted-color); }
+    .home-page .hero-art::before, .home-page .hero-art::after { position: absolute; content: ''; border: 2px solid var(--border-color); border-radius: 50%; }
+    .home-page .hero-art::before { top: -32vw; left: -12vw; width: 48vw; height: 48vw; }
+    .home-page .hero-art::after { right: -15vw; bottom: -30vw; width: 42vw; height: 42vw; }
+    .home-page .hero-content { position: relative; z-index: 1; }
+    .home-page .hero-section h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: bold; }
+    .home-page .hero-section p { margin-top: 20px; font-size: clamp(1.1rem, 2.5vw, 1.5rem); }
+    .home-page .section { max-width: 1200px; margin: 20px auto; padding: 40px 20px; background: var(--surface-color); }
+    .home-page .section h2 { margin-bottom: 40px; color: var(--link-color); font-size: clamp(1.7rem, 4vw, 2.5rem); font-weight: bold; text-align: center; }
+    .home-page .services-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .home-page .service-item { padding: 20px; border: 1px solid var(--border-color); background: var(--surface-color); text-align: center; }
+    .home-page .home-icon-frame { display: flex; align-items: center; justify-content: center; box-sizing: border-box; flex-shrink: 0; color: var(--link-color); background: var(--surface-muted-color); border: 1px solid var(--border-color); }
+    .home-page .service-item .home-icon-frame { width: 240px; height: 240px; max-width: 100%; margin: 0 auto 20px; }
+    .home-page .about, .home-page .contact { display: flex; align-items: center; gap: 20px; }
+    .home-page .about .home-icon-frame, .home-page .contact .home-icon-frame { width: 150px; height: 150px; }
+    .home-page .home-icon { width: 55%; height: 55%; fill: currentColor; }
+    .home-page .about p, .home-page .contact p { font-size: 1.2em; line-height: 1.6; }
+    /* HTTP/1280 與 HTTP/1024 的正式頁面驗收由 WO-13 瀏覽器量測記錄；此元件以 max-width 與 min-width:0 避免推擠側欄時產生水平捲動。 */
+    @media (max-width: 640px) { .home-page .about, .home-page .contact { align-items: flex-start; flex-direction: column; } }
+</style>
+<div class="home-page">
+    <div class="home-intro"><h1><?php echo t('home.greeting', ['name' => $_SESSION['admlogin'] ?? '']); ?></h1><p><?php echo t('home.subtitle'); ?></p></div>
+    <section class="hero-section"><div class="hero-art" role="img" aria-label="<?php echo htmlspecialchars(t('home.hero.art_aria')); ?>"></div><div class="hero-content"><h1><?php echo t('home.hero.title'); ?></h1><p><?php echo t('home.hero.subtitle'); ?></p></div></section>
+    <section class="section"><h2><?php echo t('home.features.title'); ?></h2><div class="services-container">
+        <div class="service-item"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 0h1v15H0V0zm2.5 12H4V7H2.5v5zM5 15h1.5V4H5v11zm2.5 0H9V9H7.5v6zm2.5 0h1.5V2H10v13zm2.5 0H14v-5h-1.5v5z"/></svg></div><p><?php echo t('home.features.item1'); ?></p></div>
+        <div class="service-item"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 0A1.5 1.5 0 0 0 3 1.5V3H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1h2a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-2V1.5A1.5 1.5 0 0 0 8.5 0h-4zM4 3V1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5V3H4zm6 2h4a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-2v-1a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h8v1z"/></svg></div><p><?php echo t('home.features.item2'); ?></p></div>
+        <div class="service-item"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 7a3 3 0 1 0-2.49-4.673A4 4 0 0 0 3.5 5.5a3.5 3.5 0 0 0 .5 6.964V15h8v-2.536A3.5 3.5 0 0 0 13 7zM8 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-5.5 4a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm11 0a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM8 7c2.21 0 4 1.343 4 3v4H4v-4c0-1.657 1.79-3 4-3z"/></svg></div><p><?php echo t('home.features.item3'); ?></p></div>
+    </div></section>
+    <section class="section"><h2><?php echo t('home.about.title'); ?></h2><div class="about"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 15.5V5l6-4 6 4v10.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5M3 6v9h2V9h2v6h2V9h2v6h2V6L8 2.667 3 6z"/></svg></div><p><?php echo t('home.about.body'); ?></p></div></section>
+    <section class="section"><h2><?php echo t('home.contact.title'); ?></h2><div class="contact"><div class="home-icon-frame"><svg class="home-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.885.511a1.745 1.745 0 0 1 2.61.163l2.01 2.61c.329.428.372 1.01.11 1.48L5.49 6.74a.678.678 0 0 0 .15.82l3.63 3.63a.678.678 0 0 0 .82.15l1.976-1.125a1.745 1.745 0 0 1 1.48.11l2.61 2.01c.707.545.78 1.58.163 2.61l-.73 1.217C14.93 17.19 13.66 17.66 12.51 17.16c-2.31-1.006-4.8-2.97-7.15-5.32C3.01 9.49 1.046 7 0.04 4.69c-.5-1.15-.03-2.42 1-3.08z"/></svg></div><p><?php echo t('home.contact.body'); ?></p></div></section>
+</div>

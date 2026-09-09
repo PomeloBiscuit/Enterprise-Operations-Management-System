@@ -8,6 +8,7 @@ return [
 
     'home.hero.title'    => '歡迎來到企業作業管理系統',
     'home.hero.subtitle' => '我們提供最先進的作業管理解決方案，助力企業效率提升。',
+    'home.hero.art_aria' => '首頁主視覺背景的幾何圖樣佔位',
 
     'home.features.title' => '系統功能',
     'home.features.item1' => '功能1：即時作業報表，讓您隨時掌握企業作業狀況。',
@@ -20,17 +21,4 @@ return [
     'home.contact.title' => '聯絡我們',
     'home.contact.body'  => '如果您有任何問題或需要進一步了解我們的系統，請隨時聯絡我們。您可以通過電子郵件或電話與我們聯繫，我們的團隊將竭誠為您服務!',
 
-    // 圖片佔位框（原圖因版權疑慮移除，等待自行產製替代圖）
-    'home.ph.hero'      => '＜待補圖：首頁主視覺背景＞',
-    'home.ph.hero_aria' => '待補：首頁主視覺背景圖',
-    'home.ph.feature1'      => '＜待補圖：功能1＞',
-    'home.ph.feature1_aria' => '待補：功能1 示意圖',
-    'home.ph.feature2'      => '＜待補圖：功能2＞',
-    'home.ph.feature2_aria' => '待補：功能2 示意圖',
-    'home.ph.feature3'      => '＜待補圖：功能3＞',
-    'home.ph.feature3_aria' => '待補：功能3 示意圖',
-    'home.ph.about'      => '＜待補圖：關於我們＞',
-    'home.ph.about_aria' => '待補：關於我們 示意圖',
-    'home.ph.contact'      => '＜待補圖：聯絡我們＞',
-    'home.ph.contact_aria' => '待補：聯絡我們 示意圖',
 ];

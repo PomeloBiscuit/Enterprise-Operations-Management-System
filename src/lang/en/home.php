@@ -5,6 +5,7 @@ return [
 
     'home.hero.title'    => 'Welcome to the Enterprise Operations Management System',
     'home.hero.subtitle' => 'We deliver state-of-the-art operations management solutions that help businesses run more efficiently.',
+    'home.hero.art_aria' => 'Geometric placeholder for the home page hero background',
 
     'home.features.title' => 'Features',
     'home.features.item1' => 'Feature 1: Real-time operations reports keep you on top of what is happening across the business.',
@@ -17,16 +18,4 @@ return [
     'home.contact.title' => 'Contact us',
     'home.contact.body'  => 'If you have any questions or would like to learn more about our system, please get in touch at any time. You can reach us by email or phone, and our team will be glad to help.',
 
-    'home.ph.hero'      => '<Image pending: home page hero background>',
-    'home.ph.hero_aria' => 'Pending: home page hero background image',
-    'home.ph.feature1'      => '<Image pending: feature 1>',
-    'home.ph.feature1_aria' => 'Pending: feature 1 illustration',
-    'home.ph.feature2'      => '<Image pending: feature 2>',
-    'home.ph.feature2_aria' => 'Pending: feature 2 illustration',
-    'home.ph.feature3'      => '<Image pending: feature 3>',
-    'home.ph.feature3_aria' => 'Pending: feature 3 illustration',
-    'home.ph.about'      => '<Image pending: about us>',
-    'home.ph.about_aria' => 'Pending: about us illustration',
-    'home.ph.contact'      => '<Image pending: contact us>',
-    'home.ph.contact_aria' => 'Pending: contact us illustration',
 ];
