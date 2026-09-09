@@ -79,8 +79,8 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                     <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'CustomerID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=CustomerID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>CustomerID</a></th>    <!-- 顧客編號 -->
                     <th style='text-align: center; vertical-align: middle;'>OrderTime</th>  <!-- 訂單日期 -->
                     <th style='text-align: center; vertical-align: middle;'>ShipDate</th>   <!-- 出貨日期 -->
-                    <th style='text-align: center; vertical-align: middle;'>TrackingNumber</th> <!-- 追蹤號碼 -->
-                    <th style='text-align: center; vertical-align: middle;'>ShipMethod</th> <!-- 運送方式 -->
+                    <th style='text-align: center; vertical-align: middle;'>Tracking Number</th> <!-- 追蹤號碼 -->
+                    <th style='text-align: center; vertical-align: middle;'>Ship Method</th> <!-- 運送方式 -->
                     <th style='text-align: center; vertical-align: middle;'>$L_itemCount</th> <!-- Contain 明細列數 -->
                     <th style='text-align: center; vertical-align: middle;'>$L_orderTotal</th> <!-- SUM(數量 × 單價) -->
                     <th style='text-align: center; vertical-align: middle; width: 75px;'>$L_action</th>  <!-- 功能 -->

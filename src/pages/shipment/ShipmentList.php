@@ -74,8 +74,8 @@ if (can_view_business_data()) {
                     <th style='text-align: center;'><a href='?Act=470&sort=$nextSortOrder&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>
                     <th style='text-align: center;'><a href='?Act=470&sort=$nextSortOrder&sortColumn=OrderID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>OrderID</a></th>
                     <th style='text-align: center;'>ShipDate</th>
-                    <th style='text-align: center;'>TrackingNumber</th>
-                    <th style='text-align: center;'>ShipMethod</th>
+                    <th style='text-align: center;'>Tracking Number</th>
+                    <th style='text-align: center;'>Ship Method</th>
                     <th style='text-align: center;'>$L_status</th>
                     <th style='text-align: center;' width=160>$L_action</th>
                 </tr>
