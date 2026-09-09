@@ -112,6 +112,12 @@
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
     font-size: .88em;
   }
+  /* 行內 code 常是不含空白的長字串（網址、檔案路徑），預設不會換行，
+     會把所在容器整個撐開。.note 沒有 overflow-x，所以會直接變成整頁水平捲動。
+     375px 實測：'http://localhost:8080/src/pages/customer/CustomerAdd.php'
+     的 code 元素寬 422px，撐得 .note（340px）溢出，整頁 scrollWidth 458 > 375。
+     只作用在行內 code —— pre 內的 code 要維持不換行、由 pre 自己橫向捲動。 */
+  :not(pre) > code { overflow-wrap: anywhere; }
   pre {
     background: var(--code-bg);
     border: 1px solid var(--border);
@@ -545,12 +551,54 @@ docker compose up -d</code></pre>
     </p>
     <ul>
       <li>應用程式：<code>http://localhost:8080/login.php</code> — 以 <code>Admin</code> / <code>123456</code> 登入</li>
-      <li>隨時重建資料庫：開啟 <code>http://localhost:8080/create.php</code></li>
     </ul>
+    <p>隨時重建資料庫（可重複執行，每次都會重建表與種子資料）：</p>
+    <pre><code>docker compose exec web php scripts/create.php</code></pre>
+    <div class="note">
+      <code>create.php</code> 位於 <code>scripts/</code>、在 DocumentRoot 之外，
+      <strong>不能從瀏覽器執行</strong> —— 避免任何人打一個網址就把資料庫清空。
+    </div>
     <h3>不使用 Docker</h3>
-    <p>需要有 <code>pdo_sqlite</code> 擴充的 PHP 8（預設內建）：</p>
-    <pre><code>cp config.inc.php.example config.inc.php
-php -S localhost:8080          # 然後開一次 http://localhost:8080/create.php</code></pre>
+    <p>需要有 <code>pdo_sqlite</code> 擴充的 PHP 8（預設內建）。注意 DocumentRoot 是 <code>public/</code>：</p>
+    <pre><code>cp src/config.inc.php.example src/config.inc.php
+php scripts/create.php              # 建立資料庫與種子資料
+php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php</code></pre>
+  </section>
+
+  <section>
+    <h2>五分鐘導覽</h2>
+    <p>用 <code>Admin</code> / <code>123456</code> 登入後，這四步能看到這個專案真正想展示的東西：</p>
+    <ol>
+      <li>
+        <strong>訂單列表</strong>（導覽列 → 訂單列表）——
+        每一列都有「品項數」與「訂單金額」。金額不是存在訂單上的欄位，而是由
+        <code>SUM(Contain.Quantity × Product.UnitPrice)</code> 即時算出來的：
+        一張訂單可以含多項產品，各自有數量。
+      </li>
+      <li>
+        <strong>訂單新增</strong> —— 產品那一區可以加多列產品與數量。
+        這是 <code>Contain</code> 這張 M:N 關聯表的實際操作，
+        也就是 ER 圖上那個菱形的樣子。
+      </li>
+      <li>
+        <strong>註冊一個「廠商」身分的帳號，再用它登入</strong> ——
+        顧客、員工、訂單、發票全部會顯示「權限不足」，只剩自己的個人資料。
+        權限不是用數字大小判斷的：新增角色不會自動繼承任何權限，
+        必須在 <code>src/auth.inc.php</code> 的允許清單裡明確加入。
+      </li>
+      <li>
+        <strong>跑一次驗證腳本</strong>（約 20 秒）——
+        <code>docker compose exec web bash scripts/smoke.sh</code>，
+        21 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+        權限邊界、直接存取防護與訂單金額正確性。
+      </li>
+    </ol>
+    <div class="note">
+      順帶一提：直接開 <code>http://localhost:8080/src/pages/customer/CustomerAdd.php</code>
+      會得到 <strong>404</strong> —— 所有頁面檔都在 DocumentRoot 之外，
+      只有 <code>index.php</code>／<code>login.php</code>／<code>logout.php</code>／<code>register.php</code>
+      四個入口對外。
+    </div>
   </section>
 
   <section>
