@@ -509,6 +509,12 @@
                     }
                }
 
+               // create.php 已改為 CLI 專用，通常由 docker compose exec 以 root 執行；
+               // 放寬新資料庫檔的權限，讓 Apache（www-data）之後能寫入，
+               // 不必依賴 entrypoint.sh 的 chmod（手動重建時不會經過它）。
+               @chmod($dataDir, 0777);
+               @chmod($dbFile, 0666);
+
                echo "<p><strong>完成。可以用 Admin / 123456 登入。</strong>";
                ?>
           </div>
