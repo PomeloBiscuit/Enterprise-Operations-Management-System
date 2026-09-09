@@ -66,6 +66,7 @@ if (can_view_business_data()) {
         </form>
 
         <form id='deleteForm' method='post' action='index.php?Act=510' onsubmit='return confirmDelete();'>
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>
@@ -139,6 +140,7 @@ if (can_view_business_data()) {
     echo "
             </tbody>
             </table>
+            </div>
             <button type='submit' class='btn btn-danger'>$L_deleteSelected</button>
         </form>
     </div>

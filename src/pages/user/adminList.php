@@ -80,6 +80,7 @@ if (can_manage_users()) {
 
         <form id='deleteForm' method='post' action='index.php?Act=135' onsubmit='return confirmDelete();'>
             <input type='hidden' name='resultsPerPage' value='$resultsPerPage'>
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>
@@ -206,6 +207,7 @@ if (can_manage_users()) {
     echo "
             </tbody>
             </table>
+            </div>
             <div>
                 <button type='submit' class='btn btn-danger' " . (!is_admin() ? 'disabled' : '') . ">$L_deleteSelected</button>
             </div>

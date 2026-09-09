@@ -154,6 +154,7 @@ $productOptionsHtml = ob_get_clean();
 
         <div class="form-group">
             <label><?php echo t('order.field.line_items'); ?></label>
+            <div class="table-responsive">
             <table class="table table-sm" style="width: 100%;">
                 <thead>
                     <tr>
@@ -164,6 +165,7 @@ $productOptionsHtml = ob_get_clean();
                 </thead>
                 <tbody id="lineItemsBody"></tbody>
             </table>
+            </div>
             <button type="button" class="btn btn-outline-primary btn-sm" id="addLineItem"><?php echo t('order.add.add_row'); ?></button>
         </div>
 

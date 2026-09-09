@@ -64,6 +64,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
 
         <form id='deleteForm' method='post' action='index.php?Act=375' onsubmit='return confirmDelete();'>
             <input type='hidden' name='resultsPerPage' value='$resultsPerPage'>
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>
@@ -122,6 +123,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     echo "
             </tbody>
             </table>
+            </div>
             <div>
                 <button type='submit' class='btn btn-danger'>$L_deleteSelected</button>
             </div>
