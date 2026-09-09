@@ -19,6 +19,7 @@
                echo "
                <form method=post action=index.php?Act=$Act>
                <h3 >$L_addTitle</h3><h5>$L_blankHint</h5><hr>
+               <div class=\"table-responsive\">
                <table class=\"table table-bordered table-hover\">
                     <tr>
                          <td>$L_fc*
@@ -57,6 +58,7 @@
                          <input type='reset' value='$L_clear'
                          class=\"btn btn-default\">
                </table>
+               </div>
                </form>
                ";
 

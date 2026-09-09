@@ -25,6 +25,7 @@
           <h3>$L_title</h3><br><h5>$L_blankHint</h5><hr>
           <a href=index.php?Act=210 class='btn btn-primary'>$L_addTitle</a><br><br>
 
+          <div class=\"table-responsive\">
           <table class=\"table table-bordered table-hover\" >
           <thead border rules=none cellspacing=0 align=center font-weight:bold>
                <tr >
@@ -70,6 +71,7 @@
           echo "
           </tbody>
           </table>
+          </div>
           ";
           } else {
                echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied');

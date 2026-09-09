@@ -33,6 +33,7 @@ if (can_access_self()) {
                     <i class='fas fa-cog'></i>
                 </a>
             </h3><hr>
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
                 <tr>
                     <td>$L_name</td>
@@ -67,6 +68,7 @@ if (can_access_self()) {
                     <td>{$user['dateadd']}</td>
                 </tr>
             </table>
+            </div>
         ";
         $L_delConfirm = t('profile.delete.confirm');
         $L_delAdminHint = t('profile.delete.admin_hint');

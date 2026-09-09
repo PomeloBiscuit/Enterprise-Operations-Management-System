@@ -66,6 +66,7 @@ if (can_view_business_data()) { // 管理員與內部員工權限
 
         <form id='deleteForm' method='post' action='index.php?Act=335' onsubmit='return confirmDelete();'> <!-- 刪除表單 -->
             <input type='hidden' name='resultsPerPage' value='$resultsPerPage'> <!-- 隱藏欄位，傳送每頁顯示筆數 -->
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\" style='width: 100%;'> <!-- 顯示顧客列表 -->
             <thead> <!-- 顯示顧客列表 -->
                 <tr> <!-- 顯示顧客列表 -->
@@ -133,6 +134,7 @@ if (can_view_business_data()) { // 管理員與內部員工權限
     echo "
             </tbody> <!-- 結束顯示顧客資料 -->
             </table> <!-- 結束顯示顧客列表 -->
+            </div>
             <div> <!-- 操作按鈕 -->
                 <button type='submit' class='btn btn-danger'>$L_deleteSelected</button> <!-- 刪除按鈕 -->
             </div>

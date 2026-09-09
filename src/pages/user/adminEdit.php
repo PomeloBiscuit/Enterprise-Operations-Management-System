@@ -33,6 +33,7 @@ if (can_manage_users()) {
                 <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_editTitle</h3><hr>
                 <form method='post' action='index.php?Act=$Act&EK=$EK' onsubmit='showLoadingMessage()'>
                     <input type='hidden' name='resultsPerPage' value='{$resultsPerPage}'>
+                    <div class=\"table-responsive\">
                     <table class=\"table table-bordered table-hover\">
                         <tr>
                             <td>$L_userId</td>
@@ -75,6 +76,7 @@ if (can_manage_users()) {
                             </td>
                         </tr>
                     </table>
+                    </div>
                 </form>
                 <div id='loadingMessage' style='display: none; text-align: center; color: green;'>$L_loading</div>
             </div>
@@ -125,4 +127,3 @@ function showLoadingMessage() {
     document.getElementById('loadingMessage').style.display = 'block';
 }
 </script>
-

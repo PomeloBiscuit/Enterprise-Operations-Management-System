@@ -101,6 +101,7 @@ if (can_access_self()) {
         <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
             <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_title</h3><hr>
             <form method='post' action=''>
+                <div class=\"table-responsive\">
                 <table class=\"table table-bordered table-hover\" style='width: 100%;'>
                     <tr>
                         <td>$L_name</td>
@@ -148,6 +149,7 @@ if (can_access_self()) {
                         <td><input type='email' name='email' class='form-control' value='{$user['email']}' required></td>
                     </tr>
                 </table>
+                </div>
                 <div style='text-align: center;'>
                     <a href='index.php?Act=100' class='btn btn-secondary'>$L_cancel</a>
                     <span style='display: inline-block; width: 20px;'></span>

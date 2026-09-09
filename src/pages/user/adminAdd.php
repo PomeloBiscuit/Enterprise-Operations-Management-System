@@ -98,6 +98,7 @@ if (can_manage_users()) {
         <p style='color: red; text-align: center;'>$error</p>
         <form method='post' action='' onsubmit='return confirm($L_confirmSubmit);'>
             <input type='hidden' name='resultsPerPage' value='" . ($_GET['resultsPerPage'] ?? 10) . "'>
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\">
                 <tr>
                     <td>UserID</td>
@@ -186,6 +187,7 @@ if (can_manage_users()) {
                     <td><input type='email' name='email' class=\"form-control\" required></td>
                 </tr>
             </table>
+            </div>
             <div style='text-align: center;'>
                 <a href='index.php?Act=110&resultsPerPage=" . ($_GET['resultsPerPage'] ?? 10) . "' class='btn btn-secondary' style='background-color: #6c757d; color: white;'>$L_back</a>
                 <span style='display: inline-block; width: 20px;'></span>

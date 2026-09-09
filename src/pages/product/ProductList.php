@@ -66,6 +66,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
 
         <form id='deleteForm' method='post' action='index.php?Act=415' onsubmit='return confirmDelete();'> <!-- 刪除表單（改走前端控制器） -->
             <input type='hidden' name='resultsPerPage' value='$resultsPerPage'> <!-- 隱藏欄位，傳遞顯示筆數 -->
+            <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\" style='width: 100%;'> <!-- 資料表格 -->
             <thead> <!-- 表頭 -->
                 <tr> <!-- 表頭列 -->
@@ -150,6 +151,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     echo " <!-- 資料表格結束 -->
             </tbody> <!-- 表身結束 -->
             </table> <!-- 資料表格結束 -->
+            </div>
             <div> <!-- 操作按鈕 -->
                 <button type='submit' class='btn btn-danger'>$L_deleteSelected</button> <!-- 刪除按鈕 -->
             </div> <!-- 操作按鈕結束 -->

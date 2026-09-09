@@ -114,7 +114,8 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
             border-radius: 10px;    /* 圓角 */
             margin: 20px 20px;  /* 上下 20px, 左右自動 */
             height: auto;   /* 高度自動 */
-            width: 100%;
+            /* 修復前實測：clientWidth 1265 時 main 右緣 1285，整頁溢出 20px。
+               移除 width: 100% 讓 flex item 自然 stretch，保留內容區寬度且不再把左右 margin 推出視窗。 */
         }
         footer {    /* 頁尾 */
             text-align: center; /* 文字置中 */

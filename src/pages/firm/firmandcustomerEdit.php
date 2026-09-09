@@ -33,6 +33,7 @@
                <form method=post action=index.php?Act=$Act&EK=$EK>
                <h3>$L_editTitle</h3><h5>$L_blankHint</h5><hr>
 
+               <div class=\"table-responsive\">
                <table class=\"table table-bordered table-hover\">
                     <tr>
                          <td>$L_fc*
@@ -78,6 +79,7 @@
                               class=\"btn btn-default\">
 
           </table>
+          </div>
           </form>
           ";
           }
@@ -117,4 +119,3 @@
           echo "<br><br><br><br><p align=center>" . t('common.permission_denied');
      }
      ?>
-
