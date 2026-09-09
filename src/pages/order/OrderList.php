@@ -49,7 +49,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             <a href='index.php?Act=440&resultsPerPage=$resultsPerPage' class='btn btn-success'>新增訂單</a> <!-- 新增訂單按鈕 -->
         </form> <!-- 結束表單 -->
 
-        <form id='deleteForm' method='post' action='OrderDelBatch.php' onsubmit='return confirmDelete();'>  <!-- 刪除表單 -->
+        <form id='deleteForm' method='post' action='index.php?Act=455' onsubmit='return confirmDelete();'>  <!-- 刪除表單（改走前端控制器） -->
             <input type='hidden' name='resultsPerPage' value='$resultsPerPage'> <!-- 隱藏欄位 -->
             <table class=\"table table-bordered table-hover\" style='width: 100%;'> <!-- 表格 -->
             <thead> <!-- 表頭 -->

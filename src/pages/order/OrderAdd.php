@@ -124,7 +124,7 @@ $productOptionsHtml = ob_get_clean();
 
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
     <h3 style='text-align: center; font-family: "Noto Sans TC", "Times New Roman", serif;'>新增訂單</h3><hr>
-    <form action="OrderAdd.php" method="post" id="orderAddForm">
+    <form action="index.php?Act=440" method="post" id="orderAddForm">
         <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>">
         <div class="form-group">
             <label>Order ID</label>

@@ -48,7 +48,7 @@ if (can_view_business_data()) {
             <a href='index.php?Act=480' class='btn btn-success'>新增出貨紀錄</a>
         </form>
 
-        <form id='deleteForm' method='post' action='ShipmentDelBatch.php' onsubmit='return confirmDelete();'>
+        <form id='deleteForm' method='post' action='index.php?Act=510' onsubmit='return confirmDelete();'>
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
                 <tr>

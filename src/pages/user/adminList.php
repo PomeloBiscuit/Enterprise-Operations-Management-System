@@ -53,7 +53,7 @@ if (can_manage_users()) {
             <button type='button' class='btn btn-success' onclick=\"location.href='index.php?Act=140&resultsPerPage=$resultsPerPage';\" " . (!is_admin() ? 'disabled' : '') . ">新增人員</button>
         </form>
 
-        <form id='deleteForm' method='post' action='deleteSelectedUsers.php' onsubmit='return confirmDelete();'>
+        <form id='deleteForm' method='post' action='index.php?Act=135' onsubmit='return confirmDelete();'>
             <input type='hidden' name='resultsPerPage' value='$resultsPerPage'>
             <table class=\"table table-bordered table-hover\" style='width: 100%;'>
             <thead>
