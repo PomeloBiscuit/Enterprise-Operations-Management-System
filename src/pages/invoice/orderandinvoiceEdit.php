@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
 require_once __DIR__ . '/../../i18n.inc.php';
+require_once __DIR__ . '/../../invoice.inc.php';
 if (!can_view_business_data()) {
     echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
@@ -8,19 +9,28 @@ if (!can_view_business_data()) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // 改變關聯等同重新開立關聯內容，因此以新外鍵重新取得兩個快照。
-        $snapshotStmt = $pdo->prepare("
-            SELECT o.OrderID AS order_number, c.CustomerName AS customer_name
-            FROM Orders o CROSS JOIN Customer c
-            WHERE o.OrderID = :order_id AND c.CustomerID = :customer_id
+        $orderId = (int) $_POST['order_id'];
+        $customerId = (int) $_POST['customer_id'];
+        $existingStmt = $pdo->prepare("
+            SELECT order_id, customer_id, order_number, customer_name
+            FROM orderandinvoice
+            WHERE id = :id
         ");
-        $snapshotStmt->execute([
-            ':order_id' => (int) $_POST['order_id'],
-            ':customer_id' => (int) $_POST['customer_id'],
-        ]);
-        $snapshot = $snapshotStmt->fetch(PDO::FETCH_ASSOC);
-        if ($snapshot === false) {
-            throw new RuntimeException(t('invoice.add.err_not_found'));
+        $existingStmt->execute([':id' => $_POST['id']]);
+        $existingInvoice = $existingStmt->fetch(PDO::FETCH_ASSOC);
+        if ($existingInvoice === false) {
+            throw new RuntimeException(t('invoice.edit.not_found'));
+        }
+
+        if ($orderId !== (int) $existingInvoice['order_id'] || $customerId !== (int) $existingInvoice['customer_id']) {
+            // 改變關聯等同重新開立關聯內容，因此以新外鍵重新取得兩個快照。
+            $snapshot = get_invoice_snapshot($pdo, $orderId, $customerId);
+        } else {
+            // 非關聯欄位編輯必須保留資料庫現有快照，不接受瀏覽器送來的值。
+            $snapshot = [
+                'order_number' => $existingInvoice['order_number'],
+                'customer_name' => $existingInvoice['customer_name'],
+            ];
         }
 
         $stmt = $pdo->prepare("
@@ -35,10 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE id = :id
         ");
         $stmt->execute([
-            ':order_id' => (int) $_POST['order_id'],
+            ':order_id' => $orderId,
             ':order_number' => $snapshot['order_number'],
             ':invoice_number' => $_POST['invoice_number'],
-            ':customer_id' => (int) $_POST['customer_id'],
+            ':customer_id' => $customerId,
             ':customer_name' => $snapshot['customer_name'],
             ':amount' => $_POST['amount'],
             ':status' => isset($_POST['status']) ? 1 : 0,
@@ -46,8 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         header("Location: index.php?Act=240");
         exit();
-    } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+    } catch (Throwable $e) {
+        echo "<p>" . t('common.error_prefix') . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</p>";
+        return;
     }
 } else {
     $stmt = $pdo->prepare("SELECT * FROM orderandinvoice WHERE id = :id");

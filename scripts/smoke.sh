@@ -12,6 +12,7 @@ EXTERNAL_COOKIE_JAR="$TMP_DIR/external-session.cookie"
 INJECTION="test'); DROP TABLE admin;--"
 EXTERNAL_ID="smoke-external"
 EXTERNAL_PASSWORD="smoke-external-password"
+INVOICE_SNAPSHOT_PROBE=""
 FAILURES=0
 
 # WO-10 後：DocumentRoot 是 public/。只有這幾個 public/ 入口檔該對外可達；
@@ -44,8 +45,31 @@ delete_external_user() {
     ' "$EXTERNAL_ID" >/dev/null 2>&1 || true
 }
 
+restore_invoice_snapshot_probe() {
+    [[ -n "$INVOICE_SNAPSHOT_PROBE" ]] || return 0
+    php -r '
+        require "/var/www/app/src/config.inc.php";
+        $row = json_decode(base64_decode($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+        $invoice = $pdo->prepare("UPDATE orderandinvoice SET order_id = :order_id, order_number = :order_number, invoice_number = :invoice_number, customer_id = :customer_id, customer_name = :customer_name, amount = :amount, status = :status WHERE id = :id");
+        $invoice->execute([
+            ":id" => $row["id"],
+            ":order_id" => $row["order_id"],
+            ":order_number" => $row["order_number"],
+            ":invoice_number" => $row["invoice_number"],
+            ":customer_id" => $row["customer_id"],
+            ":customer_name" => $row["customer_name"],
+            ":amount" => $row["amount"],
+            ":status" => $row["status"],
+        ]);
+        $customer = $pdo->prepare("UPDATE Customer SET CustomerName = :customer_name WHERE CustomerID = :customer_id");
+        $customer->execute([":customer_name" => $row["live_customer_name"], ":customer_id" => $row["customer_id"]]);
+    ' "$INVOICE_SNAPSHOT_PROBE" >/dev/null
+    INVOICE_SNAPSHOT_PROBE=""
+}
+
 cleanup() {
     # 第 10 項會暫時新增一筆資料；不論中途成功或失敗都移除它。
+    restore_invoice_snapshot_probe || true
     delete_injection_rows
     delete_external_user
     rm -rf "$TMP_DIR"
@@ -154,10 +178,51 @@ check_empty_sequence() {
 }
 
 check_invoice_snapshots() {
-    local count
+    local count probe id order_id customer_id invoice_number old_order_number old_customer_name status_flag new_amount changed_name changed_name_b64 response_status state actual_order_number actual_customer_name actual_amount actual_live_customer_name
     count="$(db_scalar "SELECT count(*) FROM orderandinvoice WHERE order_id IS NULL OR customer_id IS NULL OR order_number IS NULL OR trim(CAST(order_number AS TEXT)) = '' OR customer_name IS NULL OR trim(customer_name) = ''")" || return 1
     [[ "$count" == "0" ]] || { CHECK_DETAIL="有 $count 筆發票缺少外鍵或快照"; return 1; }
-    CHECK_DETAIL="所有發票均有 order/customer 外鍵與非空快照"
+
+    # 以真實 Edit 路徑驗證：來源顧客已改名時，只編輯金額仍必須保留兩個資料庫快照。
+    # 完整保存並在 cleanup 中還原，讓 smoke 可重跑且不污染種子資料。
+    probe="$(php -r '
+        require "/var/www/app/src/config.inc.php";
+        $row = $pdo->query("SELECT oi.id, oi.order_id, oi.order_number, oi.invoice_number, oi.customer_id, oi.customer_name, oi.amount, oi.status, c.CustomerName AS live_customer_name FROM orderandinvoice oi JOIN Customer c ON c.CustomerID = oi.customer_id ORDER BY oi.id LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) { fwrite(STDERR, "缺少可測的發票\\n"); exit(2); }
+        echo base64_encode(json_encode($row, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+    ')" || { CHECK_DETAIL="無法讀取快照保留探針資料"; return 1; }
+    INVOICE_SNAPSHOT_PROBE="$probe"
+    read -r id order_id customer_id invoice_number old_order_number old_customer_name status_flag new_amount <<EOF
+$(php -r '
+    $row = json_decode(base64_decode($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+    echo $row["id"], " ", $row["order_id"], " ", $row["customer_id"], " ", base64_encode($row["invoice_number"]), " ", base64_encode((string) $row["order_number"]), " ", base64_encode($row["customer_name"]), " ", $row["status"], " ", ((float) $row["amount"] + 1);
+' "$probe")
+EOF
+    changed_name="smoke-invoice-snapshot-renamed"
+    changed_name_b64="$(printf '%s' "$changed_name" | base64 | tr -d '\n')"
+    php -r '
+        require "/var/www/app/src/config.inc.php";
+        $row = json_decode(base64_decode($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+        $stmt = $pdo->prepare("UPDATE Customer SET CustomerName = :customer_name WHERE CustomerID = :customer_id");
+        $stmt->execute([":customer_name" => $argv[2], ":customer_id" => $row["customer_id"]]);
+    ' "$probe" "$changed_name" || { CHECK_DETAIL="無法改名快照保留探針的顧客"; return 1; }
+
+    local -a post_args=(--data-urlencode "id=$id" --data-urlencode "order_id=$order_id" --data-urlencode "customer_id=$customer_id" --data-urlencode "invoice_number=$(printf '%s' "$invoice_number" | base64 -d)" --data-urlencode "amount=$new_amount")
+    [[ "$status_flag" == "1" ]] && post_args+=(--data-urlencode 'status=1')
+    response_status="$(curl -sS -L -b "$COOKIE_JAR" -o "$TMP_DIR/invoice-snapshot-probe.html" -w '%{http_code}' "${post_args[@]}" "$BASE_URL/index.php?Act=270")" || { CHECK_DETAIL="快照保留探針 POST 失敗"; return 1; }
+    state="$(php -r '
+        require "/var/www/app/src/config.inc.php";
+        $stmt = $pdo->prepare("SELECT oi.order_number, oi.customer_name, oi.amount, c.CustomerName AS live_customer_name FROM orderandinvoice oi JOIN Customer c ON c.CustomerID = oi.customer_id WHERE oi.id = :id");
+        $stmt->execute([":id" => $argv[1]]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) { fwrite(STDERR, "探針發票遺失\\n"); exit(2); }
+        echo base64_encode((string) $row["order_number"]), " ", base64_encode($row["customer_name"]), " ", $row["amount"], " ", base64_encode($row["live_customer_name"]);
+    ' "$id")" || { CHECK_DETAIL="無法讀取快照保留探針結果"; return 1; }
+    read -r actual_order_number actual_customer_name actual_amount actual_live_customer_name <<< "$state"
+    restore_invoice_snapshot_probe || { CHECK_DETAIL="快照保留探針資料還原失敗"; return 1; }
+
+    [[ "$response_status" =~ ^2[0-9]{2}$ && "$actual_order_number" == "$old_order_number" && "$actual_customer_name" == "$old_customer_name" && "$actual_amount" == "$new_amount" && "$actual_live_customer_name" == "$changed_name_b64" ]] \
+        || { CHECK_DETAIL="非關聯欄位編輯後快照被覆寫或 POST 異常（HTTP $response_status；order_snapshot=$actual_order_number；customer_snapshot=$actual_customer_name；live_customer=$actual_live_customer_name；amount=$actual_amount）"; return 1; }
+    CHECK_DETAIL="所有發票均有非空快照；改名後只改金額，兩個快照仍保留資料庫舊值"
 }
 
 check_order_totals() {

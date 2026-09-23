@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
 require_once __DIR__ . '/../../i18n.inc.php';
+require_once __DIR__ . '/../../invoice.inc.php';
 if (!can_view_business_data()) {
     echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
@@ -9,19 +10,7 @@ if (can_view_business_data()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // 快照一律由外鍵指向的現行資料取得，不接受瀏覽器送來的名稱或編號。
-            $snapshotStmt = $pdo->prepare("
-                SELECT o.OrderID AS order_number, c.CustomerName AS customer_name
-                FROM Orders o CROSS JOIN Customer c
-                WHERE o.OrderID = :order_id AND c.CustomerID = :customer_id
-            ");
-            $snapshotStmt->execute([
-                ':order_id' => (int) $_POST['order_id'],
-                ':customer_id' => (int) $_POST['customer_id'],
-            ]);
-            $snapshot = $snapshotStmt->fetch(PDO::FETCH_ASSOC);
-            if ($snapshot === false) {
-                throw new RuntimeException(t('invoice.add.err_not_found'));
-            }
+            $snapshot = get_invoice_snapshot($pdo, (int) $_POST['order_id'], (int) $_POST['customer_id']);
 
             $stmt = $pdo->prepare("
                 INSERT INTO orderandinvoice
