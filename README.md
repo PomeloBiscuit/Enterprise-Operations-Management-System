@@ -4,11 +4,11 @@
 出貨、訂單發票與廠商顧客關係的增刪修查。整個資料庫是**單一 SQLite 檔案**，沒有資料庫
 伺服器、沒有帳號密碼要設定，`docker compose up -d` 一道指令即可在本機跑起來。
 
-- **前端**：Bootstrap 5、jQuery 3.6.0（皆為套件檔，樣式內嵌於各頁）
+- **前端**：Bootstrap 4.3.1、jQuery 3.6.0（皆為套件檔，樣式內嵌於各頁）
 - **後端**：PHP 8（無框架、無 Composer、無建置步驟）
 - **資料庫**：SQLite，單檔存於 `data/fiance2024.sqlite`
 - **容器**：`php:8-apache`
-- **驗證**：`scripts/smoke.sh`，21 項可重跑的檢查，任一失敗即以非 0 結束碼退出
+- **驗證**：`scripts/smoke.sh`，22 項可重跑的檢查，任一失敗即以非 0 結束碼退出
 
 ---
 
@@ -37,7 +37,7 @@
 
 ```mermaid
 flowchart TD
-    U["使用者瀏覽器<br/>Bootstrap 5 + jQuery 3.6.0"]
+    U["使用者瀏覽器<br/>Bootstrap 4.3.1 + jQuery 3.6.0"]
     FC["index.php<br/>前端控制器"]
     RT["路由白名單<br/>（index.php 內）"]
     G["auth.inc.php<br/>具名權限守衛"]
@@ -377,7 +377,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
    ```bash
    docker compose exec web bash scripts/smoke.sh
    ```
-   21 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+   22 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
    權限邊界、直接存取防護與訂單金額正確性。任一項失敗會以非 0 結束碼退出。
 
 順帶一提：試著直接開 <http://localhost:8080/src/pages/customer/CustomerAdd.php>
@@ -388,7 +388,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
 
 ## 如何驗證它是對的
 
-專案內建一支可重跑的驗證腳本，涵蓋 **21 項檢查**；任一項失敗會以非 0 結束碼退出。
+專案內建一支可重跑的驗證腳本，涵蓋 **22 項檢查**；任一項失敗會以非 0 結束碼退出。
 
 ```bash
 docker compose exec web bash scripts/smoke.sh

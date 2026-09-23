@@ -19,7 +19,7 @@ return [
     'auth.register.name_ph'   => '請輸入您的姓名',
     'auth.register.id_ph'     => '請輸入您的帳號',
     'auth.register.pw_ph'     => '請輸入您的密碼',
-    'auth.register.email_ph'  => 'Example@gmail.com',
+    'auth.register.email_ph'  => 'example@example.com',
     'auth.register.party_ph'  => '請選擇身分',
     'auth.register.err_pick_party' => '請選擇身分。',
     'auth.register.err_prefix'     => '註冊失敗：',

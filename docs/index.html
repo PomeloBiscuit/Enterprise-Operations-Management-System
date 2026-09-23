@@ -176,8 +176,8 @@
       一道指令即可在本機跑起來並帶著種子資料。
     </p>
     <p>
-      後端是純 PHP 8，沒有框架、沒有 Composer、沒有建置步驟；前端用 Bootstrap 5 與
-      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 21 項檢查。
+      後端是純 PHP 8，沒有框架、沒有 Composer、沒有建置步驟；前端用 Bootstrap 4.3.1 與
+      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 22 項檢查。
     </p>
   </section>
 
@@ -187,12 +187,12 @@
       <table>
         <thead><tr><th>層</th><th>內容</th></tr></thead>
         <tbody>
-          <tr><td>前端</td><td>Bootstrap 5、jQuery 3.6.0（皆為套件檔，樣式內嵌於各頁）</td></tr>
+          <tr><td>前端</td><td>Bootstrap 4.3.1、jQuery 3.6.0（皆為套件檔，樣式內嵌於各頁）</td></tr>
           <tr><td>後端</td><td>PHP 8（無框架、無 Composer、無建置步驟）</td></tr>
           <tr><td>資料庫</td><td>SQLite，單檔存於 <code>data/fiance2024.sqlite</code></td></tr>
           <tr><td>資料存取</td><td>PDO prepared statement</td></tr>
           <tr><td>容器</td><td><code>php:8-apache</code></td></tr>
-          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，21 項可重跑檢查</td></tr>
+          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，22 項可重跑檢查</td></tr>
         </tbody>
       </table>
     </div>
@@ -209,7 +209,7 @@
     <div class="diagram">
       <pre class="mermaid">
 flowchart TD
-    U["使用者瀏覽器<br/>Bootstrap 5 + jQuery 3.6.0"]
+    U["使用者瀏覽器<br/>Bootstrap 4.3.1 + jQuery 3.6.0"]
     FC["index.php<br/>前端控制器"]
     RT["路由白名單<br/>（index.php 內）"]
     G["auth.inc.php<br/>具名權限守衛"]
@@ -589,7 +589,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
       <li>
         <strong>跑一次驗證腳本</strong>（約 20 秒）——
         <code>docker compose exec web bash scripts/smoke.sh</code>，
-        21 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+        22 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
         權限邊界、直接存取防護與訂單金額正確性。
       </li>
     </ol>
@@ -604,7 +604,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
   <section>
     <h2>如何驗證它是對的</h2>
     <p>
-      專案內建一支可重跑的驗證腳本，涵蓋 <strong>21 項檢查</strong>；任一項失敗會以
+      專案內建一支可重跑的驗證腳本，涵蓋 <strong>22 項檢查</strong>；任一項失敗會以
       非 0 結束碼退出。
     </p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>

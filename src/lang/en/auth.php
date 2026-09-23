@@ -14,7 +14,7 @@ return [
     'auth.register.name_ph'   => 'Enter your name',
     'auth.register.id_ph'     => 'Enter your account name',
     'auth.register.pw_ph'     => 'Enter your password',
-    'auth.register.email_ph'  => 'Example@gmail.com',
+    'auth.register.email_ph'  => 'example@example.com',
     'auth.register.party_ph'  => 'Select a party type',
     'auth.register.err_pick_party' => 'Please select a party type.',
     'auth.register.err_prefix'     => 'Registration failed: ',
