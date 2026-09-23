@@ -435,4 +435,9 @@ docker compose exec web bash scripts/smoke.sh
 
 ## 授權與素材
 
-本 repo 不含任何第三方圖片、圖示或音訊素材。
+- **專案程式碼**：未附授權條款，著作權保留（All rights reserved）。歡迎閱讀與評估；未經同意請勿重製或再散布。
+- **圖片**：`public/images/hero-matterhorn.jpg` 為專案作者自備素材。本 repo 不含任何第三方照片或音訊素材。
+- **第三方元件**：頁面使用 Bootstrap 4.3.1、Bootstrap Icons（以 inline SVG 內嵌）與 jQuery 3.6.0，另由 CDN 載入
+  Select2 與 Font Awesome Free，Home 頁嵌入 OpenStreetMap 地圖。各元件的授權與著作權聲明見
+  [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md)。
+- **示範資料**：皆為虛構，電子郵件使用 `example.com` 保留網域。
