@@ -640,7 +640,7 @@ check_routes() {
 #
 # 做法：先向 SQLite 動態列舉每張表每個欄位，撈出所有「含 CJK 的值」，
 #       從英文模式抓回的 HTML 中把這些子字串剝掉，再斷言剩餘內容不含
-#       [\x{4e00}-\x{9fff}]。這樣對「產品名是英文、廠商名是中文」不會誤判：
+#       [\x{3000}-\x{303f}\x{4e00}-\x{9fff}\x{ff00}-\x{ffef}]。這樣對「產品名是英文、廠商名是中文」不會誤判：
 #       我們剝除的是所有 DB 文字值、不論其語言。
 # 另外剝除：
 #   - HTML 註解（<!-- -->）：不是使用者可見文字；會回報剝除的則數，不靜默。
@@ -661,7 +661,7 @@ check_i18n_english_no_cjk() {
         foreach ($tables as $t) {
             foreach ($pdo->query("SELECT * FROM \"$t\"", PDO::FETCH_ASSOC) as $row) {
                 foreach ($row as $v) {
-                    if (is_string($v) && preg_match("/[\x{4e00}-\x{9fff}]/u", $v)) {
+                    if (is_string($v) && preg_match("/[\x{3000}-\x{303f}\x{4e00}-\x{9fff}\x{ff00}-\x{ffef}]/u", $v)) {
                         $seen[$v] = strlen($v);
                     }
                 }
@@ -695,7 +695,7 @@ check_i18n_english_no_cjk() {
             $comments = 0;
             $strip = function ($re) use (&$html, &$comments) {
                 $html = preg_replace_callback($re, function ($m) use (&$comments) {
-                    if (preg_match("/[\x{4e00}-\x{9fff}]/u", $m[0])) { $comments++; }
+                    if (preg_match("/[\x{3000}-\x{303f}\x{4e00}-\x{9fff}\x{ff00}-\x{ffef}]/u", $m[0])) { $comments++; }
                     return "";
                 }, $html);
             };
@@ -703,17 +703,17 @@ check_i18n_english_no_cjk() {
             // 這些依 WO-11 第 7 點屬「註解，不算漏字串」；剝除但回報則數，不靜默。
             $strip("/<!--.*?-->/s");
             $strip("#/\*.*?\*/#s");
-            $strip("#//[^\n]*[\x{4e00}-\x{9fff}][^\n]*#u");
+            $strip("#//[^\n]*[\x{3000}-\x{303f}\x{4e00}-\x{9fff}\x{ff00}-\x{ffef}][^\n]*#u");
             foreach (preg_split("/\n/", (string) getenv("DB_VALUES"), -1, PREG_SPLIT_NO_EMPTY) as $v) {
                 $html = str_replace($v, "", $html);
             }
             foreach (preg_split("/\n/", (string) getenv("ALLOW"), -1, PREG_SPLIT_NO_EMPTY) as $v) {
                 $html = str_replace($v, "", $html);
             }
-            preg_match_all("/[\x{4e00}-\x{9fff}]/u", $html, $mm);
+            preg_match_all("/[\x{3000}-\x{303f}\x{4e00}-\x{9fff}\x{ff00}-\x{ffef}]/u", $html, $mm);
             $n = count($mm[0]);
             $ctx = "";
-            if ($n > 0 && preg_match("/.{0,50}[\x{4e00}-\x{9fff}].{0,50}/su", $html, $c)) {
+            if ($n > 0 && preg_match("/.{0,50}[\x{3000}-\x{303f}\x{4e00}-\x{9fff}\x{ff00}-\x{ffef}].{0,50}/su", $html, $c)) {
                 $ctx = preg_replace("/\s+/", " ", $c[0]);
             }
             echo $n, "\x1f", $ctx, "\x1f", $comments;
