@@ -106,6 +106,7 @@ if (in_array($Act, $userManagementActs, true) && !can_manage_users()) {
         :root[data-theme='dark'] main [style*='background-color: white'] { background-color: var(--surface-color) !important; }
         main [style*='color:red'], main [style*='color: red'] { color: var(--danger-text-color) !important; }
         @media (max-width: 1100px) { .nav-primary > a { display: none; } }
+        @media (max-width: 767.98px) { main form[style*='display: flex'][style*='justify-content: center'][style*='margin-bottom: 20px;'] { flex-wrap: wrap; } }
         @media (max-width: 640px) { .app-nav { padding: 8px; gap: 4px; } .app-nav a, .nav-icon-button, .app-nav select { padding: 8px 6px; } .nav-utility a { font-size: .9rem; } .lang-switch { padding-left: 4px; } main { margin-left: 8px; margin-right: 8px; padding: 12px; } }
         main {  /* 主要內容 */
             margin-top: 20px; /* 確保內容與導覽列有間距 */
