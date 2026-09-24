@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
 require_once __DIR__ . '/../../i18n.inc.php';
+require_once __DIR__ . '/../../search.inc.php';
 if (!can_view_business_data()) {
     echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
@@ -11,6 +12,9 @@ if (can_view_business_data()) {
     $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'OrderID';
     $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
     $searchValue = isset($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $statusSearchCode = $searchColumn === 'status' && $searchValue !== ''
+        ? search_enum_code($searchValue, [1 => 'shipment.status.done', 0 => 'shipment.status.pending'])
+        : null;
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 10);
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
     $offset = ($page - 1) * $resultsPerPage;
@@ -86,24 +90,24 @@ if (can_view_business_data()) {
     try {
         // 設定查詢條件
         $query = "SELECT * FROM Shipment";
-        if ($searchColumn && $searchValue) {
+        if ($searchColumn && $searchValue !== '') {
             if ($searchColumn === 'all') {
                 $query .= " WHERE (EmployeeID LIKE :searchValue OR OrderID LIKE :searchValue OR TrackingNumber LIKE :searchValue OR ShipMethod LIKE :searchValue)";
             } elseif ($searchColumn === 'status') {
-                $query .= " WHERE status = :searchValue";
+                $query .= $statusSearchCode === null ? " WHERE 1=0" : " WHERE status = :searchValue";
             } else {
                 $query .= " WHERE $searchColumn LIKE :searchValue";
             }
-        } elseif ($searchColumn && !$searchValue && $searchColumn !== 'all') {
+        } elseif ($searchColumn && $searchValue === '' && $searchColumn !== 'all') {
             $query .= " WHERE 1=0"; // 當選擇搜尋條件但未輸入搜尋內容時，強制查無資料
         }
         $query .= " ORDER BY $sortColumn $sortOrder LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($query);
-        if ($searchColumn && $searchValue) {
-            if ($searchColumn === 'status') {
-                $stmt->bindValue(':searchValue', $searchValue === '完成' ? 1 : 0, PDO::PARAM_INT);
-            } else {
+        if ($searchColumn && $searchValue !== '') {
+            if ($searchColumn === 'status' && $statusSearchCode !== null) {
+                $stmt->bindValue(':searchValue', $statusSearchCode, PDO::PARAM_INT);
+            } elseif ($searchColumn !== 'status') {
                 $stmt->bindValue(':searchValue', "%$searchValue%");
             }
         }

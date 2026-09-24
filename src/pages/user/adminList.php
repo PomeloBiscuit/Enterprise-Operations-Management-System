@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.inc.php';
 require_once __DIR__ . '/../../i18n.inc.php';
+require_once __DIR__ . '/../../search.inc.php';
 if (!can_manage_users()) {
     echo "<p align='center'>" . t('common.permission_denied') . "</p>";
     exit;
@@ -10,10 +11,9 @@ if (can_manage_users()) {
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
     $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
     $searchValue = isset($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) ? $_GET['searchValue'] : '');
-    // 若搜尋欄位為 limited，且使用者輸入是、否，轉成 1 或 0
-    if ($searchColumn === 'limited' && ($searchValue === '是' || $searchValue === '否')) {
-        $searchValue = ($searchValue === '是') ? 1 : 0;
-    }
+    $limitedSearchCode = $searchColumn === 'limited' && $searchValue !== ''
+        ? search_enum_code($searchValue, [1 => 'user.value.yes', 0 => 'user.value.no'])
+        : null;
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 5);
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
     $offset = ($page - 1) * $resultsPerPage;
@@ -115,7 +115,7 @@ if (can_manage_users()) {
                 )";
             } elseif ($searchColumn === 'limited') {
                 // 精確搜尋 limited 欄位
-                $query .= " AND $searchColumn = :searchValue";
+                $query .= $limitedSearchCode === null ? " AND 1=0" : " AND $searchColumn = :searchValue";
             } else {
                 // 搜尋特定欄位
                 $query .= " AND $searchColumn LIKE :searchValue";
@@ -127,9 +127,9 @@ if (can_manage_users()) {
 
         $stmt = $pdo->prepare($query);
         if ($searchValue !== '') {
-            if ($searchColumn === 'limited') {
-                $stmt->bindValue(':searchValue', $searchValue, PDO::PARAM_INT);
-            } else {
+            if ($searchColumn === 'limited' && $limitedSearchCode !== null) {
+                $stmt->bindValue(':searchValue', $limitedSearchCode, PDO::PARAM_INT);
+            } elseif ($searchColumn !== 'limited') {
                 $stmt->bindValue(':searchValue', "%$searchValue%", PDO::PARAM_STR);
             }
         }
@@ -180,7 +180,7 @@ if (can_manage_users()) {
                     CAST(limited AS CHAR) LIKE :searchValue
                 )";
             } elseif ($searchColumn === 'limited') {
-                $countQuery .= " AND $searchColumn = :searchValue"; // 精確匹配 limited
+                $countQuery .= $limitedSearchCode === null ? " AND 1=0" : " AND $searchColumn = :searchValue";
             } else {
                 $countQuery .= " AND $searchColumn LIKE :searchValue"; // 搜尋特定欄位
             }
@@ -190,9 +190,9 @@ if (can_manage_users()) {
 
         $countStmt = $pdo->prepare($countQuery);
         if ($searchValue !== '') {
-            if ($searchColumn === 'limited') {
-                $countStmt->bindValue(':searchValue', $searchValue, PDO::PARAM_INT);
-            } else {
+            if ($searchColumn === 'limited' && $limitedSearchCode !== null) {
+                $countStmt->bindValue(':searchValue', $limitedSearchCode, PDO::PARAM_INT);
+            } elseif ($searchColumn !== 'limited') {
                 $countStmt->bindValue(':searchValue', "%$searchValue%", PDO::PARAM_STR);
             }
         }

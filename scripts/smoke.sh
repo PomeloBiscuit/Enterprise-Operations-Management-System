@@ -13,6 +13,7 @@ INJECTION="test'); DROP TABLE admin;--"
 EXTERNAL_ID="smoke-external"
 EXTERNAL_PASSWORD="smoke-external-password"
 INVOICE_SNAPSHOT_PROBE=""
+SHIPMENT_SEARCH_PROBE=""
 FAILURES=0
 
 # WO-10 後：DocumentRoot 是 public/。只有這幾個 public/ 入口檔該對外可達；
@@ -67,9 +68,35 @@ restore_invoice_snapshot_probe() {
     INVOICE_SNAPSHOT_PROBE=""
 }
 
+prepare_shipment_search_probe() {
+    SHIPMENT_SEARCH_PROBE="$(php -r '
+        require "/var/www/app/src/config.inc.php";
+        $rows = $pdo->query("SELECT rowid AS probe_rowid, status FROM Shipment ORDER BY rowid LIMIT 2")->fetchAll(PDO::FETCH_ASSOC);
+        if (count($rows) !== 2) { fwrite(STDERR, "出貨資料不足兩筆\\n"); exit(2); }
+        $update = $pdo->prepare("UPDATE Shipment SET status = :status WHERE rowid = :rowid");
+        $update->execute([":status" => 1, ":rowid" => $rows[0]["probe_rowid"]]);
+        $update->execute([":status" => 0, ":rowid" => $rows[1]["probe_rowid"]]);
+        echo base64_encode(json_encode($rows, JSON_THROW_ON_ERROR));
+    ')" || return 1
+}
+
+restore_shipment_search_probe() {
+    [[ -n "$SHIPMENT_SEARCH_PROBE" ]] || return 0
+    php -r '
+        require "/var/www/app/src/config.inc.php";
+        $rows = json_decode(base64_decode($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+        $update = $pdo->prepare("UPDATE Shipment SET status = :status WHERE rowid = :rowid");
+        foreach ($rows as $row) {
+            $update->execute([":status" => $row["status"], ":rowid" => $row["probe_rowid"]]);
+        }
+    ' "$SHIPMENT_SEARCH_PROBE" >/dev/null
+    SHIPMENT_SEARCH_PROBE=""
+}
+
 cleanup() {
     # 第 10 項會暫時新增一筆資料；不論中途成功或失敗都移除它。
     restore_invoice_snapshot_probe || true
+    restore_shipment_search_probe || true
     delete_injection_rows
     delete_external_user
     rm -rf "$TMP_DIR"
@@ -93,6 +120,42 @@ db_scalar() {
             exit(2);
         }
         echo $value;
+    ' "$1"
+}
+
+fetch_search_page() {
+    local act="$1" column="$2" value="$3" locale="$4" page="$5"
+    curl -sS -G -b "$COOKIE_JAR" -o "$page" \
+        --data-urlencode "searchColumn=$column" \
+        --data-urlencode "searchValue=$value" \
+        --data-urlencode 'resultsPerPage=1000' \
+        --data-urlencode "lang=$locale" \
+        "$BASE_URL/index.php?Act=$act"
+}
+
+page_result_row_count() {
+    php -r '
+        $html = file_get_contents($argv[1]);
+        if ($html === false || !preg_match("~<tbody>(.*?)</tbody>~is", $html, $body)) {
+            fwrite(STDERR, "找不到結果表格 tbody\\n");
+            exit(2);
+        }
+        preg_match_all("~<tr\\b[^>]*>\\s*<td\\b(?![^>]*\\bcolspan\\b)~i", $body[1], $rows);
+        echo count($rows[0]);
+    ' "$1"
+}
+
+page_first_result_identifier() {
+    php -r '
+        $html = file_get_contents($argv[1]);
+        if ($html === false || !preg_match("~<tbody>(.*?)</tbody>~is", $html, $body)) {
+            fwrite(STDERR, "找不到結果表格 tbody\\n");
+            exit(2);
+        }
+        if (!preg_match("~<tr\\b[^>]*>\\s*<td\\b[^>]*>.*?</td>\\s*<td\\b[^>]*>(.*?)</td>~is", $body[1], $row)) {
+            exit(0);
+        }
+        echo trim(html_entity_decode(strip_tags($row[1]), ENT_QUOTES | ENT_HTML5, "UTF-8"));
     ' "$1"
 }
 
@@ -265,6 +328,81 @@ check_login_failure() {
     body="$(<"$TMP_DIR/login-bad.html")"
     [[ "$status" =~ ^2[0-9]{2}$ && "$body" == *"帳號或密碼"* && "$body" != *"歡迎"* ]] || { CHECK_DETAIL="HTTP $status，錯誤訊息或未登入狀態不符"; return 1; }
     CHECK_DETAIL="HTTP $status、頁面含「帳號或密碼」、不含「歡迎」"
+}
+
+# WO-16：狀態列搜尋必須接受所有語言的標籤和原始 0/1，未知輸入不可靜默改查 0。
+check_enum_searches() {
+    local invoice_actual invoice_first shipment_actual shipment_pending_actual limited_actual shipment_label_code
+    local invoice_done_page invoice_done_variant_page invoice_one_page invoice_zh_page shipment_done_page shipment_zh_page
+    local invoice_bad_page shipment_bad_page shipment_zero_page limited_yes_page limited_zh_page limited_bad_page
+    local invoice_done invoice_done_variant invoice_one invoice_zh shipment_done shipment_zh invoice_bad shipment_bad shipment_zero limited_yes limited_zh limited_bad
+    local invoice_done_first invoice_zh_first english_body
+
+    prepare_shipment_search_probe || { CHECK_DETAIL="無法建立出貨搜尋鑑別力探針"; return 1; }
+    invoice_actual="$(db_scalar "SELECT count(*) FROM orderandinvoice WHERE status = 1")" || return 1
+    invoice_first="$(db_scalar "SELECT id FROM orderandinvoice WHERE status = 1 ORDER BY id LIMIT 1")" || return 1
+    shipment_actual="$(db_scalar "SELECT count(*) FROM Shipment WHERE status = 1")" || return 1
+    shipment_pending_actual="$(db_scalar "SELECT count(*) FROM Shipment WHERE status = 0")" || return 1
+    limited_actual="$(db_scalar "SELECT count(*) FROM User WHERE limited = 1")" || return 1
+    shipment_label_code="$(php -r 'require "/var/www/app/src/search.inc.php"; echo search_enum_code("Completed", [1 => "shipment.status.done", 0 => "shipment.status.pending"]);')" || return 1
+
+    invoice_done_page="$TMP_DIR/search-invoice-done.html"
+    invoice_done_variant_page="$TMP_DIR/search-invoice-done-variant.html"
+    invoice_one_page="$TMP_DIR/search-invoice-one.html"
+    invoice_zh_page="$TMP_DIR/search-invoice-zh.html"
+    shipment_done_page="$TMP_DIR/search-shipment-done.html"
+    shipment_zh_page="$TMP_DIR/search-shipment-zh.html"
+    invoice_bad_page="$TMP_DIR/search-invoice-asdf.html"
+    shipment_bad_page="$TMP_DIR/search-shipment-asdf.html"
+    shipment_zero_page="$TMP_DIR/search-shipment-zero.html"
+    limited_yes_page="$TMP_DIR/search-limited-yes.html"
+    limited_zh_page="$TMP_DIR/search-limited-zh.html"
+    limited_bad_page="$TMP_DIR/search-limited-asdf.html"
+
+    fetch_search_page 240 status Done en "$invoice_done_page" || { CHECK_DETAIL="發票 Done 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 240 status ' dOnE ' en "$invoice_done_variant_page" || { CHECK_DETAIL="發票 dOnE 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 240 status 1 en "$invoice_one_page" || { CHECK_DETAIL="發票 1 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 240 status 完成 zh-TW "$invoice_zh_page" || { CHECK_DETAIL="發票 完成 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 470 status Completed en "$shipment_done_page" || { CHECK_DETAIL="出貨 Completed 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 470 status 完成 zh-TW "$shipment_zh_page" || { CHECK_DETAIL="出貨 完成 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 240 status asdf en "$invoice_bad_page" || { CHECK_DETAIL="發票 asdf 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 470 status asdf en "$shipment_bad_page" || { CHECK_DETAIL="出貨 asdf 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 470 status 0 en "$shipment_zero_page" || { CHECK_DETAIL="出貨 0 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 110 limited Yes en "$limited_yes_page" || { CHECK_DETAIL="limited Yes 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 110 limited 是 zh-TW "$limited_zh_page" || { CHECK_DETAIL="limited 是 搜尋 curl 失敗"; return 1; }
+    fetch_search_page 110 limited asdf en "$limited_bad_page" || { CHECK_DETAIL="limited asdf 搜尋 curl 失敗"; return 1; }
+    restore_shipment_search_probe || { CHECK_DETAIL="出貨搜尋鑑別力探針還原失敗"; return 1; }
+
+    invoice_done="$(page_result_row_count "$invoice_done_page")" || return 1
+    invoice_done_variant="$(page_result_row_count "$invoice_done_variant_page")" || return 1
+    invoice_one="$(page_result_row_count "$invoice_one_page")" || return 1
+    invoice_zh="$(page_result_row_count "$invoice_zh_page")" || return 1
+    shipment_done="$(page_result_row_count "$shipment_done_page")" || return 1
+    shipment_zh="$(page_result_row_count "$shipment_zh_page")" || return 1
+    invoice_bad="$(page_result_row_count "$invoice_bad_page")" || return 1
+    shipment_bad="$(page_result_row_count "$shipment_bad_page")" || return 1
+    shipment_zero="$(page_result_row_count "$shipment_zero_page")" || return 1
+    limited_yes="$(page_result_row_count "$limited_yes_page")" || return 1
+    limited_zh="$(page_result_row_count "$limited_zh_page")" || return 1
+    limited_bad="$(page_result_row_count "$limited_bad_page")" || return 1
+    invoice_done_first="$(page_first_result_identifier "$invoice_done_page")" || return 1
+    invoice_zh_first="$(page_first_result_identifier "$invoice_zh_page")" || return 1
+    english_body="$(<"$invoice_done_page")"
+
+    [[ "$invoice_done" == "$invoice_actual" && "$invoice_done_variant" == "$invoice_actual" && "$invoice_one" == "$invoice_actual" && "$invoice_zh" == "$invoice_actual" && "$invoice_done_first" == "$invoice_first" && "$invoice_zh_first" == "$invoice_first" ]] \
+        || { CHECK_DETAIL="發票 status=1：Done=$invoice_done、dOnE=$invoice_done_variant、原始碼 1=$invoice_one、完成=$invoice_zh（Done 首列=$invoice_done_first、完成首列=$invoice_zh_first）、資料庫=$invoice_actual（首列=$invoice_first）"; return 1; }
+    [[ "$shipment_done" == "$shipment_actual" && "$shipment_zh" == "$shipment_actual" ]] \
+        || { CHECK_DETAIL="出貨 status=1：Completed=$shipment_done、完成=$shipment_zh、資料庫=$shipment_actual"; return 1; }
+    [[ "$shipment_zero" == "$shipment_pending_actual" && "$shipment_label_code" == "1" ]] \
+        || { CHECK_DETAIL="出貨原始碼 0=$shipment_zero、資料庫 status=0=$shipment_pending_actual、Completed 對應=$shipment_label_code（預期 1）"; return 1; }
+    [[ "$invoice_bad" == "0" && "$shipment_bad" == "0" && "$limited_bad" == "0" ]] \
+        || { CHECK_DETAIL="未對應 asdf：發票=$invoice_bad、出貨=$shipment_bad、limited=$limited_bad（預期皆 0）"; return 1; }
+    [[ "$limited_yes" == "$limited_actual" && "$limited_zh" == "$limited_actual" ]] \
+        || { CHECK_DETAIL="limited=1：Yes=$limited_yes、是=$limited_zh、資料庫=$limited_actual"; return 1; }
+    [[ "$english_body" == *">Orders & invoices</h3>"* && "$english_body" == *">Search</button>"* && "$english_body" != *">訂單與發票清單</h3>"* ]] \
+        || { CHECK_DETAIL="英文 Done 搜尋後，發票頁面的其他介面文字不是英文"; return 1; }
+
+    CHECK_DETAIL="發票 status=1：Done=$invoice_done、dOnE=$invoice_done_variant、原始碼 1=$invoice_one、完成=$invoice_zh、資料庫=$invoice_actual、首列=$invoice_first；出貨暫存探針：Completed=$shipment_done、完成=$shipment_zh、資料庫 status=1=$shipment_actual、原始碼 0=$shipment_zero（資料庫 status=0=$shipment_pending_actual；Completed→$shipment_label_code；已還原）；asdf：發票=$invoice_bad、出貨=$shipment_bad、limited=$limited_bad；limited=1：Yes=$limited_yes、是=$limited_zh、資料庫=$limited_actual；Done 搜尋後頁面標題與 Search 按鈕仍為英文"
 }
 
 check_password_hash() {
@@ -636,6 +774,7 @@ for check in \
     '6 check_empty_sequence' \
     '7a check_login_success' \
     '7b check_login_failure' \
+    'SEARCH-ENUMS check_enum_searches' \
     '8 check_invoice_snapshots' \
     '9 check_password_hash' \
     'AUTH-GUARDS check_named_permission_guards' \
