@@ -10,6 +10,7 @@ COOKIE_JAR="$TMP_DIR/session.cookie"
 BAD_COOKIE_JAR="$TMP_DIR/bad-session.cookie"
 EXTERNAL_COOKIE_JAR="$TMP_DIR/external-session.cookie"
 INJECTION="test'); DROP TABLE admin;--"
+IDENTIFIER_INJECTION='CustomerID DESC LIMIT 1 --'
 EXTERNAL_ID="smoke-external"
 EXTERNAL_PASSWORD="smoke-external-password"
 INVOICE_SNAPSHOT_PROBE=""
@@ -613,6 +614,50 @@ check_injection() {
     CHECK_DETAIL="HTTP $status、字串原樣保存、admin 存在、enabled/open/status=1"
 }
 
+table_fingerprint() {
+    php -r '
+        $html = stream_get_contents(STDIN);
+        if (!preg_match("#<tbody>(.*?)</tbody>#si", $html, $matches)) {
+            fwrite(STDERR, "找不到 tbody\\n");
+            exit(2);
+        }
+        preg_match_all("#<tr\\b#i", $matches[1], $rows);
+        echo count($rows[0]), ":", sha1(preg_replace("/\\s+/", " ", $matches[1]));
+    '
+}
+
+check_sqli_identifier() {
+    # 欄位名不能以 PDO 參數綁定；此檢查要求六個列表頁將惡意欄位名映射回固定預設值。
+    # 相同資料、固定每頁 50 筆時，正常請求和兩個識別字注入請求的 tbody 指紋必須完全相同。
+    local entry name route baseline_body injected_body baseline_status injected_status baseline injected details="" failures=""
+    for entry in \
+        'customer|index.php?Act=300' \
+        'employee|index.php?Act=350' \
+        'order|index.php?Act=430' \
+        'product|index.php?Act=390' \
+        'shipment|index.php?Act=470' \
+        'admin|index.php?Act=110'; do
+        name="${entry%%|*}"
+        route="${entry#*|}"
+        baseline_body="$(curl -sS -b "$COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route&resultsPerPage=50")" \
+            || { failures+="$name:正常請求 curl "; continue; }
+        baseline_status="${baseline_body##*$'\n'}"
+        baseline_body="${baseline_body%$'\n'*}"
+        injected_body="$(curl -sS -b "$COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route&resultsPerPage=50&sortColumn=CustomerID%20DESC%20LIMIT%201%20--&searchColumn=CustomerID%20DESC%20LIMIT%201%20--")" \
+            || { failures+="$name:注入請求 curl "; continue; }
+        injected_status="${injected_body##*$'\n'}"
+        injected_body="${injected_body%$'\n'*}"
+        baseline="$(table_fingerprint <<< "$baseline_body")" || { failures+="$name:正常頁無表格 "; continue; }
+        injected="$(table_fingerprint <<< "$injected_body")" || { failures+="$name:注入頁無表格 "; continue; }
+        details+="$name=${injected%%:*} "
+        if [[ ! "$baseline_status" =~ ^2[0-9]{2}$ || ! "$injected_status" =~ ^2[0-9]{2}$ || "$baseline" != "$injected" || "$injected_body" =~ (SQLSTATE|PDOException|Fatal\ error|Warning) ]]; then
+            failures+="$name:正常=$baseline_status/$baseline、注入=$injected_status/$injected "
+        fi
+    done
+    [[ -z "$failures" ]] || { CHECK_DETAIL="欄位名注入未被拒絕或頁面結果改變：${failures% }"; return 1; }
+    CHECK_DETAIL="6 頁預設排序與筆數一致（${details% }）"
+}
+
 check_routes() {
     local act body status route failures=""
     local -a acts=(100 105 110 115 160 200 210 220 230 240 250 260 265 270 300 335 375 415)
@@ -783,6 +828,7 @@ for check in \
     'EXTERNAL-VISIBILITY check_external_visibility' \
     'DIRECT-ACCESS check_direct_file_access' \
     'EXTERNAL-DIRECT-ACCESS check_external_direct_business_access' \
+    'SQLI-IDENTIFIER check_sqli_identifier' \
     '10 check_injection' \
     'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \

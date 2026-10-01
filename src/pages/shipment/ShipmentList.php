@@ -7,11 +7,16 @@ if (!can_view_business_data()) {
     exit;
 }
 if (can_view_business_data()) {
-    $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
+    $sortOrders = ['asc' => 'ASC', 'desc' => 'DESC'];
+    $sortOrder = $sortOrders[(isset($_GET['sort']) && is_string($_GET['sort'])) ? $_GET['sort'] : 'asc'] ?? 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
-    $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'OrderID';
-    $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
-    $searchValue = isset($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $sortColumns = ['EmployeeID' => 'EmployeeID', 'OrderID' => 'OrderID'];
+    $searchColumns = ['' => '', 'all' => 'all', 'EmployeeID' => 'EmployeeID', 'OrderID' => 'OrderID', 'TrackingNumber' => 'TrackingNumber', 'ShipMethod' => 'ShipMethod', 'status' => 'status'];
+    $sortInput = (isset($_GET['sortColumn']) && is_string($_GET['sortColumn'])) ? $_GET['sortColumn'] : '';
+    $searchInput = isset($_POST['searchColumn']) && is_string($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) && is_string($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
+    $sortColumn = $sortColumns[$sortInput] ?? 'OrderID'; // SQL 永遠只使用白名單值
+    $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
+    $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : '');
     $statusSearchCode = $searchColumn === 'status' && $searchValue !== ''
         ? search_enum_code($searchValue, [1 => 'shipment.status.done', 0 => 'shipment.status.pending'])
         : null;

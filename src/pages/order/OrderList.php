@@ -6,11 +6,16 @@ if (!can_view_business_data()) {
     exit;
 }
 if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資料
-    $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC'; // 排序方式
+    $sortOrders = ['asc' => 'ASC', 'desc' => 'DESC'];
+    $sortOrder = $sortOrders[(isset($_GET['sort']) && is_string($_GET['sort'])) ? $_GET['sort'] : 'asc'] ?? 'ASC'; // 排序方式
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc'; // 下一個排序方式
-    $sortColumn = isset($_GET['sortColumn']) ? $_GET['sortColumn'] : 'OrderID'; // 排序欄位
-    $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : ''); // 搜尋欄位
-    $searchValue = isset($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) ? $_GET['searchValue'] : ''); // 搜尋內容
+    $sortColumns = ['OrderID' => 'OrderID', 'EmployeeID' => 'EmployeeID', 'CustomerID' => 'CustomerID'];
+    $searchColumns = ['' => '', 'all' => 'all', 'OrderID' => 'OrderID', 'CustomerID' => 'CustomerID', 'EmployeeID' => 'EmployeeID', 'ShipDate' => 'ShipDate', 'TrackingNumber' => 'TrackingNumber', 'ShipMethod' => 'ShipMethod'];
+    $sortInput = (isset($_GET['sortColumn']) && is_string($_GET['sortColumn'])) ? $_GET['sortColumn'] : '';
+    $searchInput = isset($_POST['searchColumn']) && is_string($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) && is_string($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
+    $sortColumn = $sortColumns[$sortInput] ?? 'OrderID'; // SQL 永遠只使用白名單值
+    $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
+    $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : ''); // 搜尋內容
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 5); // 預設顯示 5 筆資料
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算偏移量

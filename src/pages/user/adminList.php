@@ -7,10 +7,13 @@ if (!can_manage_users()) {
     exit;
 }
 if (can_manage_users()) {
-    $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
+    $sortOrders = ['asc' => 'ASC', 'desc' => 'DESC'];
+    $sortOrder = $sortOrders[(isset($_GET['sort']) && is_string($_GET['sort'])) ? $_GET['sort'] : 'asc'] ?? 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
-    $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
-    $searchValue = isset($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $searchColumns = ['' => '', 'all' => 'all', 'prikey' => 'prikey', 'name' => 'name', 'id' => 'id', 'email' => 'email', 'phone' => 'phone', 'phonem' => 'phonem', 'limited' => 'limited'];
+    $searchInput = isset($_POST['searchColumn']) && is_string($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) && is_string($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
+    $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
+    $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : '');
     $limitedSearchCode = $searchColumn === 'limited' && $searchValue !== ''
         ? search_enum_code($searchValue, [1 => 'user.value.yes', 0 => 'user.value.no'])
         : null;
