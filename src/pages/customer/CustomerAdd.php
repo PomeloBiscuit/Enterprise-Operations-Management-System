@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
         </div> <!-- 卡片標題結束 -->
         <div class="card-body"> <!-- 卡片內容 -->
             <form method="POST"> <!-- 表單 -->
-                <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>"> <!-- 隱藏欄位 -->
+<input type="hidden" name="resultsPerPage" value="<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>"> <!-- 隱藏欄位 -->
                 <div class="form-group"> <!-- 表單群組 -->
                     <label><?php echo t('customer.field.id'); ?></label> <!-- 標籤 -->
                     <?php // 取得下一個顧客編號
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
                 </div> <!-- 表單群組結束 -->
                 <br> <!-- 斷行 -->
                 <div class="text-center"> <!-- 文字置中 -->
-                    <a href="index.php?Act=300&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回按鈕 -->
+<a href="index.php?Act=300&resultsPerPage=<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回按鈕 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
                     <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button> <!-- 清除按鈕 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->

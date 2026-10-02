@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="card-body">
             <form method="POST">
-                <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>"> <!-- 保留每頁顯示筆數 -->
+<input type="hidden" name="resultsPerPage" value="<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>"> <!-- 保留每頁顯示筆數 -->
                 <div class="form-group">
                     <label><?php echo t('employee.field.id'); ?></label>
                     <?php
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <br>
                 <div class="text-center"> <!-- 文字置中 -->
-                    <a href="index.php?Act=350&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回 -->
+<a href="index.php?Act=350&resultsPerPage=<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
                     <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button> <!-- 清除 -->
                     <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->

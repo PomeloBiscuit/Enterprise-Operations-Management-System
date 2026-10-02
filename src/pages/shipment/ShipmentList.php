@@ -17,6 +17,7 @@ if (can_view_business_data()) {
     $sortColumn = $sortColumns[$sortInput] ?? 'OrderID'; // SQL 永遠只使用白名單值
     $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $statusSearchCode = $searchColumn === 'status' && $searchValue !== ''
         ? search_enum_code($searchValue, [1 => 'shipment.status.done', 0 => 'shipment.status.pending'])
         : null;
@@ -67,7 +68,7 @@ if (can_view_business_data()) {
                 <option value='ShipMethod' " . ($searchColumn === 'ShipMethod' ? 'selected' : '') . ">ShipMethod</option>
                 <option value='status' " . ($searchColumn === 'status' ? 'selected' : '') . ">$L_status</option>
             </select>
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'>
 
             <button type='submit' class='btn btn-primary'>$L_search</button>
             <a href='index.php?Act=470' class='btn btn-secondary'>$L_showAll</a>
@@ -80,8 +81,8 @@ if (can_view_business_data()) {
             <thead>
                 <tr>
                     <th style='text-align: center;'><input type='checkbox' id='selectAll'></th>
-                    <th style='text-align: center;'><a href='?Act=470&sort=$nextSortOrder&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>
-                    <th style='text-align: center;'><a href='?Act=470&sort=$nextSortOrder&sortColumn=OrderID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>OrderID</a></th>
+                    <th style='text-align: center;'><a href='?Act=470&sort=$nextSortOrder&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>
+                    <th style='text-align: center;'><a href='?Act=470&sort=$nextSortOrder&sortColumn=OrderID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>OrderID</a></th>
                     <th style='text-align: center;'>ShipDate</th>
                     <th style='text-align: center;'>Tracking Number</th>
                     <th style='text-align: center;'>Ship Method</th>
@@ -123,6 +124,7 @@ if (can_view_business_data()) {
         $results = $stmt->fetchAll();
         if (count($results) > 0) {
             foreach ($results as $row) {
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 $status = isset($row['status']) ? ($row['status'] ? $L_statusDone : $L_statusPending) : $L_statusPending;
                 echo "
                 <tr>

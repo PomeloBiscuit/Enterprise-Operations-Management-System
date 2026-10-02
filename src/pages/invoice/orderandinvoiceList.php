@@ -10,7 +10,8 @@ if (can_view_business_data()) {
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
     $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
-    $searchValue = isset($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $statusSearchCode = $searchColumn === 'status' && $searchValue !== ''
         ? search_enum_code($searchValue, [1 => 'invoice.status.done', 0 => 'invoice.status.pending'])
         : null;
@@ -75,7 +76,7 @@ if (can_view_business_data()) {
                 <option value='amount' " . ($searchColumn === 'amount' ? 'selected' : '') . ">$L_amount</option>
                 <option value='status' " . ($searchColumn === 'status' ? 'selected' : '') . ">$L_status</option>
             </select>
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'>
 
             <button type='submit' class='btn btn-primary'>$L_search</button>
             <a href='index.php?Act=240' class='btn btn-secondary'>$L_showAll</a>
@@ -88,7 +89,7 @@ if (can_view_business_data()) {
             <thead>
                 <tr>
                     <th style='text-align: center;'><input type='checkbox' id='selectAll'></th>
-                    <th style='text-align: center;'><a href='?Act=240&sort=$nextSortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>InvoiceID</a></th>
+                    <th style='text-align: center;'><a href='?Act=240&sort=$nextSortOrder&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>InvoiceID</a></th>
                     <th style='text-align: center;'>OrderID</th>
                     <th style='text-align: center;'>$L_invoiceNumber</th>
                     <th style='text-align: center;'>$L_amount</th>
@@ -134,6 +135,7 @@ if (can_view_business_data()) {
         $results = $stmt->fetchAll();
         if (count($results) > 0) {
             foreach ($results as $row) {
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 echo "
                 <tr>
                     <td style='text-align: center;'><input type='checkbox' name='selectedOrders[]' value='{$row['id']}'></td>

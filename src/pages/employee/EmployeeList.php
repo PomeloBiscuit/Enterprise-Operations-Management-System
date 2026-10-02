@@ -16,6 +16,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     $sortColumn = $sortColumns[$sortInput] ?? 'EmployeeID'; // SQL 永遠只使用白名單值
     $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : ''); // 預設搜尋內容為空
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 5); // 預設顯示 5 筆資料
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算位移量
@@ -60,7 +61,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                 <option value='EmployeeID' " . ($searchColumn === 'EmployeeID' ? 'selected' : '') . ">Employee ID</option>
                 <option value='EmployeeName' " . ($searchColumn === 'EmployeeName' ? 'selected' : '') . ">Employee Name</option>
             </select>
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'>
 
             <button type='submit' class='btn btn-primary'>$L_search</button>
             <a href='index.php?Act=350&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a>
@@ -74,8 +75,8 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             <thead>
                 <tr>
                     <th style='text-align: center; vertical-align: middle; width: 60px;'>$L_selectAll<br><input type='checkbox' id='selectAll'></th>
-                    <th style='text-align: center; vertical-align: middle; width: auto;'><a href='?Act=350&sort=$nextSortOrder&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>
-                    <th style='text-align: center; vertical-align: middle; width: auto;'><a href='?Act=350&sort=" . ($sortColumn === 'EmployeeName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=EmployeeName&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeName</a></th>
+                    <th style='text-align: center; vertical-align: middle; width: auto;'><a href='?Act=350&sort=$nextSortOrder&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>
+                    <th style='text-align: center; vertical-align: middle; width: auto;'><a href='?Act=350&sort=" . ($sortColumn === 'EmployeeName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=EmployeeName&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>EmployeeName</a></th>
                     <th style='text-align: center; vertical-align: middle; width: 75px;'>$L_action</th>
                 </tr>
             </thead>
@@ -107,6 +108,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $results = $stmt->fetchAll(); // 取得查詢結果
         if (count($results) > 0) { // 有查詢到資料
             foreach ($results as $row) { // 逐筆顯示
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 echo "
                 <tr>
                     <td style='text-align: center;'><input type='checkbox' name='selectedEmployees[]' value='{$row['EmployeeID']}'></td>
@@ -159,13 +161,13 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>";
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>";
         if ($page > 1) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_prev</a></li>";
         }
         for ($i = 1; $i <= $totalPages; $i++) {
-            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=350&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>";
+            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=350&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$i</a></li>";
         }
         if ($page < $totalPages) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=350&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_next</a></li>";
         }
         echo "</ul></nav>";
     }

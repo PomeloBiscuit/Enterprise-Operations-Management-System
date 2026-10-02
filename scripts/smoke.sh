@@ -11,6 +11,7 @@ BAD_COOKIE_JAR="$TMP_DIR/bad-session.cookie"
 EXTERNAL_COOKIE_JAR="$TMP_DIR/external-session.cookie"
 INJECTION="test'); DROP TABLE admin;--"
 IDENTIFIER_INJECTION='CustomerID DESC LIMIT 1 --'
+XSS_REFLECT_PAYLOAD='"><svg onload=alert(1)>'
 EXTERNAL_ID="smoke-external"
 EXTERNAL_PASSWORD="smoke-external-password"
 INVOICE_SNAPSHOT_PROBE=""
@@ -658,6 +659,47 @@ check_sqli_identifier() {
     CHECK_DETAIL="6 頁預設排序與筆數一致（${details% }）"
 }
 
+check_xss_reflect() {
+    # 字串型搜尋值必須以 HTML 實體回顯；數字型 resultsPerPage 則必須被 intval 正規化，兩者都不得保留原始 payload。
+    local entry name route parameter expected body status details="" failures="" checked=0
+    for entry in \
+        'customer-list|index.php?Act=300|searchValue|encoded' \
+        'employee-list|index.php?Act=350|searchValue|encoded' \
+        'invoice-list|index.php?Act=240|searchValue|encoded' \
+        'order-list|index.php?Act=430|searchValue|encoded' \
+        'product-list|index.php?Act=390|searchValue|encoded' \
+        'shipment-list|index.php?Act=470|searchValue|encoded' \
+        'admin-list|index.php?Act=110|searchValue|encoded' \
+        'customer-add|index.php?Act=320|resultsPerPage|integer' \
+        'employee-add|index.php?Act=360|resultsPerPage|integer' \
+        'product-add|index.php?Act=400|resultsPerPage|integer' \
+        'order-add|index.php?Act=440|resultsPerPage|integer' \
+        'admin-add|index.php?Act=140|resultsPerPage|integer' \
+        'customer-edit|index.php?Act=340&id=1|resultsPerPage|integer' \
+        'employee-edit|index.php?Act=380&id=1|resultsPerPage|integer' \
+        'product-edit|index.php?Act=420&id=1|resultsPerPage|integer' \
+        'order-edit|index.php?Act=460&id=1|resultsPerPage|integer' \
+        'admin-edit|index.php?Act=120&EK=1|resultsPerPage|integer'; do
+        IFS='|' read -r name route parameter expected <<< "$entry"
+        body="$(curl -sS -G -b "$COOKIE_JAR" -w $'\n%{http_code}' --data-urlencode "$parameter=$XSS_REFLECT_PAYLOAD" "$BASE_URL/$route")" \
+            || { failures+="$name:curl "; continue; }
+        status="${body##*$'\n'}"
+        body="${body%$'\n'*}"
+        checked=$((checked + 1))
+        if [[ ! "$status" =~ ^2[0-9]{2}$ || "$body" == *"$XSS_REFLECT_PAYLOAD"* ]]; then
+            failures+="$name:HTTP=$status/raw-payload "
+        elif [[ "$expected" == 'encoded' && "$body" != *'&quot;&gt;&lt;svg onload=alert(1)&gt;'* ]]; then
+            failures+="$name:未見編碼回顯 "
+        elif [[ "$expected" == 'integer' && "$body" != *'resultsPerPage'*=*'value="0"'* && "$body" != *'resultsPerPage=0'* ]]; then
+            failures+="$name:數字未正規化 "
+        else
+            details+="$name "
+        fi
+    done
+    [[ -z "$failures" ]] || { CHECK_DETAIL="反射型 XSS 未被阻擋：${failures% }（已檢查 $checked 個參數）"; return 1; }
+    CHECK_DETAIL="17 個回顯參數均安全（7 個 HTML 編碼、10 個整數正規化：${details% }）"
+}
+
 check_routes() {
     local act body status route failures=""
     local -a acts=(100 105 110 115 160 200 210 220 230 240 250 260 265 270 300 335 375 415)
@@ -850,6 +892,7 @@ for check in \
     'DIRECT-ACCESS check_direct_file_access' \
     'EXTERNAL-DIRECT-ACCESS check_external_direct_business_access' \
     'SQLI-IDENTIFIER check_sqli_identifier' \
+    'XSS-REFLECT check_xss_reflect' \
     '10 check_injection' \
     'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \

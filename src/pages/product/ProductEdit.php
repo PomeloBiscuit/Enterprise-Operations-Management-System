@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
         $ProductName = $_POST['ProductName']; // 編輯貨物名稱
         $ProductCategory = $_POST['ProductCategory']; // 編輯貨物類別
         $UnitPrice = $_POST['UnitPrice']; // 編輯單價
-        $resultsPerPage = $_POST['resultsPerPage']; // 新增此行
+        $resultsPerPage = intval($_POST['resultsPerPage'] ?? 5); // 新增此行
 
         // 執行資料庫 UPDATE
         $stmt = $pdo->prepare("
@@ -38,12 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
     } 
 } else { // 如果是 GET 請求
     $ProductID = $_GET['id']; // 取得貨物編號
-    $resultsPerPage = $_GET['resultsPerPage'] ?? 5; // 新增此行
+    $resultsPerPage = intval($_GET['resultsPerPage'] ?? 5); // 新增此行
 
     // 取得貨物資料
     $stmt = $pdo->prepare("SELECT * FROM Product WHERE ProductID = :ProductID"); // 查詢貨物資料
     $stmt->execute([':ProductID' => $ProductID]); // 執行 SQL
-    $row = $stmt->fetch(PDO::FETCH_ASSOC); // 取得查詢結果
+    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $stmt->fetch(PDO::FETCH_ASSOC)); // 取得查詢結果並編碼供 HTML 輸出
 }
 ?>
 

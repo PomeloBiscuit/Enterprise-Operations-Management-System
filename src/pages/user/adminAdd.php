@@ -64,7 +64,7 @@ if (can_manage_users()) {
                     ':phonem' => $phonem,
                     ':email' => $_POST['email']
                 ]);
-                header("Location: index.php?Act=110&resultsPerPage=" . ($_POST['resultsPerPage'] ?? 10));
+                header("Location: index.php?Act=110&resultsPerPage=" . intval($_POST['resultsPerPage'] ?? 10));
                 exit();
             } catch (PDOException $e) {
                 $error = t('user.add.err_prefix') . $e->getMessage();
@@ -97,7 +97,7 @@ if (can_manage_users()) {
         <h3 style='text-align: center; font-family: \"Noto Sans TC\", \"Times New Roman\", serif;'>$L_addTitle</h3><hr>
         <p style='color: red; text-align: center;'>$error</p>
         <form method='post' action='' onsubmit='return confirm($L_confirmSubmit);'>
-            <input type='hidden' name='resultsPerPage' value='" . ($_GET['resultsPerPage'] ?? 10) . "'>
+            <input type='hidden' name='resultsPerPage' value='" . intval($_GET['resultsPerPage'] ?? 10) . "'>
             <div class=\"table-responsive\">
             <table class=\"table table-bordered table-hover\">
                 <tr>
@@ -189,7 +189,7 @@ if (can_manage_users()) {
             </table>
             </div>
             <div style='text-align: center;'>
-                <a href='index.php?Act=110&resultsPerPage=" . ($_GET['resultsPerPage'] ?? 10) . "' class='btn btn-secondary' style='background-color: #6c757d; color: white;'>$L_back</a>
+                <a href='index.php?Act=110&resultsPerPage=" . intval($_GET['resultsPerPage'] ?? 10) . "' class='btn btn-secondary' style='background-color: #6c757d; color: white;'>$L_back</a>
                 <span style='display: inline-block; width: 20px;'></span>
                 <input type='reset' value='$L_clear' class=\"btn btn-warning\" style='background-color: #ffc107; color: white;'>
                 <span style='display: inline-block; width: 20px;'></span>

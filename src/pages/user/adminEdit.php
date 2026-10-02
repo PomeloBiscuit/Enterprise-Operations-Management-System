@@ -7,7 +7,7 @@ if (!can_manage_users()) {
 }
 if (can_manage_users()) {
     $EK = intval($_GET['EK']);
-    $resultsPerPage = $_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5;
+    $resultsPerPage = intval($_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5);
     if (empty($_POST['btadd'])) {
         try {
             $sql = "SELECT * FROM User WHERE prikey='{$EK}' AND enabled > 0 ORDER BY name";
@@ -16,6 +16,7 @@ if (can_manage_users()) {
             echo "<p>Error fetching admin: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
         if ($row = $result->fetch()) {
+            $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
             $L_editTitle = t('user.edit.title');
             $L_userId = t('user.edit.field_userid');
             $L_name = t('field.name');

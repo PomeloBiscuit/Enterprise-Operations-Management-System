@@ -16,6 +16,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     $sortColumn = $sortColumns[$sortInput] ?? 'OrderID'; // SQL 永遠只使用白名單值
     $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : ''); // 搜尋內容
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 5); // 預設顯示 5 筆資料
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算偏移量
@@ -65,7 +66,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                 <option value='TrackingNumber' " . ($searchColumn === 'TrackingNumber' ? 'selected' : '') . ">Tracking Number</option>  <!-- 選項 -->
                 <option value='ShipMethod' " . ($searchColumn === 'ShipMethod' ? 'selected' : '') . ">Ship Method</option>  <!-- 選項 -->
             </select>   <!-- 結束搜尋欄位下拉式選單 -->
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>   <!-- 搜尋內容輸入框 -->
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'>   <!-- 搜尋內容輸入框 -->
 
             <button type='submit' class='btn btn-primary'>$L_search</button> <!-- 搜尋按鈕 -->
             <a href='index.php?Act=430&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a>   <!-- 顯示所有資料按鈕 -->
@@ -79,9 +80,9 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             <thead> <!-- 表頭 -->
                 <tr>    <!-- 表頭 -->
                     <th style='text-align: center; vertical-align: middle; width: 60px;'>$L_selectAll<br><input type='checkbox' id='selectAll'></th>    <!-- 全選 -->
-                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=$nextSortOrder&sortColumn=OrderID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>OrderID</a></th>   <!-- 訂單編號 -->
-                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'EmployeeID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>    <!-- 員工編號 -->
-                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'CustomerID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=CustomerID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>CustomerID</a></th>    <!-- 顧客編號 -->
+                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=$nextSortOrder&sortColumn=OrderID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>OrderID</a></th>   <!-- 訂單編號 -->
+                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'EmployeeID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=EmployeeID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>EmployeeID</a></th>    <!-- 員工編號 -->
+                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=430&sort=" . ($sortColumn === 'CustomerID' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=CustomerID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>CustomerID</a></th>    <!-- 顧客編號 -->
                     <th style='text-align: center; vertical-align: middle;'>OrderTime</th>  <!-- 訂單日期 -->
                     <th style='text-align: center; vertical-align: middle;'>ShipDate</th>   <!-- 出貨日期 -->
                     <th style='text-align: center; vertical-align: middle;'>Tracking Number</th> <!-- 追蹤號碼 -->
@@ -143,6 +144,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $results = $stmt->fetchAll(); // 取得查詢結果
         if (count($results) > 0) { // 顯示資料
             foreach ($results as $row) { // 顯示每一筆資料
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 // 金額為整數元（種子單價皆為整數，無分位）；data-order-total 供 smoke test 直接讀取，
                 // 與可見的 <td> 同一個運算式，改壞金額算法時兩者會一起變。
                 $orderTotalInt = (int) round((float) $row['OrderTotal']);
@@ -226,13 +228,13 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>"; // 分頁導航
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>"; // 分頁樣式
         if ($page > 1) { // 如果當前頁數大於 1
-            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
         } // 上一頁按鈕
         for ($i = 1; $i <= $totalPages; $i++) { // 顯示所有頁數
-            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=430&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 顯示頁數
+            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=430&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 顯示頁數
         } // 顯示所有頁數
         if ($page < $totalPages) { // 如果當前頁數小於總頁數
-            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=430&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
         } // 下一頁按鈕
         echo "</ul></nav>";  // 結束分頁樣式
     }

@@ -14,6 +14,7 @@ if (can_manage_users()) {
     $searchInput = isset($_POST['searchColumn']) && is_string($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) && is_string($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
     $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : '');
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $limitedSearchCode = $searchColumn === 'limited' && $searchValue !== ''
         ? search_enum_code($searchValue, [1 => 'user.value.yes', 0 => 'user.value.no'])
         : null;
@@ -74,7 +75,7 @@ if (can_manage_users()) {
                 <option value='phonem' " . ($searchColumn === 'phonem' ? 'selected' : '') . ">$L_mobile</option>
                 <option value='limited' " . ($searchColumn === 'limited' ? 'selected' : '') . ">$L_isAdmin</option>
             </select>
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'>
 
             <button type='submit' class='btn btn-primary'>$L_search</button>
             <a href='index.php?Act=110&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a>
@@ -88,7 +89,7 @@ if (can_manage_users()) {
             <thead>
                 <tr>
                     <th style='width: 60px; text-align: center; vertical-align: middle;'>$L_selectAll<br><input type='checkbox' id='selectAll' " . (!is_admin() ? 'disabled' : '') . "></th>
-                    <th style='width: 60px; text-align: center; vertical-align: middle;'><a href='?Act=110&sort=$nextSortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>UserID</a></th>
+                    <th style='width: 60px; text-align: center; vertical-align: middle;'><a href='?Act=110&sort=$nextSortOrder&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>UserID</a></th>
                     <th style='width: auto; text-align: center; vertical-align: middle;'>$L_name</th>
                     <th style='width: auto; text-align: center; vertical-align: middle;'>$L_account</th>
                     <th style='width: auto; text-align: center; vertical-align: middle;'>$L_landline</th>
@@ -143,6 +144,7 @@ if (can_manage_users()) {
         $results = $stmt->fetchAll();
         if (count($results) > 0) {
             foreach ($results as $row) {
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 $isAdmin = $row['limited'] == 1 ? $L_yes : $L_no;
                 $disableButtons = !is_admin() ? 'disabled' : '';
                 $editLink = is_admin() ? "href='index.php?Act=120&EK={$row['prikey']}&resultsPerPage=$resultsPerPage'" : '';
@@ -222,13 +224,13 @@ if (can_manage_users()) {
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>";
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>";
         if ($page > 1) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page - 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page - 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_prev</a></li>";
         }
         for ($i = 1; $i <= $totalPages; $i++) {
-            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=110&page=$i&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>";
+            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=110&page=$i&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$i</a></li>";
         }
         if ($page < $totalPages) {
-            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page + 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>";
+            echo "<li class='page-item'><a class='page-link' href='?Act=110&page=" . ($page + 1) . "&sort=$sortOrder&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_next</a></li>";
         }
         echo "</ul></nav>";
     }

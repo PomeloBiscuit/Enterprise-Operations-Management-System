@@ -117,7 +117,7 @@ $employees = $pdo->query("SELECT EmployeeID, EmployeeName FROM Employee")->fetch
 ob_start();
 foreach ($products as $product) {
     echo '<option value="' . (int) $product['ProductID'] . '">'
-        . htmlspecialchars($product['ProductID'] . ' - ' . $product['ProductName'])
+        . htmlspecialchars($product['ProductID'] . ' - ' . $product['ProductName'], ENT_QUOTES, 'UTF-8')
         . '</option>';
 }
 $productOptionsHtml = ob_get_clean();
@@ -126,7 +126,7 @@ $productOptionsHtml = ob_get_clean();
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
     <h3 style='text-align: center; font-family: "Noto Sans TC", "Times New Roman", serif;'><?php echo t('order.add.title'); ?></h3><hr>
     <form action="index.php?Act=440" method="post" id="orderAddForm">
-        <input type="hidden" name="resultsPerPage" value="<?php echo $_GET['resultsPerPage'] ?? 5; ?>">
+<input type="hidden" name="resultsPerPage" value="<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>">
         <div class="form-group">
             <label>Order ID</label>
             <input type="text" id="orderID" class="form-control" value="<?php echo isset($nextOrderID) ? $nextOrderID : ''; ?>" disabled>
@@ -137,7 +137,7 @@ $productOptionsHtml = ob_get_clean();
             <select name="EmployeeID" id="EmployeeID" class="form-control mt-2">
                 <option value=""><?php echo t('order.form.select_employee'); ?></option>
                 <?php foreach ($employees as $employee): ?>
-                    <option value="<?php echo $employee['EmployeeID']; ?>"><?php echo $employee['EmployeeID'] . ' - ' . $employee['EmployeeName']; ?></option>
+                    <option value="<?php echo htmlspecialchars((string) $employee['EmployeeID'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($employee['EmployeeID'] . ' - ' . $employee['EmployeeName'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -147,7 +147,7 @@ $productOptionsHtml = ob_get_clean();
             <select name="CustomerID" id="customerID" class="form-control mt-2" required>
                 <option value=""><?php echo t('order.form.select_customer'); ?></option>
                 <?php foreach ($customers as $customer): ?>
-                    <option value="<?php echo $customer['CustomerID']; ?>"><?php echo $customer['CustomerID'] . ' - ' . $customer['CustomerName']; ?></option>
+                    <option value="<?php echo htmlspecialchars((string) $customer['CustomerID'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($customer['CustomerID'] . ' - ' . $customer['CustomerName'], ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -209,7 +209,7 @@ $productOptionsHtml = ob_get_clean();
         </div>
         <br>
         <div style="text-align: center;">
-            <a href="index.php?Act=430&resultsPerPage=<?php echo $_GET['resultsPerPage'] ?? 5; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+<a href="index.php?Act=430&resultsPerPage=<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
             <span style='display: inline-block; width: 20px;'></span>
             <button type="reset" class="btn btn-warning text-white"><?php echo t('common.clear'); ?></button>
             <span style='display: inline-block; width: 20px;'></span>
@@ -296,7 +296,7 @@ $(document).ready(function() {
 
 document.getElementById('customerSearch').addEventListener('input', function() {
     var searchValue = this.value.toLowerCase();
-    var options = <?php echo json_encode($customers); ?>;
+    var options = <?php echo json_encode($customers, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     var filteredOptions = options.filter(function(option) {
         return option.CustomerName.toLowerCase().includes(searchValue) ||
             option.CustomerPhoneNumber.toLowerCase().includes(searchValue) ||
@@ -317,7 +317,7 @@ document.getElementById('customerSearch').addEventListener('input', function() {
 
 document.getElementById('employeeSearch').addEventListener('input', function() {
     var searchValue = this.value.toLowerCase();
-    var options = <?php echo json_encode($employees); ?>;
+    var options = <?php echo json_encode($employees, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     var filteredOptions = options.filter(function(option) {
         return option.EmployeeName.toLowerCase().includes(searchValue) ||
             option.EmployeeID.toString().includes(searchValue);
@@ -337,7 +337,7 @@ document.getElementById('employeeSearch').addEventListener('input', function() {
 
 document.getElementById('customerSearch').addEventListener('blur', function() {
     var searchValue = this.value.toLowerCase();
-    var options = <?php echo json_encode($customers); ?>;
+    var options = <?php echo json_encode($customers, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     var filteredOptions = options.filter(function(option) {
         return option.CustomerName.toLowerCase().includes(searchValue) ||
             option.CustomerPhoneNumber.toLowerCase().includes(searchValue) ||
@@ -355,7 +355,7 @@ document.getElementById('customerSearch').addEventListener('blur', function() {
 
 document.getElementById('employeeSearch').addEventListener('blur', function() {
     var searchValue = this.value.toLowerCase();
-    var options = <?php echo json_encode($employees); ?>;
+    var options = <?php echo json_encode($employees, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     var filteredOptions = options.filter(function(option) {
         return option.EmployeeName.toLowerCase().includes(searchValue) ||
             option.EmployeeID.toString().includes(searchValue);

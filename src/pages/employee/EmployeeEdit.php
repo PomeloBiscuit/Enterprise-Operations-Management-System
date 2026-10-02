@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 判斷是否為 POST 方法
         // 取得表單欄位
         $EmployeeID = $_POST['id']; // 取得員工 ID
         $EmployeeName = $_POST['EmployeeName']; // 取得員工姓名
-        $resultsPerPage = $_POST['resultsPerPage']; // 取得每頁顯示筆數
+        $resultsPerPage = intval($_POST['resultsPerPage'] ?? 5); // 取得每頁顯示筆數
 
         // 執行資料庫 UPDATE
         $stmt = $pdo->prepare("
@@ -34,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 判斷是否為 POST 方法
     }
 } else {
     $EmployeeID = $_GET['id']; // 取得員工 ID
-    $resultsPerPage = $_GET['resultsPerPage'] ?? 5; // 預設顯示 5 筆
+    $resultsPerPage = intval($_GET['resultsPerPage'] ?? 5); // 預設顯示 5 筆
 
     // 取得員工資料
     $stmt = $pdo->prepare("SELECT * FROM Employee WHERE EmployeeID = :EmployeeID"); // 準備 SQL
     $stmt->execute([':EmployeeID' => $EmployeeID]); // 執行 SQL
-    $row = $stmt->fetch(PDO::FETCH_ASSOC); // 取得查詢結果
+    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $stmt->fetch(PDO::FETCH_ASSOC)); // 取得查詢結果並編碼供 HTML 輸出
 }
 ?>
 

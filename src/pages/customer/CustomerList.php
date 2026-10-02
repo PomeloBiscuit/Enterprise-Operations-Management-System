@@ -16,6 +16,7 @@ if (can_view_business_data()) { // 管理員與內部員工權限
     $sortColumn = $sortColumns[$sortInput] ?? 'CustomerID'; // SQL 永遠只使用白名單值
     $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : ''); // 搜尋內容
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 5); // 預設顯示 5 筆資料
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算偏移量
@@ -62,7 +63,7 @@ if (can_view_business_data()) { // 管理員與內部員工權限
                 <option value='CustomerPhoneNumber' " . ($searchColumn === 'CustomerPhoneNumber' ? 'selected' : '') . ">Customer PhoneNumber</option> <!-- 搜尋條件 -->
                 <option value='CustomerAddress' " . ($searchColumn === 'CustomerAddress' ? 'selected' : '') . ">Customer Address</option>  <!-- 搜尋條件 -->
             </select> <!-- 搜尋條件 -->
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'> <!-- 搜尋框 -->
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'> <!-- 搜尋框 -->
 
             <button type='submit' class='btn btn-primary'>$L_search</button> <!-- 搜尋按鈕 -->
             <a href='index.php?Act=300&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a> <!-- 顯示所有資料按鈕 -->
@@ -76,8 +77,8 @@ if (can_view_business_data()) { // 管理員與內部員工權限
             <thead> <!-- 顯示顧客列表 -->
                 <tr> <!-- 顯示顧客列表 -->
                     <th style='text-align: center; vertical-align: middle;' width=60px>$L_selectAll<br><input type='checkbox' id='selectAll'></th>
-                    <th style='text-align: center; vertical-align: middle;' width=auto><a href='?Act=300&sort=$nextSortOrder&sortColumn=CustomerID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>CustomerID</a></th> <!-- 顧客編號 -->
-                    <th style='text-align: center; vertical-align: middle;' width=auto><a href='?Act=300&sort=" . ($sortColumn === 'CustomerName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=CustomerName&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>Customer<br>Name</a></th> <!-- 顧客姓名 -->
+                    <th style='text-align: center; vertical-align: middle;' width=auto><a href='?Act=300&sort=$nextSortOrder&sortColumn=CustomerID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>CustomerID</a></th> <!-- 顧客編號 -->
+                    <th style='text-align: center; vertical-align: middle;' width=auto><a href='?Act=300&sort=" . ($sortColumn === 'CustomerName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=CustomerName&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>Customer<br>Name</a></th> <!-- 顧客姓名 -->
                     <th style='text-align: center; vertical-align: middle;' width=auto>Customer<br>PhoneNumber</th> <!-- 顧客電話 -->
                     <th style='text-align: center; vertical-align: middle;' width=auto>Customer<br>Address</th> <!-- 顧客地址 -->
                     <th style='text-align: center; vertical-align: middle;' width=75px>$L_action</th> <!-- 操作按鈕 -->
@@ -116,6 +117,7 @@ if (can_view_business_data()) { // 管理員與內部員工權限
         $results = $stmt->fetchAll(); // 取得查詢結果
         if (count($results) > 0) { // 有查詢結果
             foreach ($results as $row) { // 逐筆顯示查詢結果
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 echo " 
                 <tr> <!-- 顯示顧客資料 -->
                     <td style='text-align: center;'><input type='checkbox' name='selectedCustomers[]' value='{$row['CustomerID']}'></td> <!-- 勾選框 -->
@@ -173,13 +175,13 @@ if (can_view_business_data()) { // 管理員與內部員工權限
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>"; // 分頁導航
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>"; // 分頁按鈕
         if ($page > 1) { // 顯示上一頁按鈕
-            echo "<li class='page-item'><a class='page-link' href='?Act=300&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=300&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
         }
         for ($i = 1; $i <= $totalPages; $i++) { // 顯示頁數按鈕
-            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=300&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 頁數按鈕
+            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=300&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 頁數按鈕
         }
         if ($page < $totalPages) { // 顯示下一頁按鈕
-            echo "<li class='page-item'><a class='page-link' href='?Act=300&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=300&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
         }
         echo "</ul></nav>"; // 結束分頁按鈕
     }

@@ -16,6 +16,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
     $sortColumn = $sortColumns[$sortInput] ?? 'ProductID'; // SQL 永遠只使用白名單值
     $searchColumn = $searchColumns[$searchInput] ?? ''; // SQL 永遠只使用白名單值
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : ''); // 預設搜尋值為空
+    $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $resultsPerPage = isset($_POST['resultsPerPage']) ? intval($_POST['resultsPerPage']) : (isset($_GET['resultsPerPage']) ? intval($_GET['resultsPerPage']) : 5); // 預設顯示 5 筆資料
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1; // 預設顯示第 1 頁
     $offset = ($page - 1) * $resultsPerPage; // 計算偏移量
@@ -62,7 +63,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
                 <option value='ProductCategory' " . ($searchColumn === 'ProductCategory' ? 'selected' : '') . ">Product Category</option> <!-- 選項 -->
                 <option value='UnitPrice' " . ($searchColumn === 'UnitPrice' ? 'selected' : '') . ">Unit Price</option> <!-- 選項 -->
             </select> <!-- 搜尋欄位下拉式選單結束 -->
-            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValue' style='max-width: 300px;'>   <!-- 搜尋輸入框 -->
+            <input type='text' name='searchValue' placeholder='$L_searchPh' class='form-control' value='$searchValueHtml' style='max-width: 300px;'>   <!-- 搜尋輸入框 -->
 
             <button type='submit' class='btn btn-primary'>$L_search</button> <!-- 搜尋按鈕 -->
             <a href='index.php?Act=390&resultsPerPage=$resultsPerPage' class='btn btn-secondary'>$L_showAll</a> <!-- 顯示所有資料按鈕 -->
@@ -76,8 +77,8 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             <thead> <!-- 表頭 -->
                 <tr> <!-- 表頭列 -->
                     <th style='text-align: center; vertical-align: middle; width: 60px;'>$L_selectAll<br><input type='checkbox' id='selectAll'></th> <!-- 全選欄位 -->
-                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=390&sort=$nextSortOrder&sortColumn=ProductID&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>ProductID</a></th> <!-- 貨物編號 -->
-                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=390&sort=" . ($sortColumn === 'ProductName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=ProductName&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>ProductName</a></th> <!-- 貨物名稱 -->
+                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=390&sort=$nextSortOrder&sortColumn=ProductID&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>ProductID</a></th> <!-- 貨物編號 -->
+                    <th style='text-align: center; vertical-align: middle;'><a href='?Act=390&sort=" . ($sortColumn === 'ProductName' && $sortOrder === 'ASC' ? 'desc' : 'asc') . "&sortColumn=ProductName&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>ProductName</a></th> <!-- 貨物名稱 -->
                     <th style='text-align: center; vertical-align: middle;'>Product<br>Category</th> <!-- 貨物類別 -->
                     <th style='text-align: center; vertical-align: middle;'>UnitPrice</th> <!-- 單價 -->
                     <th style='text-align: center; vertical-align: middle; width: 75px;'>$L_action</th> <!-- 操作 -->
@@ -112,6 +113,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $results = $stmt->fetchAll();   // 取得查詢結果
         if (count($results) > 0) {  // 顯示查詢結果
             foreach ($results as $row) {    // 逐筆顯示
+                $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
                 echo " <!-- 顯示資料列 -->
                 <tr> <!-- 資料列 -->
                     <td style='text-align: center;'><input type='checkbox' name='selectedProducts[]' value='{$row['ProductID']}'></td> <!-- 勾選欄位 -->
@@ -168,13 +170,13 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         echo "<nav aria-label='Page navigation' style='display: flex; justify-content: center; background-color: white;'>"; // 分頁導航
         echo "<ul class='pagination justify-content-center' style='background-color: transparent;'>"; // 分頁樣式
         if ($page > 1) { // 當前頁數大於 1 時，顯示上一頁按鈕
-            echo "<li class='page-item'><a class='page-link' href='?Act=390&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=390&page=" . ($page - 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_prev</a></li>"; // 上一頁按鈕
         }
         for ($i = 1; $i <= $totalPages; $i++) { // 顯示分頁按鈕
-            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=390&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 顯示分頁按鈕
+            echo "<li class='page-item " . ($i == $page ? 'active' : '') . "'><a class='page-link' href='?Act=390&page=$i&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$i</a></li>"; // 顯示分頁按鈕
         }
         if ($page < $totalPages) { // 當前頁數小於總頁數時，顯示下一頁按鈕
-            echo "<li class='page-item'><a class='page-link' href='?Act=390&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValue&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
+            echo "<li class='page-item'><a class='page-link' href='?Act=390&page=" . ($page + 1) . "&sort=$sortOrder&sortColumn=$sortColumn&searchColumn=$searchColumn&searchValue=$searchValueHtml&resultsPerPage=$resultsPerPage'>$L_next</a></li>"; // 下一頁按鈕
         }
         echo "</ul></nav>"; // 分頁導航結束
     }

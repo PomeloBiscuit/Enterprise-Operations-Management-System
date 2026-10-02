@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
         $CustomerName = $_POST['CustomerName']; // 取得 POST 表單欄位
         $CustomerPhoneNumber = $_POST['CustomerPhoneNumber']; // 取得 POST 表單欄位
         $CustomerAddress = $_POST['CustomerAddress']; // 取得 POST 表單欄位
-        $resultsPerPage = $_POST['resultsPerPage']; // 取得 POST 表單欄位
+        $resultsPerPage = intval($_POST['resultsPerPage'] ?? 5); // 取得 POST 表單欄位
 
         // 執行資料庫 UPDATE
         $stmt = $pdo->prepare("
@@ -43,12 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
     } // 結束執行
 } else { // 若非 POST 表單送出
     $CustomerID = $_GET['id']; // 取得 GET 參數
-    $resultsPerPage = $_GET['resultsPerPage'] ?? 5; // 取得 GET 參數
+    $resultsPerPage = intval($_GET['resultsPerPage'] ?? 5); // 取得 GET 參數
 
     // 取得顧客資料
     $stmt = $pdo->prepare("SELECT * FROM Customer WHERE CustomerID = :CustomerID"); // SQL 語法
     $stmt->execute([':CustomerID' => $CustomerID]); // 執行 SQL 語法
-    $row = $stmt->fetch(PDO::FETCH_ASSOC); // 取得第一筆資料
+    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $stmt->fetch(PDO::FETCH_ASSOC)); // 取得第一筆資料並編碼供 HTML 輸出
 }
 ?> <!-- 結束 PHP 區塊 -->
 
