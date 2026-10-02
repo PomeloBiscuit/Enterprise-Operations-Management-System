@@ -630,17 +630,16 @@ table_fingerprint() {
 check_sqli_identifier() {
     # 欄位名不能以 PDO 參數綁定；此檢查要求六個列表頁將惡意欄位名映射回固定預設值。
     # 相同資料、固定每頁 50 筆時，正常請求和兩個識別字注入請求的 tbody 指紋必須完全相同。
-    local entry name route baseline_body injected_body baseline_status injected_status baseline injected details="" failures=""
+    local entry name route default_column baseline_body injected_body baseline_status injected_status baseline injected details="" failures=""
     for entry in \
-        'customer|index.php?Act=300' \
-        'employee|index.php?Act=350' \
-        'order|index.php?Act=430' \
-        'product|index.php?Act=390' \
-        'shipment|index.php?Act=470' \
-        'admin|index.php?Act=110'; do
-        name="${entry%%|*}"
-        route="${entry#*|}"
-        baseline_body="$(curl -sS -b "$COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route&resultsPerPage=50")" \
+        'customer|index.php?Act=300|CustomerID' \
+        'employee|index.php?Act=350|EmployeeID' \
+        'order|index.php?Act=430|OrderID' \
+        'product|index.php?Act=390|ProductID' \
+        'shipment|index.php?Act=470|OrderID' \
+        'admin|index.php?Act=110|prikey'; do
+        IFS='|' read -r name route default_column <<< "$entry"
+        baseline_body="$(curl -sS -b "$COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route&resultsPerPage=50&sortColumn=$default_column")" \
             || { failures+="$name:正常請求 curl "; continue; }
         baseline_status="${baseline_body##*$'\n'}"
         baseline_body="${baseline_body%$'\n'*}"

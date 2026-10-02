@@ -106,6 +106,15 @@ function t(string $key, array $vars = []): string
 }
 
 /**
+ * 記錄完整例外資訊，但絕不將內部訊息回顯給瀏覽器。
+ */
+function user_safe_error(Throwable $e): string
+{
+    error_log('[EOMS] ' . get_class($e) . ': ' . $e->getMessage());
+    return t('common.operation_failed');
+}
+
+/**
  * 回到「目前這一頁」但把 lang 換成指定語言的網址，給導覽列的語言切換用。
  * 保留原本的 Act 與其他查詢參數，只覆寫 lang。
  */

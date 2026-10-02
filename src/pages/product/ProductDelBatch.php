@@ -15,7 +15,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可操作業務資
             header("Location: index.php?Act=390&resultsPerPage=$resultsPerPage"); // 維持顯示筆數
             exit(); // 結束程式
         } catch (PDOException $e) { // 例外處理
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+            echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
         }
     } else { // 如果未選擇任何貨物
         echo "<p>" . t('product.none_selected') . "</p>"; // 顯示錯誤訊息
@@ -24,6 +24,5 @@ if (can_view_business_data()) { // 管理員與內部員工才可操作業務資
     echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>"; // 顯示錯誤訊息
 }
 ?> 
-
 
 

@@ -7,8 +7,7 @@ if (can_manage_users()) {
         $aa = "UPDATE User SET enabled=0 WHERE prikey='{$EK}'";
         $pdo->exec($aa);
     } catch (PDOException $e) {
-        $output = "Error deleting admin: " . $e->getMessage();
-        echo "<p>$output";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
     header("refresh:1; url=index.php?Act=110");
 } else {

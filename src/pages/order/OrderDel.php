@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
         header("Location: index.php?Act=430&resultsPerPage=$resultsPerPage");
         exit();
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 } else {
     echo "<p>" . t('common.invalid_id') . "</p>";

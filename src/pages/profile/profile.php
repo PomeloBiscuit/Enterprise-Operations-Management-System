@@ -9,7 +9,7 @@ if (can_access_self()) {
         $stmt->execute([':id' => $admid]);
         $user = $stmt->fetch();
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
     if ($user) {
         $isAdmin = $user['limited'] == 1 ? t('profile.value.yes') : t('profile.value.no');

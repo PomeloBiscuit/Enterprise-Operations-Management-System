@@ -13,7 +13,7 @@ if (isset($_GET['id'])) { // 若有 ID
         header("Location: index.php?Act=300");
         exit();
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 } else {
     echo "<p>" . t('common.invalid_id') . "</p>";

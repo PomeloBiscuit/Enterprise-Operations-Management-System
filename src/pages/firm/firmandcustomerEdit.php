@@ -12,8 +12,7 @@
                     $stmt->execute([':prikey' => $EK]);
                     $result = $stmt;
                } catch (PDOException $e) {
-                    $error="Error fetching admin: " . $e->getMessage();
-                    echo $error;
+                    echo user_safe_error($e);
           }
           if ($row=$result->fetch()) {
 
@@ -109,8 +108,7 @@
                     ':prikey'    => $EK,
                ]);
           } catch (PDOException $e) {
-               $output="Error insert $tableName : " . $e->getMessage();
-               echo "<p>$output";
+               echo "<p>" . user_safe_error($e) . "</p>";
                //exit();
           }
           header("refresh:1;url=index.php?Act=200");

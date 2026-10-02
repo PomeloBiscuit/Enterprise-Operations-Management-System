@@ -13,7 +13,7 @@ if (can_manage_users()) {
             $sql = "SELECT * FROM User WHERE prikey='{$EK}' AND enabled > 0 ORDER BY name";
             $result = $pdo->query($sql);
         } catch (PDOException $e) {
-            echo "<p>Error fetching admin: " . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
         if ($row = $result->fetch()) {
             $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $row);
@@ -113,7 +113,7 @@ if (can_manage_users()) {
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
         } catch (PDOException $e) {
-            echo "<p>Error updating admin: " . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
         header("Location: index.php?Act=110&resultsPerPage={$resultsPerPage}");
         exit();

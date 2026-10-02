@@ -12,7 +12,7 @@ if (can_view_business_data()) { // 僅管理員與內部員工可刪除
             header("Location: index.php?Act=300&resultsPerPage=$resultsPerPage"); // 導向顧客列表
             exit(); // 結束程式
         } catch (PDOException $e) { // 若有錯誤
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+            echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
         } // 結束執行
     } else { // 若未選擇顧客
         echo "<p>" . t('customer.none_selected') . "</p>"; // 顯示錯誤訊息

@@ -124,7 +124,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
             echo "<tr><td colspan='4' style='text-align: center;'>$L_noData</td></tr>";
         }
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 
     echo "

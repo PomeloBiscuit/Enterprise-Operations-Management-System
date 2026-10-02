@@ -12,7 +12,7 @@ if (can_manage_users()) {
             header("Location: index.php?Act=110&resultsPerPage=$resultsPerPage");
             exit();
         } catch (PDOException $e) {
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
     } else {
         echo "<p>" . t('user.none_selected') . "</p>";

@@ -174,7 +174,7 @@ body {
             exit(); // 結束程式
         }   // 結束查詢結果判斷
     } catch (PDOException $e) { // 例外處理
-        echo "<p style='color:var(--danger-color);'>" . t('common.db_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";    // 顯示錯誤訊息
+        echo "<p style='color:var(--danger-color);'>" . user_safe_error($e) . "</p>";    // 顯示錯誤訊息
     }   // 結束例外處理
 }   // 結束登入按鈕判斷
 ?>  

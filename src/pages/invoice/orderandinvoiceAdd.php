@@ -30,7 +30,7 @@ if (can_view_business_data()) {
             header("Location: index.php?Act=240");
             exit();
         } catch (Throwable $e) {
-            echo "<p>" . t('invoice.add.fail_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
     }
 

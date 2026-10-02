@@ -60,7 +60,7 @@ if (can_access_self()) {
             header("Location: index.php?Act=100");
             exit();
         } catch (PDOException $e) {
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
     } else {
         try {
@@ -68,7 +68,7 @@ if (can_access_self()) {
             $stmt->execute([':id' => $admid]);
             $user = $stmt->fetch();
         } catch (PDOException $e) {
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
     }
     if ($user) {

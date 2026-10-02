@@ -33,7 +33,7 @@
 
 所有請求都經過單一前端控制器 `index.php`，由網址參數 `?Act=<數字>` 決定 `include`
 哪一頁。權限有三層把關：`index.php` 的路由白名單 → `auth.inc.php` 的具名守衛 →
-每一頁自己頁內再檢查一次。資料存取一律走 PDO prepared statement。
+每一頁自己頁內再檢查一次。查詢的值一律走 PDO prepared statement；欄位名與排序方向則由伺服器端白名單對應固定字串。
 
 ```mermaid
 flowchart TD

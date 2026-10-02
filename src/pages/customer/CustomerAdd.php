@@ -29,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
         header("Location: index.php?Act=300&resultsPerPage=$resultsPerPage"); // 導向顧客列表
         exit(); // 結束程式
     } catch (Exception $e) { // 若有錯誤
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     } catch (PDOException $e) { // 若有錯誤
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 }
 ?> 
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
                         $nextCustomerID = $row['AUTO_INCREMENT']; // 取得 AUTO_INCREMENT 欄位值
                         echo "<input type='text' class='form-control' value='$nextCustomerID' disabled>"; // 顯示顧客編號
                     } catch (PDOException $e) { // 捕捉錯誤
-                        echo "<p>" . t('customer.add.id_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>"; // 顯示錯誤訊息
+                        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
                     }   // 結束執行
                     ?> <!-- 結束 PHP 區塊 -->
                 </div> <!-- 表單群組結束 -->

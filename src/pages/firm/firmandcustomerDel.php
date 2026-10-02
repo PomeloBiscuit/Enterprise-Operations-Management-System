@@ -11,8 +11,7 @@
                $stmt = $pdo->prepare($aa);
                $stmt->execute([':prikey' => $EK]);
           } catch (PDOException $e) {
-          $output="Error insert $tableName : " . $e->getMessage();
-          echo "<p>$output";
+          echo "<p>" . user_safe_error($e) . "</p>";
           //exit();
           }
           header("refresh:1;url=index.php?Act=200");

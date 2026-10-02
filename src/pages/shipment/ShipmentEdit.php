@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php?Act=470");
         exit();
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 } else {
     $stmt = $pdo->prepare("SELECT * FROM Shipment WHERE ShipmentID = :ShipmentID");

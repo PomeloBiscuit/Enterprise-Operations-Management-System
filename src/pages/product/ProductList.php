@@ -152,7 +152,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $totalPages = $totalResults > 0 ? ceil($totalResults / $resultsPerPage) : 1; // 確保 totalPages 至少為 1
 
     } catch (PDOException $e) { // 處理 PDO 例外
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 
     echo " <!-- 資料表格結束 -->

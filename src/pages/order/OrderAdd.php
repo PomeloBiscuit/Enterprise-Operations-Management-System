@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        echo "<p>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 } else { // 如果是 GET 請求
     try { // 取得下一個訂單編號
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
         $row = $stmt->fetch();
         $nextOrderID = $row['AUTO_INCREMENT'];
     } catch (PDOException $e) {
-        echo "<p>Unable to retrieve order ID: " . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 }
 

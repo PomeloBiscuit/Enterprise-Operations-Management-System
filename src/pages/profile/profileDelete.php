@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<p>" . t('profile.delete.admin_only_msg') . "</p>";
         }
     } catch (PDOException $e) {
-        echo "<p>" . t('common.delete_fail_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 }
 ?>

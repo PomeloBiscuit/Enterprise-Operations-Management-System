@@ -210,7 +210,7 @@ if (can_view_business_data()) { // 管理員與內部員工才可檢視業務資
         $totalPages = ceil($totalResults / $resultsPerPage); // 計算總頁數
 
     } catch (PDOException $e) { // 例外處理
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 
     echo " <!-- 分頁導航 -->

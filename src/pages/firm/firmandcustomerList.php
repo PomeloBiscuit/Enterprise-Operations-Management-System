@@ -47,8 +47,7 @@
                $sql="select * from admin where enabled>0 order by fcname";
                $result = $pdo->query($sql);
           } catch (PDOException $e) {
-               $error="Error fetching fmcr: " . $e->getMessage();
-               echo $error;
+               echo user_safe_error($e);
           }
           while ($row=$result->fetch()) {
                echo "

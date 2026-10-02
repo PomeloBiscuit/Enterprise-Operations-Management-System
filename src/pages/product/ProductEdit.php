@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
         header("Location: index.php?Act=390&resultsPerPage=$resultsPerPage"); // 維持顯示筆數
         exit(); // 結束程式
     } catch (Exception $e) { // 例外處理
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     } catch (PDOException $e) { // 例外處理
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     } 
 } else { // 如果是 GET 請求
     $ProductID = $_GET['id']; // 取得貨物編號

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php");
         exit();
     } catch (PDOException | InvalidArgumentException $e) {
-        echo "<p>" . t('auth.register.err_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 }
 ?>

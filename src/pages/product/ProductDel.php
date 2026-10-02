@@ -13,12 +13,7 @@ if (isset($_GET['id'])) {
         header("Location: index.php?Act=390");
         exit();
     } catch (PDOException $e) {
-        // Contain.ProductID 是 ON DELETE RESTRICT：被訂單引用的產品不准刪。
-        if (strpos($e->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
-            echo "<p>" . t('product.del.fk_blocked') . "</p>";
-        } else {
-            echo "<p>" . t('common.error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
-        }
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 } else {
     echo "<p>" . t('common.invalid_id') . "</p>";

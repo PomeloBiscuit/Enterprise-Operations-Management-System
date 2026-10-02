@@ -9,6 +9,7 @@ return [
     'common.error_prefix'      => '錯誤：',
     'common.db_error_prefix'   => '資料庫錯誤：',
     'common.delete_fail_prefix' => '刪除失敗：',
+    'common.operation_failed'  => '操作暫時無法完成，請稍後再試。',
     'common.update'            => '更新',
     'common.select_area'       => '選擇地區',
     'common.invalid_id'       => '無效的 ID！',

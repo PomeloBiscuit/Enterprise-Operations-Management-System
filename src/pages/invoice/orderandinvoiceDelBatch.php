@@ -11,7 +11,7 @@ if (can_view_business_data()) {
             header("Location: index.php?Act=240");
             exit();
         } catch (PDOException $e) {
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+            echo "<p>" . user_safe_error($e) . "</p>";
         }
     } else {
         echo "<p>" . t('invoice.none_selected') . "</p>";

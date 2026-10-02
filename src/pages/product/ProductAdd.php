@@ -30,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
         header("Location: index.php?Act=390&resultsPerPage=$resultsPerPage"); // 維持顯示筆數
         exit(); // 結束程式
     } catch (Exception $e) { // 例外處理
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     } catch (PDOException $e) { // 例外處理
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 }
 ?> 
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
                         $nextProductID = $row['AUTO_INCREMENT']; // 取得下一個 ProductID
                         echo "<input type='text' class='form-control' value='$nextProductID' disabled>"; // 顯示下一個 ProductID
                     } catch (PDOException $e) { // 例外處理
-                        echo "<p>" . t('product.add.id_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>"; // 顯示錯誤訊息
+                        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
                     }
                     ?> <!-- 結束取得下一個 ProductID -->
                 </div> <!-- 結束表單群組 -->

@@ -27,9 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php?Act=350&resultsPerPage=$resultsPerPage"); // 轉址回員工列表
         exit();
     } catch (Exception $e) { // 例外錯誤
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     } catch (PDOException $e) { // 資料庫錯誤
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 }
 ?>
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $nextEmployeeID = $row['AUTO_INCREMENT']; // 取得 AUTO_INCREMENT
                         echo "<input type='text' class='form-control' value='$nextEmployeeID' disabled>"; // 顯示 AUTO_INCREMENT
                     } catch (PDOException $e) { // 資料庫錯誤
-                        echo "<p>" . t('employee.add.id_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>"; // 顯示錯誤訊息
+                        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
                     }
                     ?>
                 </div>

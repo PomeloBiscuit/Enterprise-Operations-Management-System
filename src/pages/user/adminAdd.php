@@ -67,7 +67,7 @@ if (can_manage_users()) {
                 header("Location: index.php?Act=110&resultsPerPage=" . intval($_POST['resultsPerPage'] ?? 10));
                 exit();
             } catch (PDOException $e) {
-                $error = t('user.add.err_prefix') . $e->getMessage();
+                $error = user_safe_error($e);
             }
         }
     }
@@ -111,7 +111,7 @@ if (can_manage_users()) {
                         $nextUserID = $row['AUTO_INCREMENT'];
                         echo "<input type='text' class='form-control' value='$nextUserID' disabled>";
                     } catch (PDOException $e) {
-                        echo "<p>" . t('user.add.userid_error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
+                        echo "<p>" . user_safe_error($e) . "</p>";
                     }
                     echo "</td>
                 </tr>

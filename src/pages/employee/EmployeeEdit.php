@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 判斷是否為 POST 方法
         header("Location: index.php?Act=350&resultsPerPage=$resultsPerPage"); // 轉址回員工列表
         exit(); // 結束程式
     } catch (Exception $e) { // 例外錯誤
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     } catch (PDOException $e) { // 資料庫錯誤
-        echo "<p>Error: " . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 } else {
     $EmployeeID = $_GET['id']; // 取得員工 ID

@@ -15,7 +15,7 @@ if (can_view_business_data()) {    // 管理員與內部員工才可操作業務
             header("Location: index.php?Act=430&resultsPerPage=$resultsPerPage");   // 顯示訂單列表
             exit(); // 結束程式
         } catch (PDOException $e) { // 例外處理
-            echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";   // 顯示錯誤訊息
+            echo "<p>" . user_safe_error($e) . "</p>";   // 顯示錯誤訊息
         }   // 結束例外處理
     } else {    // 如果未 POST 表單
         echo "<p>" . t('order.none_selected') . "</p>";  // 顯示錯誤訊息
@@ -24,6 +24,5 @@ if (can_view_business_data()) {    // 管理員與內部員工才可操作業務
     echo "<p style='text-align:center; color:red;'>" . t('common.permission_denied') . "</p>";  // 顯示錯誤訊息
 }   // 結束判斷是否有登入
 ?>
-
 
 

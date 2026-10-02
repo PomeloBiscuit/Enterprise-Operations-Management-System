@@ -5,6 +5,7 @@ return [
     'common.error_prefix'      => 'Error: ',
     'common.db_error_prefix'   => 'Database error: ',
     'common.delete_fail_prefix' => 'Deletion failed: ',
+    'common.operation_failed'  => 'The operation could not be completed. Please try again later.',
     'common.update'            => 'Update',
     'common.select_area'       => 'Select area',
     'common.invalid_id'       => 'Invalid ID!',

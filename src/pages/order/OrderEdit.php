@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {    // 如果是 POST 請求
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        echo "<p>" . t('common.error_prefix') . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 } else {    // 如果是 GET 請求
     $stmt = $pdo->prepare("SELECT * FROM Orders WHERE OrderID = :OrderID");

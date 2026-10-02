@@ -145,7 +145,7 @@ if (can_view_business_data()) {
             echo "<tr><td colspan='8' style='text-align: center;'>$L_noData</td></tr>";
         }
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 
     echo "

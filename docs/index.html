@@ -190,7 +190,7 @@
           <tr><td>前端</td><td>Bootstrap 4.3.1、jQuery 3.6.0（皆為套件檔，樣式內嵌於各頁）</td></tr>
           <tr><td>後端</td><td>PHP 8（無框架、無 Composer、無建置步驟）</td></tr>
           <tr><td>資料庫</td><td>SQLite，單檔存於 <code>data/fiance2024.sqlite</code></td></tr>
-          <tr><td>資料存取</td><td>PDO prepared statement</td></tr>
+          <tr><td>資料存取</td><td>查詢值使用 PDO prepared statement；欄位名與排序方向使用伺服器端白名單</td></tr>
           <tr><td>容器</td><td><code>php:8-apache</code></td></tr>
           <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，22 項可重跑檢查</td></tr>
         </tbody>
@@ -204,7 +204,7 @@
       所有請求都經過單一前端控制器 <code>index.php</code>，由網址參數
       <code>?Act=&lt;數字&gt;</code> 決定 <code>include</code> 哪一頁。權限有三層把關：
       <code>index.php</code> 的路由白名單 → <code>auth.inc.php</code> 的具名守衛 →
-      每一頁自己頁內再檢查一次。資料存取一律走 PDO prepared statement。
+      每一頁自己頁內再檢查一次。查詢值使用 PDO prepared statement；欄位名與排序方向由伺服器端白名單對應固定字串。
     </p>
     <div class="diagram">
       <pre class="mermaid">

@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: index.php?Act=240");
         exit();
     } catch (Throwable $e) {
-        echo "<p>" . t('common.error_prefix') . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
         return;
     }
 } else {

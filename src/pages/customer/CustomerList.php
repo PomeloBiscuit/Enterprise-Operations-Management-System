@@ -135,7 +135,7 @@ if (can_view_business_data()) { // 管理員與內部員工權限
             echo "<tr><td colspan='6' style='text-align: center;'>$L_noData</td></tr>"; // 查無資料
         }
     } catch (PDOException $e) { // 資料庫錯誤
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>"; // 顯示錯誤訊息
+        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
     }
 
     echo "

@@ -9,7 +9,9 @@ if (!can_view_business_data()) {
 if (can_view_business_data()) {
     $sortOrder = isset($_GET['sort']) && $_GET['sort'] === 'desc' ? 'DESC' : 'ASC';
     $nextSortOrder = $sortOrder === 'ASC' ? 'desc' : 'asc';
-    $searchColumn = isset($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
+    $searchColumns = ['' => '', 'all' => 'all', 'order_id' => 'order_id', 'order_number' => 'order_number', 'invoice_number' => 'invoice_number', 'customer_name' => 'customer_name', 'amount' => 'amount', 'status' => 'status'];
+    $searchInput = isset($_POST['searchColumn']) && is_string($_POST['searchColumn']) ? $_POST['searchColumn'] : (isset($_GET['searchColumn']) && is_string($_GET['searchColumn']) ? $_GET['searchColumn'] : '');
+    $searchColumn = $searchColumns[$searchInput] ?? '';
     $searchValue = isset($_POST['searchValue']) && is_string($_POST['searchValue']) ? $_POST['searchValue'] : (isset($_GET['searchValue']) && is_string($_GET['searchValue']) ? $_GET['searchValue'] : '');
     $searchValueHtml = htmlspecialchars($searchValue, ENT_QUOTES, 'UTF-8');
     $statusSearchCode = $searchColumn === 'status' && $searchValue !== ''
@@ -154,7 +156,7 @@ if (can_view_business_data()) {
             echo "<tr><td colspan='7' style='text-align: center;'>$L_noData</td></tr>";
         }
     } catch (PDOException $e) {
-        echo "<p>" . t('common.error_prefix') . $e->getMessage() . "</p>";
+        echo "<p>" . user_safe_error($e) . "</p>";
     }
 
     echo "
