@@ -807,6 +807,27 @@ check_git_hygiene() {
     CHECK_DETAIL="Git index 的已追蹤檔無 .sqlite、sess_*、config.inc.php、*.mp3"
 }
 
+check_diagrams() {
+    # Rebuild in an isolated directory: the committed SVGs are the byte-stable source of truth.
+    local diagram_tmp file failures=""
+    diagram_tmp="$(mktemp -d)" || { CHECK_DETAIL="無法建立 DIAGRAMS 暫存目錄"; return 1; }
+    if ! DIAGRAM_OUTPUT="$diagram_tmp" php "$APP_DIR/scripts/gen-diagrams.php" >"$diagram_tmp/generate.log" 2>&1; then
+        CHECK_DETAIL="產生器自我檢查失敗：$(tr '\n' ' ' < "$diagram_tmp/generate.log")"
+        rm -rf "$diagram_tmp"
+        return 1
+    fi
+    for file in \
+        er-transactions-zh-light.svg er-transactions-zh-dark.svg er-transactions-en-light.svg er-transactions-en-dark.svg \
+        er-identity-zh-light.svg er-identity-zh-dark.svg er-identity-en-light.svg er-identity-en-dark.svg \
+        er-system-zh-light.svg er-system-zh-dark.svg er-system-en-light.svg er-system-en-dark.svg \
+        relational-schema-zh-light.svg relational-schema-zh-dark.svg relational-schema-en-light.svg relational-schema-en-dark.svg; do
+        cmp -s "$diagram_tmp/$file" "$APP_DIR/docs/diagrams/$file" || failures+="$file "
+    done
+    rm -rf "$diagram_tmp"
+    [[ -z "$failures" ]] || { CHECK_DETAIL="SVG 位元組漂移：${failures% }"; return 1; }
+    CHECK_DETAIL="產生器自檢通過；16 個 SVG 與提交版本逐位元組一致"
+}
+
 # 將 log 範圍限定為本次 smoke 的 HTTP 請求；entrypoint 會持續鏡像 Apache stderr 到此檔。
 : > "$APACHE_ERROR_LOG"
 
@@ -833,6 +854,7 @@ for check in \
     'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \
     'I18N-EN-CJK check_i18n_english_no_cjk' \
+    'DIAGRAMS check_diagrams' \
     '11 check_error_log' \
     '12 check_git_hygiene'; do
     number="${check%% *}"
