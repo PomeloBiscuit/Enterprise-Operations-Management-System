@@ -83,213 +83,98 @@ flowchart TD
 共 **9 張表**，其中 7 張以 **8 條外鍵**互相關聯，`User` 與 `admin` 兩張**刻意不設任何
 外鍵**、與其他表沒有關聯。
 
-```mermaid
-erDiagram
-    Customer ||--o{ Orders : "ON DELETE CASCADE"
-    Employee ||--o{ Orders : "ON DELETE CASCADE"
-    Orders   ||--o{ Contain : "ON DELETE CASCADE"
-    Product  ||--o{ Contain : "ON DELETE RESTRICT"
-    Employee ||--o{ Shipment : "ON DELETE CASCADE"
-    Orders   ||--o{ Shipment : "ON DELETE CASCADE"
-    Orders   ||--o{ orderandinvoice : "ON DELETE RESTRICT"
-    Customer ||--o{ orderandinvoice : "ON DELETE RESTRICT"
+以下 SVG 一律由 `scripts/gen-diagrams.php` 從 SQLite 的 `sqlite_master`、`PRAGMA table_info`、
+`PRAGMA foreign_key_list` 與概念模型共同產生；提交的圖會由 smoke test 逐位元組重建比對。
+矩形是實體、菱形是關聯、橢圓是屬性；**底線是主鍵**，雙線代表全部參與。交易模組中虛線框的
+`Employee` 是跨模組參照，詳細屬性見帳號與組織圖。
 
-    Customer {
-        integer CustomerID PK
-        text CustomerName
-        text CustomerPhoneNumber
-        text CustomerAddress
-    }
-    Employee {
-        integer EmployeeID PK
-        text EmployeeName
-    }
-    Product {
-        integer ProductID PK
-        text ProductName
-        text ProductCategory
-        numeric UnitPrice
-    }
-    Orders {
-        integer OrderID PK
-        text OrderTime
-        text ShipDate
-        integer CustomerID FK
-        integer EmployeeID FK
-        text TrackingNumber
-        text ShipMethod
-    }
-    Contain {
-        integer OrderID PK "FK"
-        integer ProductID PK "FK"
-        integer Quantity "NOT NULL, CHECK > 0"
-    }
-    Shipment {
-        integer ShipmentID PK
-        integer EmployeeID FK
-        integer OrderID FK
-        text ShipDate
-        text TrackingNumber
-        text ShipMethod
-        integer status
-    }
-    orderandinvoice {
-        integer id PK
-        integer order_id FK "NOT NULL"
-        integer order_number "開立當下的快照"
-        text invoice_number
-        integer customer_id FK "NOT NULL"
-        text customer_name "開立當下的快照"
-        numeric amount
-        integer status
-        text created_at
-    }
-    User {
-        integer prikey PK
-        text datechg
-        text dateadd
-        text name
-        text id
-        text pw "bcrypt 2y 長度60"
-        text phone
-        text phonem
-        text email
-        integer enabled
-        integer open
-        integer status
-        integer limited "0/1/2/3"
-        text party_type "廠商 / 客戶 / NULL"
-    }
-    admin {
-        integer prikey PK
-        text fc "廠商 / 客戶"
-        text fcname
-        text fcaddress
-        text fcphone
-        text fcphonem
-        text fcemail
-        text fcid
-        integer enabled
-        integer open
-        integer status
-    }
-```
+### 模組 Chen 圖：交易
 
-### 8 條外鍵一覽
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/er-transactions-zh-dark.svg">
+  <img src="docs/diagrams/er-transactions-zh-light.svg" alt="交易模組 Chen 圖：顧客、訂單、訂單明細、產品、出貨與發票">
+</picture>
 
-| 從 | 到 | ON DELETE |
-|---|---|---|
-| `Orders.CustomerID` | `Customer.CustomerID` | CASCADE |
-| `Orders.EmployeeID` | `Employee.EmployeeID` | CASCADE |
-| `Contain.OrderID` | `Orders.OrderID` | CASCADE |
-| `Contain.ProductID` | `Product.ProductID` | RESTRICT |
-| `Shipment.OrderID` | `Orders.OrderID` | CASCADE |
-| `Shipment.EmployeeID` | `Employee.EmployeeID` | CASCADE |
-| `orderandinvoice.order_id` | `Orders.OrderID` | RESTRICT |
-| `orderandinvoice.customer_id` | `Customer.CustomerID` | RESTRICT |
+### 模組 Chen 圖：組織與帳號
 
-`Contain(OrderID, ProductID, Quantity)` 是訂單與產品的 M:N 關聯表：一張訂單可含多項產品，
-每項有數量。訂單刪除時明細跟著刪（CASCADE）；但只要還有訂單引用某產品，該產品就不能被刪
-（RESTRICT）——否則會失去金額計算的來源。
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/er-identity-zh-dark.svg">
+  <img src="docs/diagrams/er-identity-zh-light.svg" alt="組織與帳號 Chen 圖：系統帳號、員工、廠商與顧客主檔">
+</picture>
 
-### 兩個值得注意的設計
+### 全系統 Chen 圖
 
-- **`User` 與 `admin` 沒有外鍵**，也不與其他表關聯。`admin` 是廠商與顧客的主檔，
-  不是使用者表——它沿用了 `User` 的部分欄位命名，但用途不同。
-- **`orderandinvoice.order_number` 與 `customer_name` 是「開立當下的唯讀快照」**，
-  不是冗餘欄位。設計意圖是：顧客日後改名，已開立的舊發票仍顯示開立當時的名稱。
-  真正的關聯真相由 `order_id` / `customer_id` 兩個外鍵維持，且刪除行為是 `RESTRICT`
-  ——不允許因刪除訂單或顧客而讓發票失去關聯。
-
-外鍵約束在 SQLite 預設是關閉的，且必須每個連線各自開啟；本專案在每次建立 PDO 連線後
-立即執行 `PRAGMA foreign_keys = ON`，否則 `ON DELETE CASCADE` 會靜默失效。
-
-### ER 圖（Chen 記法）
-
-矩形是實體、菱形是關聯、橢圓是屬性、**星號是主鍵**。訂單與產品之間是 **M:N** 的
-`Contain` 關聯，`Quantity`（數量）掛在關聯上——它不屬於訂單、也不屬於產品，
-而是「這張訂單買了這個產品幾個」。
-
-```mermaid
-flowchart TB
-    EMP[Employee]
-    ORD[Orders]
-    PRD[Product]
-    CUS[Customer]
-
-    HAN{Handle}
-    CON{Contain}
-    PLA{Place}
-
-    eid((EmployeeID*)) --- EMP
-    enm((EmployeeName)) --- EMP
-    EMP ---|1| HAN
-    HAN ---|N| ORD
-
-    oid((OrderID*)) --- ORD
-    otm((OrderTime)) --- ORD
-    osd((ShipDate)) --- ORD
-    otn((TrackingNumber)) --- ORD
-    osm((ShipMethod)) --- ORD
-
-    ORD ---|N| CON
-    CON ---|M| PRD
-    qty((Quantity)) --- CON
-
-    pid((ProductID*)) --- PRD
-    pnm((ProductName)) --- PRD
-    pct((ProductCategory)) --- PRD
-    pup((UnitPrice)) --- PRD
-
-    ORD ---|N| PLA
-    PLA ---|1| CUS
-
-    cid((CustomerID*)) --- CUS
-    cnm((CustomerName)) --- CUS
-    cad((CustomerAddress)) --- CUS
-    cph((CustomerPhoneNumber)) --- CUS
-```
-
-出貨與發票各自是獨立實體（有自己的主鍵與屬性），與訂單核心的關係：
-
-```mermaid
-flowchart LR
-    EMP[Employee]
-    CUS[Customer]
-    ORD[Orders]
-    SHP[Shipment]
-    INV[orderandinvoice]
-
-    HAN{Handle}
-    PLA{Place}
-    SHIPS{ShipFor}
-    BYEMP{HandledBy}
-    BILLS{BillFor}
-    ISSUED{IssuedTo}
-
-    EMP ---|1| HAN
-    HAN ---|N| ORD
-    CUS ---|1| PLA
-    PLA ---|N| ORD
-    ORD ---|1| SHIPS
-    SHIPS ---|N| SHP
-    EMP ---|1| BYEMP
-    BYEMP ---|N| SHP
-    ORD ---|1| BILLS
-    BILLS ---|N| INV
-    CUS ---|1| ISSUED
-    ISSUED ---|N| INV
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/er-system-zh-dark.svg">
+  <img src="docs/diagrams/er-system-zh-light.svg" alt="全系統 Chen 圖：9 張表、完整屬性與 8 條外鍵關係">
+</picture>
 
 ### 關聯綱目
 
-把上面的 ER 圖落成實際的資料表：每一列是一張表，格子是欄位，**底線是主鍵**，
-箭頭由外鍵指向它參照的主鍵。實線是 `ON DELETE CASCADE`，虛線是 `ON DELETE RESTRICT`。
+每個資料表及其全部欄位都在圖上；底線為主鍵，箭頭從外鍵指向被參照的主鍵，實線是
+`ON DELETE CASCADE`、虛線是 `ON DELETE RESTRICT`。
 
-![關聯綱目：7 張表與 8 條外鍵的對應關係](docs/relational-schema.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/relational-schema-zh-dark.svg">
+  <img src="docs/diagrams/relational-schema-zh-light.svg" alt="9 張資料表與 8 條外鍵的關聯綱目">
+</picture>
 
-`User`（系統帳號）與 `admin`（廠商顧客主檔）刻意不設外鍵、與這 7 張表沒有關聯，
-因此不在本圖中。
+### 幾個關鍵的資料模型決策
+
+- 發票的 `order_id`、`customer_id` 外鍵才是關聯真相；`order_number`、`customer_name` 是開立時快照。兩個外鍵皆為 `ON DELETE RESTRICT`，不能因刪除來源資料而遺失憑證關聯。
+- `Contain(OrderID, ProductID, Quantity)` 以數量表達訂單與產品的多對多；訂單金額以 `SUM(Contain.Quantity * Product.UnitPrice)` 計算。
+- SQLite 外鍵預設關閉，每個 PDO 連線都必須執行 `PRAGMA foreign_keys = ON`。
+- 權限以列舉允許角色判斷，不以角色數字大小比較；列表頁帶入 SQL 的欄位名也走固定白名單。
+
+### 關鍵流程
+
+#### 登入與權限檢查
+
+```mermaid
+sequenceDiagram
+    participant B as 瀏覽器
+    participant R as 路由白名單
+    participant G as 具名守衛
+    participant P as 功能頁／拒絕頁
+    B->>R: 請求 Act（public/index.php:8-12）
+    R->>G: 依 Act 呼叫 can_manage_users / can_view_business_data（public/index.php:27-30）
+    G-->>R: 允許角色清單結果（src/auth.inc.php:22-30）
+    R->>P: 允許時載入頁面；否則 Act=forbidden（public/index.php:27-30）
+    P-->>B: 功能頁或「權限不足」（public/index.php:323-325）
+```
+
+#### 開立／編輯發票
+
+```mermaid
+sequenceDiagram
+    participant F as 發票表單
+    participant I as 發票流程
+    participant S as 快照函式
+    participant D as SQLite
+    F->>I: POST 外鍵 order_id、customer_id（orderandinvoiceAdd.php:10-13）
+    I->>S: 以外鍵取得快照（orderandinvoiceAdd.php:13）
+    S->>D: 查詢訂單與顧客（src/invoice.inc.php:9-18）
+    D-->>S: 訂單編號與顧客名稱（src/invoice.inc.php:14-18）
+    S-->>I: 可信的快照（src/invoice.inc.php:22）
+    F->>I: 編輯時送出外鍵（orderandinvoiceEdit.php:24-30）
+    I->>S: 外鍵變更才重取快照（orderandinvoiceEdit.php:25-27）
+    I-->>F: 外鍵未變則沿用舊快照（orderandinvoiceEdit.php:28-33）
+```
+
+#### 狀態搜尋
+
+```mermaid
+sequenceDiagram
+    participant U as 使用者
+    participant L as 列表頁
+    participant E as search_enum_code
+    participant Q as SQLite 查詢
+    U->>L: 輸入任一語言的狀態（ShipmentList.php:19-22）
+    L->>E: 比對狀態代碼與所有語言（src/search.inc.php:10-27）
+    E-->>L: 對應代碼或 null（src/search.inc.php:29）
+    L->>Q: null 時使用 WHERE 1=0（ShipmentList.php:103）
+    Q-->>U: 查無資料或符合的列（ShipmentList.php:103-110）
+```
 
 ---
 
