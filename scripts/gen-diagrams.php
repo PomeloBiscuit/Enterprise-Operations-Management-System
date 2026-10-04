@@ -168,30 +168,51 @@ function dg_escape(string $value): string
 
 function dg_route_foreign_keys(array $foreignKeys, array $layout): array
 {
-    $bySource = [];
-    $byTarget = [];
+    $routeOrder = array_keys($foreignKeys);
+    usort($routeOrder, static function (int $left, int $right) use ($foreignKeys, $layout): int {
+        $leftSource = $layout['fields']["{$foreignKeys[$left]['fromTable']}.{$foreignKeys[$left]['fromColumn']}"];
+        $leftTarget = $layout['fields']["{$foreignKeys[$left]['toTable']}.{$foreignKeys[$left]['toColumn']}"];
+        $rightSource = $layout['fields']["{$foreignKeys[$right]['fromTable']}.{$foreignKeys[$right]['fromColumn']}"];
+        $rightTarget = $layout['fields']["{$foreignKeys[$right]['toTable']}.{$foreignKeys[$right]['toColumn']}"];
+        $leftDistance = abs(($leftSource['y'] + $leftSource['height']) - ($leftTarget['y'] + $leftTarget['height']));
+        $rightDistance = abs(($rightSource['y'] + $rightSource['height']) - ($rightTarget['y'] + $rightTarget['height']));
+        return [$rightDistance, $leftSource['y'], $left] <=> [$leftDistance, $rightSource['y'], $right];
+    });
+    $laneRanks = array_flip($routeOrder);
+    $incoming = [];
+    $outgoing = [];
     foreach ($foreignKeys as $index => $foreignKey) {
-        $bySource[$foreignKey['fromTable']][] = $index;
-        $byTarget[$foreignKey['toTable']][] = $index;
+        $source = $layout['fields']["{$foreignKey['fromTable']}.{$foreignKey['fromColumn']}"];
+        $target = $layout['fields']["{$foreignKey['toTable']}.{$foreignKey['toColumn']}"];
+        $outgoing[$source['y']][] = $index;
+        $incoming[$target['y']][] = $index;
     }
+    foreach ([$incoming, $outgoing] as &$sets) {
+        foreach ($sets as &$set) {
+            usort($set, static fn(int $a, int $b): int => $laneRanks[$a] <=> $laneRanks[$b]);
+        }
+    }
+    unset($sets, $set);
     $routes = [];
     foreach ($foreignKeys as $index => $foreignKey) {
         $source = $layout['fields']["{$foreignKey['fromTable']}.{$foreignKey['fromColumn']}"];
         $target = $layout['fields']["{$foreignKey['toTable']}.{$foreignKey['toColumn']}"];
-        $sourceRank = array_search($index, $bySource[$foreignKey['fromTable']], true);
-        $targetRank = array_search($index, $byTarget[$foreignKey['toTable']], true);
+        $sourceRank = array_search($index, $outgoing[$source['y']], true);
+        $targetRank = array_search($index, $incoming[$target['y']], true);
         $sourceBottom = $source['y'] + $source['height'];
         $targetBottom = $target['y'] + $target['height'];
-        $lane = DG_LANE_X + $index * DG_LANE_GAP;
+        $lane = DG_LANE_X + $laneRanks[$index] * DG_LANE_GAP;
         $targetX = $target['x'] + 12 + $targetRank * 12;
+        $targetY = $targetBottom + 6 + $targetRank * 4;
+        $sourceY = $sourceBottom + 6 + count($incoming[$source['y']] ?? []) * 4 + 4 + $sourceRank * 5;
         $routes[] = [
             'foreignKey' => $foreignKey,
             'points' => [
                 ['x' => $source['x'] + intdiv($source['width'], 2), 'y' => $sourceBottom],
-                ['x' => $source['x'] + intdiv($source['width'], 2), 'y' => $sourceBottom + 6 + $sourceRank * 5],
-                ['x' => $lane, 'y' => $sourceBottom + 6 + $sourceRank * 5],
-                ['x' => $lane, 'y' => $targetBottom + 20 + $targetRank * 4],
-                ['x' => $targetX, 'y' => $targetBottom + 20 + $targetRank * 4],
+                ['x' => $source['x'] + intdiv($source['width'], 2), 'y' => $sourceY],
+                ['x' => $lane, 'y' => $sourceY],
+                ['x' => $lane, 'y' => $targetY],
+                ['x' => $targetX, 'y' => $targetY],
                 ['x' => $targetX, 'y' => $targetBottom],
             ],
         ];
@@ -599,6 +620,22 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
     sort($expectedForeignKeys, SORT_STRING);
     if ($actualForeignKeys !== $expectedForeignKeys) {
         dg_fail('R-FK', 'SVG 外鍵箭頭與 SQLite 外鍵不一致');
+    }
+    foreach ($routePoints as $tipIndex => $tipRoute) {
+        $tip = $tipRoute[5];
+        $clearance = dg_bounds($tip['x'] - 3, $tip['y'] - 9, 6, 9);
+        foreach ($routePoints as $routeIndex => $route) {
+            if ($routeIndex === $tipIndex) {
+                continue;
+            }
+            for ($segment = 0; $segment < count($route) - 1; $segment++) {
+                if (dg_segment_intersects_bounds($route[$segment], $route[$segment + 1], $clearance)) {
+                    $from = $paths->item($routeIndex)->getAttribute('data-from');
+                    $target = $paths->item($tipIndex)->getAttribute('data-to');
+                    dg_fail('R-ARROW', "$from 進入 $target 箭頭尖端下方淨空");
+                }
+            }
+        }
     }
     if (dg_xpath($dom, '//*[@data-kind="legend-cascade"]')->length !== 1
         || dg_xpath($dom, '//*[@data-kind="legend-restrict"]')->length !== 1) {

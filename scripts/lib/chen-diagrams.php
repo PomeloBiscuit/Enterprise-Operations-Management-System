@@ -398,8 +398,7 @@ function chen_notes(string $key, string $locale): array
     if ($key === 'fulfillment') {
         $notes[] = ['kind' => 'reference', 'text' => $locale === 'zh'
             ? '虛線框：參照實體，屬性見訂單核心圖'
-            : 'Dashed boxes: referenced entities;
-        see the order-core diagram for their attributes'];
+            : 'Dashed boxes: referenced entities; see the order-core diagram for their attributes'];
     }
     return $notes;
 }
