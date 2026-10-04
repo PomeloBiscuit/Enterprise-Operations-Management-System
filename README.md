@@ -206,80 +206,30 @@ erDiagram
 
 ### ER 圖（Chen 記法）
 
-矩形是實體、菱形是關聯、橢圓是屬性、**星號是主鍵**。訂單與產品之間是 **M:N** 的
-`Contain` 關聯，`Quantity`（數量）掛在關聯上——它不屬於訂單、也不屬於產品，
-而是「這張訂單買了這個產品幾個」。
+矩形是實體、菱形是關聯、橢圓是屬性、底線是主鍵；雙線表示全部參與，連線端的
+`1`／`N`／`M` 是基數。訂單與產品之間是 **M:N** 的「包含」關聯，`Quantity`（數量）
+掛在關聯上，而不是訂單或產品的屬性。
 
-```mermaid
-flowchart TB
-    EMP[Employee]
-    ORD[Orders]
-    PRD[Product]
-    CUS[Customer]
+訂單核心：
 
-    HAN{Handle}
-    CON{Contain}
-    PLA{Place}
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/er-orders-zh-dark.svg">
+  <img src="docs/diagrams/er-orders-zh-light.svg" alt="訂單核心 Chen ER 圖">
+</picture>
 
-    eid((EmployeeID*)) --- EMP
-    enm((EmployeeName)) --- EMP
-    EMP ---|1| HAN
-    HAN ---|N| ORD
+出貨與發票：
 
-    oid((OrderID*)) --- ORD
-    otm((OrderTime)) --- ORD
-    osd((ShipDate)) --- ORD
-    otn((TrackingNumber)) --- ORD
-    osm((ShipMethod)) --- ORD
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/er-fulfillment-zh-dark.svg">
+  <img src="docs/diagrams/er-fulfillment-zh-light.svg" alt="出貨與發票 Chen ER 圖">
+</picture>
 
-    ORD ---|N| CON
-    CON ---|M| PRD
-    qty((Quantity)) --- CON
+全系統 Chen 圖：
 
-    pid((ProductID*)) --- PRD
-    pnm((ProductName)) --- PRD
-    pct((ProductCategory)) --- PRD
-    pup((UnitPrice)) --- PRD
-
-    ORD ---|N| PLA
-    PLA ---|1| CUS
-
-    cid((CustomerID*)) --- CUS
-    cnm((CustomerName)) --- CUS
-    cad((CustomerAddress)) --- CUS
-    cph((CustomerPhoneNumber)) --- CUS
-```
-
-出貨與發票各自是獨立實體（有自己的主鍵與屬性），與訂單核心的關係：
-
-```mermaid
-flowchart LR
-    EMP[Employee]
-    CUS[Customer]
-    ORD[Orders]
-    SHP[Shipment]
-    INV[orderandinvoice]
-
-    HAN{Handle}
-    PLA{Place}
-    SHIPS{ShipFor}
-    BYEMP{HandledBy}
-    BILLS{BillFor}
-    ISSUED{IssuedTo}
-
-    EMP ---|1| HAN
-    HAN ---|N| ORD
-    CUS ---|1| PLA
-    PLA ---|N| ORD
-    ORD ---|1| SHIPS
-    SHIPS ---|N| SHP
-    EMP ---|1| BYEMP
-    BYEMP ---|N| SHP
-    ORD ---|1| BILLS
-    BILLS ---|N| INV
-    CUS ---|1| ISSUED
-    ISSUED ---|N| INV
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/er-system-zh-dark.svg">
+  <img src="docs/diagrams/er-system-zh-light.svg" alt="全系統 Chen ER 圖">
+</picture>
 
 ### 關聯綱目
 
