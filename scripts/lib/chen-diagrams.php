@@ -8,7 +8,7 @@ declare(strict_types=1);
  * serializes them. Every chen_check_<code> function guards one failure code; the SVG checks parse
  * the serialized SVG (never the layout arrays), so a layout bug cannot hide from its own assertion.
  * Codes: C-FIT C-CANVAS C-OVERLAP C-SIDE C-ORDER C-GROUP C-ENDPOINT C-THROUGH C-CROSS C-LABEL
- * C-PK C-MODEL C-VARIANT C-LINELEN.
+ * C-PK C-MODEL C-VARIANT C-LINELEN C-DOUBLE.
  */
 const CHEN_MARGIN = 24;
 const CHEN_MAX_WIDTH = 1500;
@@ -29,6 +29,13 @@ const CHEN_ATTR_SPACING = 12;
 
 /* Two entity groups closer than this are a conflict. */
 const CHEN_GROUP_MIN_DISTANCE = 24;
+
+/* Total participation: two strokes, each this far from the centre line (so 2 * offset apart). */
+const CHEN_DOUBLE_OFFSET = 2.0;
+
+/* Cardinality labels keep this far from each other and from every shape; distances are box to box. */
+const CHEN_LABEL_GAP = 6;
+const CHEN_LABEL_SHAPE_GAP = 2;
 
 /* ---------------------------------------------------------------------------------------------
  * Basic helpers
@@ -166,6 +173,51 @@ function chen_line_end(array $line): array
     return ['x' => $line['x2'], 'y' => $line['y2']];
 }
 
+/* Gap between two boxes: 0 when they touch or overlap, otherwise the shortest distance between them. */
+function chen_box_distance(array $a, array $b): float
+{
+    $x = max(0, max($a['x'] - chen_right($b), $b['x'] - chen_right($a)));
+    $y = max(0, max($a['y'] - chen_bottom($b), $b['y'] - chen_bottom($a)));
+    return hypot($x, $y);
+}
+
+/* Half-planes (a*x + b*y <= limit, relative to the shape centre) whose intersection is the outline. */
+function chen_outline_planes(array $shape): array
+{
+    $rx = $shape['w'] / 2;
+    $ry = $shape['h'] / 2;
+    if ($shape['kind'] === 'diamond') {
+        return [
+            [1 / $rx, 1 / $ry, 1.0],
+            [1 / $rx, -1 / $ry, 1.0],
+            [-1 / $rx, 1 / $ry, 1.0],
+            [-1 / $rx, -1 / $ry, 1.0],
+        ];
+    }
+    return [[1.0, 0.0, $rx], [-1.0, 0.0, $rx], [0.0, 1.0, $ry], [0.0, -1.0, $ry]];
+}
+
+/*
+ * Where a ray leaves a rectangle or diamond. Unlike chen_boundary the origin may be any point inside the
+ * shape, which is what an offset stroke needs: it starts 2 px beside the centre, not at the centre.
+ */
+function chen_ray_exit(array $shape, array $origin, array $direction): array
+{
+    $startX = $origin['x'] - $shape['x'];
+    $startY = $origin['y'] - $shape['y'];
+    $distance = INF;
+    foreach (chen_outline_planes($shape) as [$a, $b, $limit]) {
+        $approach = $a * $direction['x'] + $b * $direction['y'];
+        if ($approach > 0) {
+            $distance = min($distance, ($limit - $a * $startX - $b * $startY) / $approach);
+        }
+    }
+    return [
+        'x' => $origin['x'] + $direction['x'] * $distance,
+        'y' => $origin['y'] + $direction['y'] * $distance,
+    ];
+}
+
 /* ---------------------------------------------------------------------------------------------
  * Entity and attribute placement
  * ------------------------------------------------------------------------------------------- */
@@ -290,13 +342,6 @@ function chen_groups(array $shapes, array $diagram): array
     return $groups;
 }
 
-function chen_group_distance(array $a, array $b): float
-{
-    $x = max(0, max($a['x'] - chen_right($b), $b['x'] - chen_right($a)));
-    $y = max(0, max($a['y'] - chen_bottom($b), $b['y'] - chen_bottom($a)));
-    return hypot($x, $y);
-}
-
 /* First pair of entity groups that sit closer than CHEN_GROUP_MIN_DISTANCE, or null. */
 function chen_group_conflict(array $groups): ?array
 {
@@ -304,7 +349,7 @@ function chen_group_conflict(array $groups): ?array
     $count = count($ids);
     for ($i = 0; $i < $count; $i++) {
         for ($j = $i + 1; $j < $count; $j++) {
-            if (chen_group_distance($groups[$ids[$i]], $groups[$ids[$j]]) < CHEN_GROUP_MIN_DISTANCE) {
+            if (chen_box_distance($groups[$ids[$i]], $groups[$ids[$j]]) < CHEN_GROUP_MIN_DISTANCE) {
                 return [$ids[$i], $ids[$j]];
             }
         }
@@ -330,22 +375,27 @@ function chen_relationship(array $relationship, array $left, array $right): arra
     ];
 }
 
-/* One line per participant; total participation draws two parallel strokes. */
+/*
+ * One line per participant. Total participation draws two strokes: the centre line translated by
+ * +/- CHEN_DOUBLE_OFFSET along its normal, so they are parallel and 2 * CHEN_DOUBLE_OFFSET apart.
+ * Each stroke ends where its own translated line leaves the entity and the diamond (not where a ray
+ * from the centres would), otherwise both strokes would start almost at the same point.
+ */
 function chen_relationship_lines(array $entity, array $diamond, array $participant): array
 {
-    $dx = $diamond['x'] - $entity['x'];
-    $dy = $diamond['y'] - $entity['y'];
-    $length = hypot($dx, $dy);
-    $offsets = $participant['participation'] === 'total' ? [-2.0, 2.0] : [0.0];
+    $length = hypot($diamond['x'] - $entity['x'], $diamond['y'] - $entity['y']);
+    $forward = ['x' => ($diamond['x'] - $entity['x']) / $length, 'y' => ($diamond['y'] - $entity['y']) / $length];
+    $backward = ['x' => -$forward['x'], 'y' => -$forward['y']];
+    $offsets = $participant['participation'] === 'total' ? [-CHEN_DOUBLE_OFFSET, CHEN_DOUBLE_OFFSET] : [0.0];
     $lines = [];
     foreach ($offsets as $stroke => $offset) {
-        $normalX = $length === 0.0 ? 0.0 : -$dy / $length * $offset;
-        $normalY = $length === 0.0 ? 0.0 : $dx / $length * $offset;
-        $origin = ['x' => $entity['x'] + $normalX, 'y' => $entity['y'] + $normalY];
-        $target = ['x' => $diamond['x'] + $normalX, 'y' => $diamond['y'] + $normalY];
+        $normalX = -$forward['y'] * $offset;
+        $normalY = $forward['x'] * $offset;
+        $fromEntity = ['x' => $entity['x'] + $normalX, 'y' => $entity['y'] + $normalY];
+        $fromDiamond = ['x' => $diamond['x'] + $normalX, 'y' => $diamond['y'] + $normalY];
         $lines[] = chen_line(
-            chen_boundary($entity, $target),
-            chen_boundary($diamond, $origin),
+            chen_ray_exit($entity, $fromEntity, $forward),
+            chen_ray_exit($diamond, $fromDiamond, $backward),
             $diamond['id'] . ':' . $participant['entity'] . ':' . $stroke,
             $entity['id'],
             $diamond['id'],
@@ -425,27 +475,55 @@ function chen_label_box(float $x, float $y, string $text): array
     return dg_bounds($x - $width / 2, $y - 9.5, $width, 19);
 }
 
-function chen_label_blocked(array $box, array $shapes, array $lines, array $labels): bool
+/* "relationship:BILLS:Customer:1" and "...:0" are the two strokes of one participant: same base. */
+function chen_stroke_base(string $lineId): string
 {
-    foreach ($shapes as $shape) {
-        if (dg_bounds_overlap($box, chen_box($shape))) {
-            return true;
+    return substr($lineId, 0, (int) strrpos($lineId, ':'));
+}
+
+/* True when the line segment nearest to $box is a stroke of the participant that owns the label. */
+function chen_nearest_line_is_own(array $box, string $lineId, array $lines): bool
+{
+    $base = chen_stroke_base($lineId);
+    $own = INF;
+    $others = INF;
+    foreach ($lines as $line) {
+        $distance = dg_segment_bounds_distance(chen_line_start($line), chen_line_end($line), $box);
+        if (chen_stroke_base($line['id']) === $base) {
+            $own = min($own, $distance);
+        } else {
+            $others = min($others, $distance);
         }
     }
-    foreach ($lines as $line) {
-        if (dg_segment_bounds_distance(chen_line_start($line), chen_line_end($line), $box) < .75) {
+    return $own < $others;
+}
+
+/*
+ * A candidate box is blocked when it is closer than CHEN_LABEL_SHAPE_GAP to a shape, closer than
+ * CHEN_LABEL_GAP to another label, touches any line, or sits nearer to another participant's line
+ * than to its own (the reader would attach the cardinality to the wrong line).
+ */
+function chen_label_blocked(array $box, array $line, array $shapes, array $lines, array $labels): bool
+{
+    foreach ($shapes as $shape) {
+        if (chen_box_distance($box, chen_box($shape)) < CHEN_LABEL_SHAPE_GAP) {
             return true;
         }
     }
     foreach ($labels as $label) {
-        if (dg_bounds_overlap($box, $label['box'])) {
+        if (chen_box_distance($box, $label['box']) < CHEN_LABEL_GAP) {
             return true;
         }
     }
-    return false;
+    foreach ($lines as $other) {
+        if (dg_segment_bounds_distance(chen_line_start($other), chen_line_end($other), $box) < .75) {
+            return true;
+        }
+    }
+    return !chen_nearest_line_is_own($box, $line['id'], $lines);
 }
 
-/* Candidate label centres near the owner end of a line, nearest first, both sides of the line. */
+/* Candidate label centres along the owner end of a line, nearest first, both sides of the line. */
 function chen_label_candidates(array $line): array
 {
     $dx = $line['x2'] - $line['x1'];
@@ -456,7 +534,7 @@ function chen_label_candidates(array $line): array
     $normalX = abs($dx) < .01 ? 1.0 : -$unitY;
     $normalY = abs($dx) < .01 ? 0.0 : $unitX;
     $candidates = [];
-    foreach ([14, 26, 38] as $along) {
+    foreach ([14, 26, 38, 50, 62] as $along) {
         foreach ([1, -1] as $side) {
             $candidates[] = [
                 $line['x1'] + $unitX * $along + $normalX * 15 * $side,
@@ -473,7 +551,7 @@ function chen_place_label(array $line, array $shapes, array $lines, array $label
     $value = (string) $line['participant']['cardinality'];
     foreach (chen_label_candidates($line) as [$x, $y]) {
         $box = chen_label_box($x, $y, $value);
-        if (!chen_label_blocked($box, $shapes, $lines, $labels)) {
+        if (!chen_label_blocked($box, $line, $shapes, $lines, $labels)) {
             return ['line' => $line['id'], 'value' => $value, 'x' => $x, 'y' => $y + 5, 'box' => $box];
         }
     }
@@ -666,8 +744,8 @@ function chen_notes(string $key, string $locale): array
 {
     $legend = $locale === 'zh'
         ? '矩形＝實體　菱形＝關聯　橢圓＝屬性　底線＝主鍵　雙線＝全部參與'
-        : ('Rectangle = entity   Diamond = relationship   Ellipse = attribute   '
-            . 'Underline = primary key   Double line = total participation');
+        : ('Rectangle = entity; Diamond = relationship; Ellipse = attribute; '
+            . 'Underline = primary key; Double line = total participation');
     $notes = [['kind' => 'legend', 'text' => $legend]];
     if ($key === 'system') {
         $notes[] = ['kind' => 'isolated', 'text' => $locale === 'zh'
@@ -991,17 +1069,25 @@ function chen_boundary_error(array $shape, float $x, float $y): float
  * Checks: model against the database (C-MODEL, C-ORDER)
  * ------------------------------------------------------------------------------------------- */
 
-/* One participant's foreign key must exist and agree with the column's NOT NULL / primary-key flags. */
-function chen_check_model_foreign_key(array $participant, array $schema): void
+/* The schema column that a "Table.column" reference names, or null when the table or column is missing. */
+function chen_schema_column(array $schema, string $reference): ?array
 {
-    $foreignKey = $participant['foreignKey'];
-    [$table, $column] = explode('.', $foreignKey, 2);
+    [$table, $column] = explode('.', $reference, 2);
     $info = null;
     foreach ($schema['tables'][$table]['columns'] ?? [] as $candidate) {
         if ($candidate['name'] === $column) {
             $info = $candidate;
         }
     }
+    return $info;
+}
+
+/* One participant's foreign key must exist and agree with the column's NOT NULL / primary-key flags. */
+function chen_check_model_foreign_key(array $participant, array $schema): void
+{
+    $foreignKey = $participant['foreignKey'];
+    $table = explode('.', $foreignKey, 2)[0];
+    $info = chen_schema_column($schema, $foreignKey);
     if ($info === null) {
         chen_fail('C-MODEL', $foreignKey, 'JSON 外鍵不存在');
     }
@@ -1099,9 +1185,31 @@ function chen_label_space(array $shape): float
     return $shape['kind'] === 'diamond' ? $shape['w'] * .72 - 20 : $shape['w'] - 20;
 }
 
+/* The data-* attribute that names what a <text> element belongs to (shape, note or cardinality line). */
+function chen_text_id(DOMElement $text): string
+{
+    foreach (['data-text-for', 'data-note', 'data-cardinality-for'] as $name) {
+        if ($text->hasAttribute($name)) {
+            return $text->getAttribute($name);
+        }
+    }
+    return '';
+}
+
+/* C-FIT (whitespace): SVG collapses a run of spaces into one, so no text may contain two ASCII spaces in a row. */
+function chen_check_fit_spaces(DOMXPath $xpath): void
+{
+    foreach ($xpath->query('//*[local-name()="text"]') as $text) {
+        if (str_contains($text->textContent, '  ')) {
+            chen_fail('C-FIT', chen_text_id($text), '文字含連續空白，SVG 會合併成一個');
+        }
+    }
+}
+
 /* C-FIT: each label fits its shape with 20 px to spare (diamond: 72% of the width); each note fits the canvas. */
 function chen_check_fit(DOMXPath $xpath, array $shapes, float $width): void
 {
+    chen_check_fit_spaces($xpath);
     foreach ($xpath->query('//*[local-name()="text" and @data-text-for]') as $text) {
         $id = $text->getAttribute('data-text-for');
         $shape = $shapes[$id] ?? null;
@@ -1195,6 +1303,113 @@ function chen_check_cross(array $lines): void
     }
 }
 
+/* Participant strokes in the SVG, grouped by "relationship:REL:ENTITY" and ordered by stroke index. */
+function chen_stroke_groups(array $lines): array
+{
+    $groups = [];
+    foreach ($lines as $line) {
+        if (preg_match('/^(relationship:[^:]+:[^:]+):(\d+)$/', $line['id'], $match)) {
+            $groups[$match[1]][(int) $match[2]] = $line;
+        }
+    }
+    return array_map(static function (array $strokes): array {
+        ksort($strokes);
+        return $strokes;
+    }, $groups);
+}
+
+/* Strokes the model asks for per participant of the diagram's relationships: 2 when total, otherwise 1. */
+function chen_expected_strokes(array $diagram, array $model): array
+{
+    $relationships = chen_index($model['relationships']);
+    $expected = [];
+    foreach ($diagram['relationships'] as $id) {
+        foreach ($relationships[$id]['participants'] as $participant) {
+            $expected['relationship:' . $id . ':' . $participant['entity']] =
+                $participant['participation'] === 'total' ? 2 : 1;
+        }
+    }
+    return $expected;
+}
+
+/* C-DOUBLE (stroke count): every participant has the expected number of strokes, and nothing extra is drawn. */
+function chen_check_double_counts(array $groups, array $expected): void
+{
+    foreach ($expected as $base => $want) {
+        $have = count($groups[$base] ?? []);
+        if ($have !== $want) {
+            chen_fail('C-DOUBLE', $base, "線數為 {$have}，應為 {$want}（全部參與 2、其餘 1）");
+        }
+    }
+    foreach (array_keys($groups) as $base) {
+        if (!isset($expected[$base])) {
+            chen_fail('C-DOUBLE', $base, '多出模型沒有的關聯線');
+        }
+    }
+}
+
+/* C-DOUBLE (geometry): the two strokes differ in direction by under 0.5 degrees and sit 4 +/- 0.5 px apart. */
+function chen_check_double_pair(string $base, array $strokes): void
+{
+    [$first, $second] = array_values($strokes);
+    $ax = $first['x2'] - $first['x1'];
+    $ay = $first['y2'] - $first['y1'];
+    $bx = $second['x2'] - $second['x1'];
+    $by = $second['y2'] - $second['y1'];
+    $angle = rad2deg(atan2(abs($ax * $by - $ay * $bx), $ax * $bx + $ay * $by));
+    if ($angle >= 0.5) {
+        chen_fail('C-DOUBLE', $base, sprintf('兩條線不平行（夾角 %.2f 度）', $angle));
+    }
+    $gap = abs($ax * ($second['y1'] - $first['y1']) - $ay * ($second['x1'] - $first['x1'])) / hypot($ax, $ay);
+    if (abs($gap - 4) > .5) {
+        chen_fail('C-DOUBLE', $base, sprintf('兩線間距 %.2fpx，應為 4±0.5px', $gap));
+    }
+}
+
+/* NOT NULL foreign keys on the N side of the diagram's 1:N relationships, counted from the database. */
+function chen_count_not_null_foreign_keys(array $diagram, array $model, array $schema): int
+{
+    $relationships = chen_index($model['relationships']);
+    $count = 0;
+    foreach ($diagram['relationships'] as $id) {
+        $participants = $relationships[$id]['participants'];
+        $cardinalities = array_column($participants, 'cardinality');
+        if (!in_array('1', $cardinalities, true) || !in_array('N', $cardinalities, true)) {
+            continue;
+        }
+        foreach ($participants as $participant) {
+            if ($participant['cardinality'] !== 'N') {
+                continue;
+            }
+            $column = chen_schema_column($schema, $participant['foreignKey']);
+            $count += $column !== null && (int) $column['notnull'] === 1 ? 1 : 0;
+        }
+    }
+    return $count;
+}
+
+/*
+ * C-DOUBLE: a participant is drawn with two strokes exactly when it is total; each pair is parallel and 4 px
+ * apart; and the number of pairs equals the number of NOT NULL foreign keys on the N side of 1:N relationships.
+ */
+function chen_check_double(array $lines, array $layout, array $model, array $schema): void
+{
+    $groups = chen_stroke_groups($lines);
+    chen_check_double_counts($groups, chen_expected_strokes($layout['diagram'], $model));
+    $pairs = 0;
+    foreach ($groups as $base => $strokes) {
+        if (count($strokes) === 2) {
+            chen_check_double_pair($base, $strokes);
+            $pairs++;
+        }
+    }
+    $notNull = chen_count_not_null_foreign_keys($layout['diagram'], $model, $schema);
+    if ($pairs !== $notNull) {
+        $message = "雙線 {$pairs} 組，但 1:N 的 N 端 NOT NULL 外鍵有 {$notNull} 條";
+        chen_fail('C-DOUBLE', $layout['key'], $message);
+    }
+}
+
 /* C-PK: the underlined texts are exactly the primary keys of the non-reference entities. */
 function chen_check_pk(DOMXPath $xpath, array $layout, array $model): void
 {
@@ -1216,28 +1431,69 @@ function chen_check_pk(DOMXPath $xpath, array $layout, array $model): void
     }
 }
 
-/* C-LABEL: each cardinality text clears every shape and every other line (0.75 px). */
-function chen_check_label(DOMXPath $xpath, array $shapes, array $lines): void
+/* Cardinality labels read back from the SVG: the id of the line each belongs to, and its text box. */
+function chen_dom_labels(DOMXPath $xpath): array
 {
+    $labels = [];
     foreach ($xpath->query('//*[local-name()="text" and @data-cardinality-for]') as $text) {
-        $lineId = $text->getAttribute('data-cardinality-for');
         $x = (float) $text->getAttribute('x');
         $y = (float) $text->getAttribute('y') - 5;
-        $box = chen_label_box($x, $y, $text->textContent);
-        foreach ($shapes as $shape) {
-            if (dg_bounds_overlap($box, chen_box($shape))) {
-                chen_fail('C-LABEL', $lineId, '基數標籤碰到圖形');
-            }
+        $labels[] = [
+            'line' => $text->getAttribute('data-cardinality-for'),
+            'box' => chen_label_box($x, $y, $text->textContent),
+        ];
+    }
+    return $labels;
+}
+
+/* C-LABEL (a label on its own): at least 2 px from every shape and 0.75 px from every line but its own. */
+function chen_check_label_clearance(array $label, array $shapes, array $lines): void
+{
+    foreach ($shapes as $shape) {
+        if (chen_box_distance($label['box'], chen_box($shape)) < 2) {
+            chen_fail('C-LABEL', $label['line'], '基數標籤離圖形不足 2px');
         }
-        foreach ($lines as $line) {
-            if ($line['id'] === $lineId) {
-                continue;
-            }
-            if (dg_segment_bounds_distance(chen_line_start($line), chen_line_end($line), $box) < .75) {
-                chen_fail('C-LABEL', $lineId, '基數標籤碰到線');
+    }
+    foreach ($lines as $line) {
+        if ($line['id'] === $label['line']) {
+            continue;
+        }
+        if (dg_segment_bounds_distance(chen_line_start($line), chen_line_end($line), $label['box']) < .75) {
+            chen_fail('C-LABEL', $label['line'], '基數標籤碰到線');
+        }
+    }
+}
+
+/* C-LABEL (association): the line segment nearest to the label is one of the label's own strokes. */
+function chen_check_label_owner(array $label, array $lines): void
+{
+    if (!chen_nearest_line_is_own($label['box'], $label['line'], $lines)) {
+        chen_fail('C-LABEL', $label['line'], '基數標籤最近的線不是自己的線');
+    }
+}
+
+/* C-LABEL (between labels): any two labels are at least 6 px apart, so "N" and "N" never read as "NN". */
+function chen_check_label_spacing(array $labels): void
+{
+    $count = count($labels);
+    for ($i = 0; $i < $count; $i++) {
+        for ($j = $i + 1; $j < $count; $j++) {
+            if (chen_box_distance($labels[$i]['box'], $labels[$j]['box']) < 6) {
+                chen_fail('C-LABEL', $labels[$i]['line'] . '/' . $labels[$j]['line'], '基數標籤彼此不足 6px');
             }
         }
     }
+}
+
+/* C-LABEL: shape and line clearance, correct association, and spacing between labels. */
+function chen_check_label(DOMXPath $xpath, array $shapes, array $lines): void
+{
+    $labels = chen_dom_labels($xpath);
+    foreach ($labels as $label) {
+        chen_check_label_clearance($label, $shapes, $lines);
+        chen_check_label_owner($label, $lines);
+    }
+    chen_check_label_spacing($labels);
 }
 
 /* C-VARIANT (per file): every text uses the shared font at 12 px or larger; English files hold no CJK. */
@@ -1345,7 +1601,7 @@ function chen_check_order(array $entry): void
  * Orchestration
  * ------------------------------------------------------------------------------------------- */
 
-function chen_assert_svg(string $svg, array $layout, array $model, string $locale): void
+function chen_assert_svg(string $svg, array $layout, array $model, array $schema, string $locale): void
 {
     $dom = dg_dom($svg);
     $xpath = new DOMXPath($dom);
@@ -1362,6 +1618,7 @@ function chen_assert_svg(string $svg, array $layout, array $model, string $local
         chen_check_linelen($line);
     }
     chen_check_cross($lines);
+    chen_check_double($lines, $layout, $model, $schema);
     chen_check_pk($xpath, $layout, $model);
     chen_check_label($xpath, $shapes, $lines);
     chen_check_variant($xpath, $svg, $layout['key'], $locale);
@@ -1382,7 +1639,7 @@ function chen_generate(array $model, array $schema): array
         foreach (['zh', 'en'] as $locale) {
             foreach (['light', 'dark'] as $theme) {
                 $svg = chen_svg($layout, $locale, $theme, $model);
-                chen_assert_svg($svg, $layout, $model, $locale);
+                chen_assert_svg($svg, $layout, $model, $schema, $locale);
                 $sets["$key-$locale-$theme"] = $svg;
                 $result['er-' . $key . '-' . $locale . '-' . $theme . '.svg'] = $svg;
             }

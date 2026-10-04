@@ -77,5 +77,5 @@
 <text data-cardinality-for="relationship:HANDLES:Orders:0" x="605.5" y="535" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
 <text data-cardinality-for="relationship:CONTAINS:Orders:0" x="640.5" y="560" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
 <text data-cardinality-for="relationship:CONTAINS:Product:0" x="900.5" y="560" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">M</text>
-<text data-note="legend" x="24" y="718" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">Rectangle = entity   Diamond = relationship   Ellipse = attribute   Underline = primary key   Double line = total participation</text>
+<text data-note="legend" x="24" y="718" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">Rectangle = entity; Diamond = relationship; Ellipse = attribute; Underline = primary key; Double line = total participation</text>
 </svg>
