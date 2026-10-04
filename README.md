@@ -286,10 +286,13 @@ flowchart LR
 把上面的 ER 圖落成實際的資料表：每一列是一張表，格子是欄位，**底線是主鍵**，
 箭頭由外鍵指向它參照的主鍵。實線是 `ON DELETE CASCADE`，虛線是 `ON DELETE RESTRICT`。
 
-![關聯綱目：7 張表與 8 條外鍵的對應關係](docs/relational-schema.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/relational-schema-zh-dark.svg">
+  <img src="docs/diagrams/relational-schema-zh-light.svg" alt="關聯綱目：9 張表與 8 條外鍵的對應關係">
+</picture>
 
-`User`（系統帳號）與 `admin`（廠商顧客主檔）刻意不設外鍵、與這 7 張表沒有關聯，
-因此不在本圖中。
+`User`（系統帳號）與 `admin`（廠商顧客主檔）刻意不設外鍵、與其他表沒有關聯，
+畫在圖的最下方。
 
 ---
 

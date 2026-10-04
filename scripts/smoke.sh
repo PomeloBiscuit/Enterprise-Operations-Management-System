@@ -848,6 +848,33 @@ check_git_hygiene() {
     CHECK_DETAIL="Git index 的已追蹤檔無 .sqlite、sess_*、config.inc.php、*.mp3"
 }
 
+check_diagrams() {
+    local generated name drift=""
+    php "$APP_DIR/scripts/gen-diagrams.php" --self-test >/dev/null || {
+        CHECK_DETAIL="幾何自我檢查失敗"
+        return 1
+    }
+    generated="$TMP_DIR/diagrams"
+    php "$APP_DIR/scripts/gen-diagrams.php" --output-dir "$generated" >/dev/null || {
+        CHECK_DETAIL="產生器自我檢查失敗"
+        return 1
+    }
+    for name in \
+        relational-schema-zh-light.svg \
+        relational-schema-zh-dark.svg \
+        relational-schema-en-light.svg \
+        relational-schema-en-dark.svg; do
+        if ! cmp -s "$generated/$name" "$APP_DIR/docs/diagrams/$name"; then
+            drift+="$name "
+        fi
+    done
+    [[ -z "$drift" ]] || {
+        CHECK_DETAIL="SVG 漂移：${drift% }"
+        return 1
+    }
+    CHECK_DETAIL="自我檢查通過；4 個 SVG 與重產結果位元組一致"
+}
+
 # 將 log 範圍限定為本次 smoke 的 HTTP 請求；entrypoint 會持續鏡像 Apache stderr 到此檔。
 : > "$APACHE_ERROR_LOG"
 
@@ -875,6 +902,7 @@ for check in \
     'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \
     'I18N-EN-CJK check_i18n_english_no_cjk' \
+    'DIAGRAMS check_diagrams' \
     '11 check_error_log' \
     '12 check_git_hygiene'; do
     number="${check%% *}"

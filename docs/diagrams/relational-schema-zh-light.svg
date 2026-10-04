@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1365" height="792" viewBox="0 0 1365 792" role="img">
+  <title>關聯綱目 — 企業作業管理系統</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#41566e"/>
+    </marker>
+  </defs>
+  <rect data-kind="background" x="0" y="0" width="1365" height="792" fill="#ffffff"/>
+  <text data-kind="caption" x="24" y="38" fill="#1c2530" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="14">資料表、主鍵與外鍵對應</text>
+  <rect data-kind="table" data-table="Employee" x="168" y="98" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="Employee" x="234" y="119" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Employee</text>
+  <rect data-kind="field" data-table="Employee" data-column="EmployeeID" x="324" y="98" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Employee" data-column="EmployeeID" x="371" y="120" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">EmployeeID</text>
+  <rect data-kind="field" data-table="Employee" data-column="EmployeeName" x="419" y="98" width="110" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Employee" data-column="EmployeeName" x="474" y="120" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">EmployeeName</text>
+  <rect data-kind="table" data-table="Customer" x="168" y="166" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="Customer" x="234" y="187" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Customer</text>
+  <rect data-kind="field" data-table="Customer" data-column="CustomerID" x="324" y="166" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Customer" data-column="CustomerID" x="371" y="188" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">CustomerID</text>
+  <rect data-kind="field" data-table="Customer" data-column="CustomerName" x="419" y="166" width="110" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Customer" data-column="CustomerName" x="474" y="188" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">CustomerName</text>
+  <rect data-kind="field" data-table="Customer" data-column="CustomerPhoneNumber" x="529" y="166" width="162" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Customer" data-column="CustomerPhoneNumber" x="610" y="188" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">CustomerPhoneNumber</text>
+  <rect data-kind="field" data-table="Customer" data-column="CustomerAddress" x="691" y="166" width="132" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Customer" data-column="CustomerAddress" x="757" y="188" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">CustomerAddress</text>
+  <rect data-kind="table" data-table="Product" x="168" y="234" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="Product" x="234" y="255" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Product</text>
+  <rect data-kind="field" data-table="Product" data-column="ProductID" x="324" y="234" width="87" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Product" data-column="ProductID" x="367" y="256" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">ProductID</text>
+  <rect data-kind="field" data-table="Product" data-column="ProductName" x="411" y="234" width="102" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Product" data-column="ProductName" x="462" y="256" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">ProductName</text>
+  <rect data-kind="field" data-table="Product" data-column="ProductCategory" x="513" y="234" width="132" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Product" data-column="ProductCategory" x="579" y="256" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">ProductCategory</text>
+  <rect data-kind="field" data-table="Product" data-column="UnitPrice" x="645" y="234" width="87" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Product" data-column="UnitPrice" x="688" y="256" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">UnitPrice</text>
+  <rect data-kind="table" data-table="Orders" x="168" y="302" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="Orders" x="234" y="323" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Orders</text>
+  <rect data-kind="field" data-table="Orders" data-column="OrderID" x="324" y="302" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="OrderID" x="360" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">OrderID</text>
+  <rect data-kind="field" data-table="Orders" data-column="OrderTime" x="397" y="302" width="87" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="OrderTime" x="440" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">OrderTime</text>
+  <rect data-kind="field" data-table="Orders" data-column="ShipDate" x="484" y="302" width="80" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="ShipDate" x="524" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">ShipDate</text>
+  <rect data-kind="field" data-table="Orders" data-column="CustomerID" x="564" y="302" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="CustomerID" x="611" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">CustomerID</text>
+  <rect data-kind="field" data-table="Orders" data-column="EmployeeID" x="659" y="302" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="EmployeeID" x="706" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">EmployeeID</text>
+  <rect data-kind="field" data-table="Orders" data-column="TrackingNumber" x="754" y="302" width="125" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="TrackingNumber" x="816" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">TrackingNumber</text>
+  <rect data-kind="field" data-table="Orders" data-column="ShipMethod" x="879" y="302" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Orders" data-column="ShipMethod" x="926" y="324" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">ShipMethod</text>
+  <rect data-kind="table" data-table="Contain" x="168" y="370" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="Contain" x="234" y="391" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Contain</text>
+  <rect data-kind="field" data-table="Contain" data-column="OrderID" x="324" y="370" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Contain" data-column="OrderID" x="360" y="392" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">OrderID</text>
+  <rect data-kind="field" data-table="Contain" data-column="ProductID" x="397" y="370" width="87" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Contain" data-column="ProductID" x="440" y="392" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">ProductID</text>
+  <rect data-kind="field" data-table="Contain" data-column="Quantity" x="484" y="370" width="80" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Contain" data-column="Quantity" x="524" y="392" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Quantity</text>
+  <rect data-kind="table" data-table="Shipment" x="168" y="438" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="Shipment" x="234" y="459" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">Shipment</text>
+  <rect data-kind="field" data-table="Shipment" data-column="ShipmentID" x="324" y="438" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="ShipmentID" x="371" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">ShipmentID</text>
+  <rect data-kind="field" data-table="Shipment" data-column="EmployeeID" x="419" y="438" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="EmployeeID" x="466" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">EmployeeID</text>
+  <rect data-kind="field" data-table="Shipment" data-column="OrderID" x="514" y="438" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="OrderID" x="550" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">OrderID</text>
+  <rect data-kind="field" data-table="Shipment" data-column="ShipDate" x="587" y="438" width="80" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="ShipDate" x="627" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">ShipDate</text>
+  <rect data-kind="field" data-table="Shipment" data-column="TrackingNumber" x="667" y="438" width="125" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="TrackingNumber" x="729" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">TrackingNumber</text>
+  <rect data-kind="field" data-table="Shipment" data-column="ShipMethod" x="792" y="438" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="ShipMethod" x="839" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">ShipMethod</text>
+  <rect data-kind="field" data-table="Shipment" data-column="status" x="887" y="438" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="Shipment" data-column="status" x="922" y="460" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">status</text>
+  <rect data-kind="table" data-table="orderandinvoice" x="168" y="506" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="orderandinvoice" x="234" y="527" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">orderandinvoice</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="id" x="324" y="506" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="id" x="359" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">id</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="order_id" x="394" y="506" width="80" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="order_id" x="434" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">order_id</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="order_number" x="474" y="506" width="110" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="order_number" x="529" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">order_number</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="invoice_number" x="584" y="506" width="125" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="invoice_number" x="646" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">invoice_number</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="customer_id" x="709" y="506" width="102" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="customer_id" x="760" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">customer_id</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="customer_name" x="811" y="506" width="117" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="customer_name" x="869" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">customer_name</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="amount" x="928" y="506" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="amount" x="963" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">amount</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="status" x="998" y="506" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="status" x="1033" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">status</text>
+  <rect data-kind="field" data-table="orderandinvoice" data-column="created_at" x="1068" y="506" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="orderandinvoice" data-column="created_at" x="1115" y="528" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">created_at</text>
+  <rect data-kind="table" data-table="User" x="168" y="608" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="User" x="234" y="629" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">User</text>
+  <rect data-kind="field" data-table="User" data-column="prikey" x="324" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="prikey" x="359" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">prikey</text>
+  <rect data-kind="field" data-table="User" data-column="datechg" x="394" y="608" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="datechg" x="430" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">datechg</text>
+  <rect data-kind="field" data-table="User" data-column="dateadd" x="467" y="608" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="dateadd" x="503" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">dateadd</text>
+  <rect data-kind="field" data-table="User" data-column="name" x="540" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="name" x="575" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">name</text>
+  <rect data-kind="field" data-table="User" data-column="id" x="610" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="id" x="645" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">id</text>
+  <rect data-kind="field" data-table="User" data-column="pw" x="680" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="pw" x="715" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">pw</text>
+  <rect data-kind="field" data-table="User" data-column="phone" x="750" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="phone" x="785" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">phone</text>
+  <rect data-kind="field" data-table="User" data-column="phonem" x="820" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="phonem" x="855" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">phonem</text>
+  <rect data-kind="field" data-table="User" data-column="email" x="890" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="email" x="925" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">email</text>
+  <rect data-kind="field" data-table="User" data-column="enabled" x="960" y="608" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="enabled" x="996" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">enabled</text>
+  <rect data-kind="field" data-table="User" data-column="open" x="1033" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="open" x="1068" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">open</text>
+  <rect data-kind="field" data-table="User" data-column="status" x="1103" y="608" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="status" x="1138" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">status</text>
+  <rect data-kind="field" data-table="User" data-column="limited" x="1173" y="608" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="limited" x="1209" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">limited</text>
+  <rect data-kind="field" data-table="User" data-column="party_type" x="1246" y="608" width="95" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="User" data-column="party_type" x="1293" y="630" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">party_type</text>
+  <rect data-kind="table" data-table="admin" x="168" y="676" width="132" height="34" fill="#eef2f6" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="table-name" data-table="admin" x="234" y="697" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">admin</text>
+  <rect data-kind="field" data-table="admin" data-column="prikey" x="324" y="676" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="prikey" x="359" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12" text-decoration="underline">prikey</text>
+  <rect data-kind="field" data-table="admin" data-column="fc" x="394" y="676" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fc" x="429" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fc</text>
+  <rect data-kind="field" data-table="admin" data-column="fcname" x="464" y="676" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fcname" x="499" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fcname</text>
+  <rect data-kind="field" data-table="admin" data-column="fcaddress" x="534" y="676" width="87" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fcaddress" x="577" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fcaddress</text>
+  <rect data-kind="field" data-table="admin" data-column="fcphone" x="621" y="676" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fcphone" x="657" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fcphone</text>
+  <rect data-kind="field" data-table="admin" data-column="fcphonem" x="694" y="676" width="80" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fcphonem" x="734" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fcphonem</text>
+  <rect data-kind="field" data-table="admin" data-column="fcemail" x="774" y="676" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fcemail" x="810" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fcemail</text>
+  <rect data-kind="field" data-table="admin" data-column="fcid" x="847" y="676" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="fcid" x="882" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">fcid</text>
+  <rect data-kind="field" data-table="admin" data-column="enabled" x="917" y="676" width="73" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="enabled" x="953" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">enabled</text>
+  <rect data-kind="field" data-table="admin" data-column="open" x="990" y="676" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="open" x="1025" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">open</text>
+  <rect data-kind="field" data-table="admin" data-column="status" x="1060" y="676" width="70" height="34" fill="#ffffff" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="field-name" data-table="admin" data-column="status" x="1095" y="698" text-anchor="middle" fill="#1c2530" font-family="Consolas, Menlo, &quot;DejaVu Sans Mono&quot;, monospace" font-size="12">status</text>
+  <line data-kind="separator" x1="24" y1="580" x2="1341" y2="580" stroke="#41566e" stroke-width="1"/>
+  <text data-kind="isolated-note" x="24" y="573" fill="#1c2530" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12">以下兩張表沒有外鍵，也不被其他表參照</text>
+  <path data-kind="fk" data-from="Contain.ProductID" data-to="Product.ProductID" data-delete="RESTRICT" d="M 440 404 V 410 H 32 V 288 H 336 V 268" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)" stroke-dasharray="5 3"/>
+  <path data-kind="fk" data-from="Contain.OrderID" data-to="Orders.OrderID" data-delete="CASCADE" d="M 360 404 V 415 H 44 V 356 H 336 V 336" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <path data-kind="fk" data-from="Orders.EmployeeID" data-to="Employee.EmployeeID" data-delete="CASCADE" d="M 706 336 V 342 H 56 V 152 H 336 V 132" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <path data-kind="fk" data-from="Orders.CustomerID" data-to="Customer.CustomerID" data-delete="CASCADE" d="M 611 336 V 347 H 68 V 220 H 336 V 200" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <path data-kind="fk" data-from="Shipment.OrderID" data-to="Orders.OrderID" data-delete="CASCADE" d="M 550 472 V 478 H 80 V 360 H 348 V 336" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <path data-kind="fk" data-from="Shipment.EmployeeID" data-to="Employee.EmployeeID" data-delete="CASCADE" d="M 466 472 V 483 H 92 V 156 H 348 V 132" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <path data-kind="fk" data-from="orderandinvoice.customer_id" data-to="Customer.CustomerID" data-delete="RESTRICT" d="M 760 540 V 546 H 104 V 224 H 348 V 200" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)" stroke-dasharray="5 3"/>
+  <path data-kind="fk" data-from="orderandinvoice.order_id" data-to="Orders.OrderID" data-delete="RESTRICT" d="M 434 540 V 551 H 116 V 364 H 360 V 336" fill="none" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)" stroke-dasharray="5 3"/>
+  <line data-kind="legend-cascade" x1="24" y1="760" x2="56" y2="760" stroke="#41566e" stroke-width="1.3" marker-end="url(#arrow)"/>
+  <text data-kind="legend" x="64" y="764" fill="#1c2530" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12">實線＝CASCADE</text>
+  <line data-kind="legend-restrict" x1="250" y1="760" x2="282" y2="760" stroke="#41566e" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#arrow)"/>
+  <text data-kind="legend" x="290" y="764" fill="#1c2530" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12">虛線＝RESTRICT；底線＝主鍵</text>
+</svg>

@@ -1,0 +1,23 @@
+{
+  "relationalSchema": {
+    "tableOrder": ["Employee", "Customer", "Product", "Orders", "Contain", "Shipment", "orderandinvoice", "User", "admin"],
+    "zh": {
+      "title": "關聯綱目 — 企業作業管理系統",
+      "caption": "資料表、主鍵與外鍵對應",
+      "isolated": "以下兩張表沒有外鍵，也不被其他表參照",
+      "cascade": "實線＝CASCADE",
+      "restrict": "虛線＝RESTRICT",
+      "primaryKey": "底線＝主鍵",
+      "legendSeparator": "；"
+    },
+    "en": {
+      "title": "Relational schema — Enterprise Operations Management System",
+      "caption": "Tables, primary keys, and foreign-key references",
+      "isolated": "The two tables below have no foreign keys in or out",
+      "cascade": "Solid line = CASCADE",
+      "restrict": "Dashed line = RESTRICT",
+      "primaryKey": "Underline = primary key",
+      "legendSeparator": " | "
+    }
+  }
+}
