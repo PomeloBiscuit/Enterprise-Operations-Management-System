@@ -863,7 +863,19 @@ check_diagrams() {
         relational-schema-zh-light.svg \
         relational-schema-zh-dark.svg \
         relational-schema-en-light.svg \
-        relational-schema-en-dark.svg; do
+        relational-schema-en-dark.svg \
+        er-system-zh-light.svg \
+        er-system-zh-dark.svg \
+        er-system-en-light.svg \
+        er-system-en-dark.svg \
+        er-orders-zh-light.svg \
+        er-orders-zh-dark.svg \
+        er-orders-en-light.svg \
+        er-orders-en-dark.svg \
+        er-fulfillment-zh-light.svg \
+        er-fulfillment-zh-dark.svg \
+        er-fulfillment-en-light.svg \
+        er-fulfillment-en-dark.svg; do
         if ! cmp -s "$generated/$name" "$APP_DIR/docs/diagrams/$name"; then
             drift+="$name "
         fi
@@ -872,7 +884,7 @@ check_diagrams() {
         CHECK_DETAIL="SVG 漂移：${drift% }"
         return 1
     }
-    CHECK_DETAIL="自我檢查通過；4 個 SVG 與重產結果位元組一致"
+    CHECK_DETAIL="自我檢查通過；16 個 SVG 與重產結果位元組一致"
 }
 
 # 將 log 範圍限定為本次 smoke 的 HTTP 請求；entrypoint 會持續鏡像 Apache stderr 到此檔。

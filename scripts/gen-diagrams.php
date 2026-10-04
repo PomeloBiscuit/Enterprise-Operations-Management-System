@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/lib/diagram-geometry.php';
+require_once __DIR__ . '/lib/chen-diagrams.php';
 
 const DG_MARGIN = 24;
 const DG_CANVAS_MAX_WIDTH = 1400;
@@ -799,6 +800,10 @@ function dg_main(array $arguments): void
     }
     foreach ($variants as $key => $svg) {
         file_put_contents("$outputDir/relational-schema-$key.svg", $svg);
+    }
+    $chen = chen_generate(chen_model(), $schema);
+    foreach ($chen as $file => $svg) {
+        file_put_contents("$outputDir/$file", $svg);
     }
     printf("DIAGRAMS PASS tables=%d fields=%d primaryKeys=%d foreignKeys=%d width=%d height=%d\n",
         count($schema['tables']),

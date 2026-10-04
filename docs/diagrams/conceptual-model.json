@@ -19,5 +19,32 @@
       "primaryKey": "Underline = primary key",
       "legendSeparator": " | "
     }
+  },
+  "conceptual": {
+    "excludedTables": [],
+    "diagrams": {
+      "system": {"caption": {"zh": "系統帳號與往來對象主檔沒有外鍵。", "en": "User accounts and party masters have no foreign keys."}, "entities": [{"id":"orderandinvoice","side":"left","grid":[0,0]},{"id":"Employee","side":"top","grid":[1,0]},{"id":"Shipment","side":"right","grid":[2,0]},{"id":"Customer","side":"left","grid":[0,1]},{"id":"Orders","side":"bottom","grid":[1,1]},{"id":"Product","side":"right","grid":[2,1]},{"id":"User","side":"left","grid":[0,2]},{"id":"admin","side":"right","grid":[2,2]}],"relationships":["PLACES","HANDLES","CONTAINS","SHIPS","DISPATCHES","BILLS","BILLED_TO"]},
+      "orders": {"caption": {"zh": "訂單核心概念模型。", "en": "Order-core conceptual model."}, "entities": [{"id":"Employee","side":"top","grid":[1,0]},{"id":"Customer","side":"left","grid":[0,1]},{"id":"Orders","side":"bottom","grid":[1,1]},{"id":"Product","side":"right","grid":[2,1]}],"relationships":["PLACES","HANDLES","CONTAINS"]},
+      "fulfillment": {"caption": {"zh": "虛線框的屬性見訂單核心圖。", "en": "Attributes of dashed reference entities appear in the order-core diagram."}, "entities": [{"id":"orderandinvoice","side":"left","grid":[0,0]},{"id":"Employee","side":"top","grid":[1,0],"reference":true},{"id":"Shipment","side":"right","grid":[2,0]},{"id":"Customer","side":"left","grid":[0,1],"reference":true},{"id":"Orders","side":"bottom","grid":[1,1],"reference":true}],"relationships":["SHIPS","DISPATCHES","BILLS","BILLED_TO"]}
+    },
+    "entities": [
+      {"id":"Customer","names":{"zh":"顧客","en":"Customer"},"primaryKey":"CustomerID","attributes":[["CustomerID","顧客編號","Customer ID"],["CustomerName","姓名","Name"],["CustomerPhoneNumber","電話","Phone"],["CustomerAddress","地址","Address"]]},
+      {"id":"Orders","names":{"zh":"訂單","en":"Order"},"primaryKey":"OrderID","attributes":[["OrderID","訂單編號","Order ID"],["OrderTime","下單時間","Order time"],["ShipDate","出貨日期","Ship date"],["TrackingNumber","追蹤號碼","Tracking no."],["ShipMethod","運送方式","Ship method"]]},
+      {"id":"Product","names":{"zh":"產品","en":"Product"},"primaryKey":"ProductID","attributes":[["ProductID","產品編號","Product ID"],["ProductName","名稱","Name"],["ProductCategory","類別","Category"],["UnitPrice","單價","Unit price"]]},
+      {"id":"Employee","names":{"zh":"員工","en":"Employee"},"primaryKey":"EmployeeID","attributes":[["EmployeeID","員工編號","Employee ID"],["EmployeeName","姓名","Name"]]},
+      {"id":"Shipment","names":{"zh":"出貨紀錄","en":"Shipment"},"primaryKey":"ShipmentID","attributes":[["ShipmentID","出貨編號","Shipment ID"],["ShipDate","出貨日期","Ship date"],["TrackingNumber","追蹤號碼","Tracking no."],["ShipMethod","運送方式","Ship method"],["status","狀態","Status"]]},
+      {"id":"orderandinvoice","names":{"zh":"發票","en":"Invoice"},"primaryKey":"id","attributes":[["id","流水號","Record ID"],["order_number","訂單編號快照","Order no. snapshot"],["invoice_number","發票號碼","Invoice no."],["customer_name","顧客名稱快照","Customer name snapshot"],["amount","金額","Amount"],["status","狀態","Status"],["created_at","開立時間","Created at"]]},
+      {"id":"User","names":{"zh":"系統帳號","en":"User account"},"primaryKey":"prikey","attributes":[["prikey","流水號","Record ID"],["datechg","修改時間","Updated at"],["dateadd","建立時間","Created at"],["name","姓名","Name"],["id","登入帳號","Login ID"],["pw","密碼雜湊","Password hash"],["phone","電話","Phone"],["phonem","手機","Mobile"],["email","電子郵件","Email"],["enabled","啟用","Enabled"],["open","開放","Open"],["status","狀態","Status"],["limited","角色","Role"],["party_type","往來身分","Party type"]]},
+      {"id":"admin","names":{"zh":"往來對象主檔","en":"Party master"},"primaryKey":"prikey","attributes":[["prikey","流水號","Record ID"],["fc","類型","Type"],["fcname","名稱","Name"],["fcaddress","地址","Address"],["fcphone","電話","Phone"],["fcphonem","手機","Mobile"],["fcemail","電子郵件","Email"],["fcid","參考編號","Reference ID"],["enabled","啟用","Enabled"],["open","開放","Open"],["status","狀態","Status"]]}
+    ],
+    "relationships": [
+      {"id":"PLACES","names":{"zh":"下單","en":"Places"},"participants":[{"entity":"Customer","cardinality":"1","participation":"partial"},{"entity":"Orders","cardinality":"N","participation":"partial","foreignKey":"Orders.CustomerID"}]},
+      {"id":"HANDLES","names":{"zh":"承辦","en":"Handles"},"participants":[{"entity":"Employee","cardinality":"1","participation":"partial"},{"entity":"Orders","cardinality":"N","participation":"partial","foreignKey":"Orders.EmployeeID"}]},
+      {"id":"CONTAINS","names":{"zh":"包含","en":"Contains"},"attributes":[["Quantity","數量","Quantity"]],"participants":[{"entity":"Orders","cardinality":"N","participation":"partial","foreignKey":"Contain.OrderID"},{"entity":"Product","cardinality":"M","participation":"partial","foreignKey":"Contain.ProductID"}]},
+      {"id":"SHIPS","names":{"zh":"出貨","en":"Ships"},"participants":[{"entity":"Orders","cardinality":"1","participation":"partial"},{"entity":"Shipment","cardinality":"N","participation":"partial","foreignKey":"Shipment.OrderID"}]},
+      {"id":"DISPATCHES","names":{"zh":"負責出貨","en":"Dispatches"},"participants":[{"entity":"Employee","cardinality":"1","participation":"partial"},{"entity":"Shipment","cardinality":"N","participation":"partial","foreignKey":"Shipment.EmployeeID"}]},
+      {"id":"BILLS","names":{"zh":"開立","en":"Bills"},"participants":[{"entity":"Orders","cardinality":"1","participation":"partial"},{"entity":"orderandinvoice","cardinality":"N","participation":"total","foreignKey":"orderandinvoice.order_id"}]},
+      {"id":"BILLED_TO","names":{"zh":"抬頭","en":"Billed to"},"participants":[{"entity":"Customer","cardinality":"1","participation":"partial"},{"entity":"orderandinvoice","cardinality":"N","participation":"total","foreignKey":"orderandinvoice.customer_id"}]}
+    ]
   }
 }

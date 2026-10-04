@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1272" height="742" viewBox="0 0 1272 742" role="img">
+<title>fulfillment Chen ER</title>
+<desc>虛線框的屬性見訂單核心圖。</desc>
+<rect data-element="canvas" x="0" y="0" width="1272" height="742" fill="#151b23"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:id" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:id" x1="257" y1="162" x2="223" y2="42" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:order_number" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:order_number" x1="257" y1="170" x2="223" y2="90" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:invoice_number" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:invoice_number" x1="257" y1="178" x2="223" y2="138" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:customer_name" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:customer_name" x1="257" y1="186" x2="223" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:amount" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:amount" x1="257" y1="194" x2="223" y2="234" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:status" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:status" x1="257" y1="202" x2="223" y2="282" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:created_at" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:created_at" x1="257" y1="210" x2="223" y2="330" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:ShipmentID" data-owner="entity:Shipment" data-target="attribute:Shipment:ShipmentID" x1="1093.5" y1="168.66666666667" x2="1127.5" y2="90" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:ShipDate" data-owner="entity:Shipment" data-target="attribute:Shipment:ShipDate" x1="1093.5" y1="177.33333333333" x2="1127.5" y2="138" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:TrackingNumber" data-owner="entity:Shipment" data-target="attribute:Shipment:TrackingNumber" x1="1093.5" y1="186" x2="1127.5" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:ShipMethod" data-owner="entity:Shipment" data-target="attribute:Shipment:ShipMethod" x1="1093.5" y1="194.66666666667" x2="1127.5" y2="234" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:status" data-owner="entity:Shipment" data-target="attribute:Shipment:status" x1="1093.5" y1="203.33333333333" x2="1127.5" y2="282" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:SHIPS:Orders:0" data-owner="entity:Orders" data-target="relationship:SHIPS" x1="694.37777777778" y1="610" x2="841.11745657933" y2="431.53282307919" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:SHIPS:Shipment:0" data-owner="entity:Shipment" data-target="relationship:SHIPS" x1="1021.6222222222" y1="212" x2="874.88254342067" y2="390.46717692081" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:DISPATCHES:Employee:0" data-owner="entity:Employee" data-target="relationship:DISPATCHES" x1="723.5" y1="186" x2="774.5" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:DISPATCHES:Shipment:0" data-owner="entity:Shipment" data-target="relationship:DISPATCHES" x1="992.5" y1="186" x2="941.5" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLS:Orders:0" data-owner="entity:Orders" data-target="relationship:BILLS" x1="651.62222222222" y1="610" x2="504.88254342067" y2="431.53282307919" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLS:orderandinvoice:0" data-owner="entity:orderandinvoice" data-target="relationship:BILLS" x1="329.68145021021" y1="218" x2="471.27381717137" y2="390.37023335375" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLS:orderandinvoice:1" data-owner="entity:orderandinvoice" data-target="relationship:BILLS" x1="328.94492994973" y1="218" x2="470.9608081303" y2="390.56429895922" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLED_TO:Customer:0" data-owner="entity:Customer" data-target="relationship:BILLED_TO" x1="303" y1="610" x2="303" y2="442" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLED_TO:orderandinvoice:0" data-owner="entity:orderandinvoice" data-target="relationship:BILLED_TO" x1="303.28444444444" y1="218" x2="303.27453326951" y2="380.11500718047" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLED_TO:orderandinvoice:1" data-owner="entity:orderandinvoice" data-target="relationship:BILLED_TO" x1="302.71555555556" y1="218" x2="302.72546673049" y2="380.11500718047" stroke="#9ab6d3" stroke-width="1.5"/>
+<rect data-element="entity:orderandinvoice" x="257" y="154" width="92" height="64" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:orderandinvoice" x="303" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">發票</text>
+<ellipse data-element="attribute:orderandinvoice:id" cx="175.5" cy="42" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:id" x="175.5" y="47" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">流水號</text>
+<ellipse data-element="attribute:orderandinvoice:order_number" cx="140" cy="90" rx="83" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:order_number" x="140" y="95" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">訂單編號快照</text>
+<ellipse data-element="attribute:orderandinvoice:invoice_number" cx="167" cy="138" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:invoice_number" x="167" y="143" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">發票號碼</text>
+<ellipse data-element="attribute:orderandinvoice:customer_name" cx="123.5" cy="186" rx="99.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:customer_name" x="123.5" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">顧客名稱快照</text>
+<ellipse data-element="attribute:orderandinvoice:amount" cx="186" cy="234" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:amount" x="186" y="239" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">金額</text>
+<ellipse data-element="attribute:orderandinvoice:status" cx="186" cy="282" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:status" x="186" y="287" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">狀態</text>
+<ellipse data-element="attribute:orderandinvoice:created_at" cx="171" cy="330" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:created_at" x="171" y="335" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">開立時間</text>
+<rect data-element="entity:Employee" x="622.5" y="160" width="101" height="52" fill="#263140" stroke="#9ab6d3" stroke-dasharray="6 4"/>
+<text data-text-for="entity:Employee" x="673" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">員工</text>
+<rect data-element="entity:Shipment" x="992.5" y="160" width="101" height="52" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:Shipment" x="1043" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">出貨紀錄</text>
+<ellipse data-element="attribute:Shipment:ShipmentID" cx="1183.5" cy="90" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:ShipmentID" x="1183.5" y="95" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">出貨編號</text>
+<ellipse data-element="attribute:Shipment:ShipDate" cx="1175" cy="138" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:ShipDate" x="1175" y="143" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">出貨日期</text>
+<ellipse data-element="attribute:Shipment:TrackingNumber" cx="1187.5" cy="186" rx="60" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:TrackingNumber" x="1187.5" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">追蹤號碼</text>
+<ellipse data-element="attribute:Shipment:ShipMethod" cx="1183.5" cy="234" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:ShipMethod" x="1183.5" y="239" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">運送方式</text>
+<ellipse data-element="attribute:Shipment:status" cx="1164.5" cy="282" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:status" x="1164.5" y="287" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">狀態</text>
+<rect data-element="entity:Customer" x="252.5" y="610" width="101" height="52" fill="#263140" stroke="#9ab6d3" stroke-dasharray="6 4"/>
+<text data-text-for="entity:Customer" x="303" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">顧客</text>
+<rect data-element="entity:Orders" x="637" y="610" width="72" height="52" fill="#263140" stroke="#9ab6d3" stroke-dasharray="6 4"/>
+<text data-text-for="entity:Orders" x="673" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">訂單</text>
+<polygon data-element="relationship:SHIPS" points="858,380 908,411 858,442 808,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:SHIPS" x="858" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">出貨</text>
+<polygon data-element="relationship:DISPATCHES" points="858,155 941.5,186 858,217 774.5,186" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:DISPATCHES" x="858" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">負責出貨</text>
+<polygon data-element="relationship:BILLS" points="488,380 538,411 488,442 438,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:BILLS" x="488" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">開立</text>
+<polygon data-element="relationship:BILLED_TO" points="303,380 377,411 303,442 229,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:BILLED_TO" x="303" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">抬頭</text>
+<text data-cardinality-for="relationship:SHIPS:Orders:0" x="714.85563566194" y="613.71262419002" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:SHIPS:Shipment:0" x="1024.3171289178" y="237.34053779776" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:DISPATCHES:Employee:0" x="737.5" y="206" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:DISPATCHES:Shipment:0" x="978.5" y="176" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:BILLS:Orders:0" x="654.31712891779" y="594.65946220224" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:BILLS:orderandinvoice:0" x="326.97708674497" y="243.33928263848" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:BILLED_TO:Customer:0" x="318" y="601" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:BILLED_TO:orderandinvoice:0" x="318.28358853079" y="236.99999997384" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-note="legend" x="24" y="686" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">矩形＝實體　菱形＝關聯　橢圓＝屬性　底線＝主鍵　雙線＝全部參與</text>
+<text data-note="reference" x="24" y="714" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">虛線框：參照實體，屬性見訂單核心圖</text>
+</svg>

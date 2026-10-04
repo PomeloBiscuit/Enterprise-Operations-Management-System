@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1289" height="1496" viewBox="0 0 1289 1496" role="img">
+<title>system Chen ER</title>
+<desc>User accounts and party masters have no foreign keys.</desc>
+<rect data-element="canvas" x="0" y="0" width="1289" height="1496" fill="#151b23"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:id" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:id" x1="257" y1="162" x2="223" y2="42" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:order_number" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:order_number" x1="257" y1="170" x2="223" y2="90" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:invoice_number" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:invoice_number" x1="257" y1="178" x2="223" y2="138" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:customer_name" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:customer_name" x1="257" y1="186" x2="223" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:amount" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:amount" x1="257" y1="194" x2="223" y2="234" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:status" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:status" x1="257" y1="202" x2="223" y2="282" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:orderandinvoice--attribute:orderandinvoice:created_at" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:created_at" x1="257" y1="210" x2="223" y2="330" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Employee--attribute:Employee:EmployeeID" data-owner="entity:Employee" data-target="attribute:Employee:EmployeeID" x1="661.33333333333" y1="160" x2="645.99420132206" y2="125.81564866059" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Employee--attribute:Employee:EmployeeName" data-owner="entity:Employee" data-target="attribute:Employee:EmployeeName" x1="693.66666666667" y1="160" x2="722.16895739758" y2="124.14227940304" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:ShipmentID" data-owner="entity:Shipment" data-target="attribute:Shipment:ShipmentID" x1="1093.5" y1="168.66666666667" x2="1127.5" y2="90" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:ShipDate" data-owner="entity:Shipment" data-target="attribute:Shipment:ShipDate" x1="1093.5" y1="177.33333333333" x2="1127.5" y2="138" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:TrackingNumber" data-owner="entity:Shipment" data-target="attribute:Shipment:TrackingNumber" x1="1093.5" y1="186" x2="1127.5" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:ShipMethod" data-owner="entity:Shipment" data-target="attribute:Shipment:ShipMethod" x1="1093.5" y1="194.66666666667" x2="1127.5" y2="234" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Shipment--attribute:Shipment:status" data-owner="entity:Shipment" data-target="attribute:Shipment:status" x1="1093.5" y1="203.33333333333" x2="1127.5" y2="282" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerID" data-owner="entity:Customer" data-target="attribute:Customer:CustomerID" x1="252.5" y1="620.4" x2="218.5" y2="564" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerName" data-owner="entity:Customer" data-target="attribute:Customer:CustomerName" x1="252.5" y1="630.8" x2="218.5" y2="612" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerPhoneNumber" data-owner="entity:Customer" data-target="attribute:Customer:CustomerPhoneNumber" x1="252.5" y1="641.2" x2="218.5" y2="660" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerAddress" data-owner="entity:Customer" data-target="attribute:Customer:CustomerAddress" x1="252.5" y1="651.6" x2="218.5" y2="708" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:OrderID" data-owner="entity:Orders" data-target="attribute:Orders:OrderID" x1="637" y1="647.72442588727" x2="467.68254932395" y2="702.86747871704" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:OrderTime" data-owner="entity:Orders" data-target="attribute:Orders:OrderTime" x1="637" y1="657.27272727273" x2="567.28378570846" y2="698.46867208136" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:ShipDate" data-owner="entity:Orders" data-target="attribute:Orders:ShipDate" x1="666.16666666667" y1="662" x2="657.20747964393" y2="696.08861403773" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:TrackingNumber" data-owner="entity:Orders" data-target="attribute:Orders:TrackingNumber" x1="706" y1="662" x2="750.64924883002" y2="697.1781960479" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:ShipMethod" data-owner="entity:Orders" data-target="attribute:Orders:ShipMethod" x1="709" y1="648.37004405286" x2="861.74416720043" y2="700.85482397195" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:ProductID" data-owner="entity:Product" data-target="attribute:Product:ProductID" x1="1089" y1="620.4" x2="1123" y2="564" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:ProductName" data-owner="entity:Product" data-target="attribute:Product:ProductName" x1="1089" y1="630.8" x2="1123" y2="612" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:ProductCategory" data-owner="entity:Product" data-target="attribute:Product:ProductCategory" x1="1089" y1="641.2" x2="1123" y2="660" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:UnitPrice" data-owner="entity:Product" data-target="attribute:Product:UnitPrice" x1="1089" y1="651.6" x2="1123" y2="708" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:prikey" data-owner="entity:User" data-target="attribute:User:prikey" x1="235.5" y1="1034" x2="201.5" y2="774" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:datechg" data-owner="entity:User" data-target="attribute:User:datechg" x1="235.5" y1="1042" x2="201.5" y2="822" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:dateadd" data-owner="entity:User" data-target="attribute:User:dateadd" x1="235.5" y1="1050" x2="201.5" y2="870" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:name" data-owner="entity:User" data-target="attribute:User:name" x1="235.5" y1="1058" x2="201.5" y2="918" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:id" data-owner="entity:User" data-target="attribute:User:id" x1="235.5" y1="1066" x2="201.5" y2="966" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:pw" data-owner="entity:User" data-target="attribute:User:pw" x1="235.5" y1="1074" x2="201.5" y2="1014" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:phone" data-owner="entity:User" data-target="attribute:User:phone" x1="235.5" y1="1082" x2="201.5" y2="1062" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:phonem" data-owner="entity:User" data-target="attribute:User:phonem" x1="235.5" y1="1090" x2="201.5" y2="1110" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:email" data-owner="entity:User" data-target="attribute:User:email" x1="235.5" y1="1098" x2="201.5" y2="1158" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:enabled" data-owner="entity:User" data-target="attribute:User:enabled" x1="235.5" y1="1106" x2="201.5" y2="1206" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:open" data-owner="entity:User" data-target="attribute:User:open" x1="235.5" y1="1114" x2="201.5" y2="1254" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:status" data-owner="entity:User" data-target="attribute:User:status" x1="235.5" y1="1122" x2="201.5" y2="1302" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:limited" data-owner="entity:User" data-target="attribute:User:limited" x1="235.5" y1="1130" x2="201.5" y2="1350" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:party_type" data-owner="entity:User" data-target="attribute:User:party_type" x1="235.5" y1="1138" x2="201.5" y2="1398" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:prikey" data-owner="entity:admin" data-target="attribute:admin:prikey" x1="1110.5" y1="1046" x2="1144.5" y2="846" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fc" data-owner="entity:admin" data-target="attribute:admin:fc" x1="1110.5" y1="1054" x2="1144.5" y2="894" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcname" data-owner="entity:admin" data-target="attribute:admin:fcname" x1="1110.5" y1="1062" x2="1144.5" y2="942" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcaddress" data-owner="entity:admin" data-target="attribute:admin:fcaddress" x1="1110.5" y1="1070" x2="1144.5" y2="990" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcphone" data-owner="entity:admin" data-target="attribute:admin:fcphone" x1="1110.5" y1="1078" x2="1144.5" y2="1038" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcphonem" data-owner="entity:admin" data-target="attribute:admin:fcphonem" x1="1110.5" y1="1086" x2="1144.5" y2="1086" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcemail" data-owner="entity:admin" data-target="attribute:admin:fcemail" x1="1110.5" y1="1094" x2="1144.5" y2="1134" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcid" data-owner="entity:admin" data-target="attribute:admin:fcid" x1="1110.5" y1="1102" x2="1144.5" y2="1182" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:enabled" data-owner="entity:admin" data-target="attribute:admin:enabled" x1="1110.5" y1="1110" x2="1144.5" y2="1230" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:open" data-owner="entity:admin" data-target="attribute:admin:open" x1="1110.5" y1="1118" x2="1144.5" y2="1278" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:status" data-owner="entity:admin" data-target="attribute:admin:status" x1="1110.5" y1="1126" x2="1144.5" y2="1326" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:CONTAINS--attribute:CONTAINS:Quantity" data-owner="relationship:CONTAINS" data-target="attribute:CONTAINS:Quantity" x1="858" y1="605" x2="858" y2="504" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:PLACES:Customer:0" data-owner="entity:Customer" data-target="relationship:PLACES" x1="353.5" y1="636" x2="431" y2="636" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:PLACES:Orders:0" data-owner="entity:Orders" data-target="relationship:PLACES" x1="637" y1="636" x2="545" y2="636" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:HANDLES:Employee:0" data-owner="entity:Employee" data-target="relationship:HANDLES" x1="673" y1="212" x2="673" y2="380" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:HANDLES:Orders:0" data-owner="entity:Orders" data-target="relationship:HANDLES" x1="673" y1="610" x2="673" y2="442" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:CONTAINS:Orders:0" data-owner="entity:Orders" data-target="relationship:CONTAINS" x1="709" y1="636" x2="787.5" y2="636" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:CONTAINS:Product:0" data-owner="entity:Product" data-target="relationship:CONTAINS" x1="997" y1="636" x2="928.5" y2="636" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:SHIPS:Orders:0" data-owner="entity:Orders" data-target="relationship:SHIPS" x1="694.37777777778" y1="610" x2="841.11745657933" y2="431.53282307919" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:SHIPS:Shipment:0" data-owner="entity:Shipment" data-target="relationship:SHIPS" x1="1021.6222222222" y1="212" x2="874.88254342067" y2="390.46717692081" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:DISPATCHES:Employee:0" data-owner="entity:Employee" data-target="relationship:DISPATCHES" x1="723.5" y1="186" x2="774.5" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:DISPATCHES:Shipment:0" data-owner="entity:Shipment" data-target="relationship:DISPATCHES" x1="992.5" y1="186" x2="941.5" y2="186" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLS:Orders:0" data-owner="entity:Orders" data-target="relationship:BILLS" x1="651.62222222222" y1="610" x2="504.88254342067" y2="431.53282307919" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLS:orderandinvoice:0" data-owner="entity:orderandinvoice" data-target="relationship:BILLS" x1="329.68145021021" y1="218" x2="471.27381717137" y2="390.37023335375" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLS:orderandinvoice:1" data-owner="entity:orderandinvoice" data-target="relationship:BILLS" x1="328.94492994973" y1="218" x2="470.9608081303" y2="390.56429895922" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLED_TO:Customer:0" data-owner="entity:Customer" data-target="relationship:BILLED_TO" x1="303" y1="610" x2="303" y2="442" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLED_TO:orderandinvoice:0" data-owner="entity:orderandinvoice" data-target="relationship:BILLED_TO" x1="303.28444444444" y1="218" x2="303.27453326951" y2="380.11500718047" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="relationship:BILLED_TO:orderandinvoice:1" data-owner="entity:orderandinvoice" data-target="relationship:BILLED_TO" x1="302.71555555556" y1="218" x2="302.72546673049" y2="380.11500718047" stroke="#9ab6d3" stroke-width="1.5"/>
+<rect data-element="entity:orderandinvoice" x="257" y="154" width="92" height="64" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:orderandinvoice" x="303" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Invoice</text>
+<ellipse data-element="attribute:orderandinvoice:id" cx="175.5" cy="42" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:id" x="175.5" y="47" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
+<ellipse data-element="attribute:orderandinvoice:order_number" cx="140" cy="90" rx="83" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:order_number" x="140" y="95" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Order no. snapshot</text>
+<ellipse data-element="attribute:orderandinvoice:invoice_number" cx="167" cy="138" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:invoice_number" x="167" y="143" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Invoice no.</text>
+<ellipse data-element="attribute:orderandinvoice:customer_name" cx="123.5" cy="186" rx="99.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:customer_name" x="123.5" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Customer name snapshot</text>
+<ellipse data-element="attribute:orderandinvoice:amount" cx="186" cy="234" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:amount" x="186" y="239" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Amount</text>
+<ellipse data-element="attribute:orderandinvoice:status" cx="186" cy="282" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:status" x="186" y="287" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
+<ellipse data-element="attribute:orderandinvoice:created_at" cx="171" cy="330" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:orderandinvoice:created_at" x="171" y="335" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Created at</text>
+<rect data-element="entity:Employee" x="622.5" y="160" width="101" height="52" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:Employee" x="673" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Employee</text>
+<ellipse data-element="attribute:Employee:EmployeeID" cx="638" cy="108" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Employee:EmployeeID" x="638" y="113" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Employee ID</text>
+<ellipse data-element="attribute:Employee:EmployeeName" cx="735" cy="108" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Employee:EmployeeName" x="735" y="113" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<rect data-element="entity:Shipment" x="992.5" y="160" width="101" height="52" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:Shipment" x="1043" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Shipment</text>
+<ellipse data-element="attribute:Shipment:ShipmentID" cx="1183.5" cy="90" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:ShipmentID" x="1183.5" y="95" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Shipment ID</text>
+<ellipse data-element="attribute:Shipment:ShipDate" cx="1175" cy="138" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:ShipDate" x="1175" y="143" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Ship date</text>
+<ellipse data-element="attribute:Shipment:TrackingNumber" cx="1187.5" cy="186" rx="60" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:TrackingNumber" x="1187.5" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Tracking no.</text>
+<ellipse data-element="attribute:Shipment:ShipMethod" cx="1183.5" cy="234" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:ShipMethod" x="1183.5" y="239" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Ship method</text>
+<ellipse data-element="attribute:Shipment:status" cx="1164.5" cy="282" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Shipment:status" x="1164.5" y="287" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
+<rect data-element="entity:Customer" x="252.5" y="610" width="101" height="52" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:Customer" x="303" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Customer</text>
+<ellipse data-element="attribute:Customer:CustomerID" cx="162.5" cy="564" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Customer:CustomerID" x="162.5" y="569" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Customer ID</text>
+<ellipse data-element="attribute:Customer:CustomerName" cx="189.5" cy="612" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Customer:CustomerName" x="189.5" y="617" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<ellipse data-element="attribute:Customer:CustomerPhoneNumber" cx="185.5" cy="660" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Customer:CustomerPhoneNumber" x="185.5" y="665" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
+<ellipse data-element="attribute:Customer:CustomerAddress" cx="177" cy="708" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Customer:CustomerAddress" x="177" y="713" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Address</text>
+<rect data-element="entity:Orders" x="637" y="610" width="72" height="52" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:Orders" x="673" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Order</text>
+<ellipse data-element="attribute:Orders:OrderID" cx="433.5" cy="714" rx="43.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Orders:OrderID" x="433.5" y="719" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Order ID</text>
+<ellipse data-element="attribute:Orders:OrderTime" cx="541" cy="714" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Orders:OrderTime" x="541" y="719" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Order time</text>
+<ellipse data-element="attribute:Orders:ShipDate" cx="652.5" cy="714" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Orders:ShipDate" x="652.5" y="719" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Ship date</text>
+<ellipse data-element="attribute:Orders:TrackingNumber" cx="772" cy="714" rx="60" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Orders:TrackingNumber" x="772" y="719" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Tracking no.</text>
+<ellipse data-element="attribute:Orders:ShipMethod" cx="900" cy="714" rx="56" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Orders:ShipMethod" x="900" y="719" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Ship method</text>
+<rect data-element="entity:Product" x="997" y="610" width="92" height="52" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:Product" x="1043" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Product</text>
+<ellipse data-element="attribute:Product:ProductID" cx="1175" cy="564" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Product:ProductID" x="1175" y="569" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Product ID</text>
+<ellipse data-element="attribute:Product:ProductName" cx="1152" cy="612" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Product:ProductName" x="1152" y="617" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<ellipse data-element="attribute:Product:ProductCategory" cx="1168.5" cy="660" rx="45.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Product:ProductCategory" x="1168.5" y="665" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Category</text>
+<ellipse data-element="attribute:Product:UnitPrice" cx="1175" cy="708" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:Product:UnitPrice" x="1175" y="713" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Unit price</text>
+<rect data-element="entity:User" x="235.5" y="1026" width="135" height="120" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:User" x="303" y="1091" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">User account</text>
+<ellipse data-element="attribute:User:prikey" cx="154" cy="774" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:prikey" x="154" y="779" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
+<ellipse data-element="attribute:User:datechg" cx="149.5" cy="822" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:datechg" x="149.5" y="827" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Updated at</text>
+<ellipse data-element="attribute:User:dateadd" cx="149.5" cy="870" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:dateadd" x="149.5" y="875" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Created at</text>
+<ellipse data-element="attribute:User:name" cx="172.5" cy="918" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:name" x="172.5" y="923" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<ellipse data-element="attribute:User:id" cx="158" cy="966" rx="43.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:id" x="158" y="971" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Login ID</text>
+<ellipse data-element="attribute:User:pw" cx="137.5" cy="1014" rx="64" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:pw" x="137.5" y="1019" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Password hash</text>
+<ellipse data-element="attribute:User:phone" cx="168.5" cy="1062" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:phone" x="168.5" y="1067" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
+<ellipse data-element="attribute:User:phonem" cx="164.5" cy="1110" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:phonem" x="164.5" y="1115" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Mobile</text>
+<ellipse data-element="attribute:User:email" cx="162.5" cy="1158" rx="39" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:email" x="162.5" y="1163" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Email</text>
+<ellipse data-element="attribute:User:enabled" cx="160" cy="1206" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:enabled" x="160" y="1211" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Enabled</text>
+<ellipse data-element="attribute:User:open" cx="172.5" cy="1254" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:open" x="172.5" y="1259" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Open</text>
+<ellipse data-element="attribute:User:status" cx="164.5" cy="1302" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:status" x="164.5" y="1307" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
+<ellipse data-element="attribute:User:limited" cx="172.5" cy="1350" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:limited" x="172.5" y="1355" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Role</text>
+<ellipse data-element="attribute:User:party_type" cx="149.5" cy="1398" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:party_type" x="149.5" y="1403" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Party type</text>
+<rect data-element="entity:admin" x="975.5" y="1038" width="135" height="96" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:admin" x="1043" y="1091" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Party master</text>
+<ellipse data-element="attribute:admin:prikey" cx="1192" cy="846" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:prikey" x="1192" y="851" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
+<ellipse data-element="attribute:admin:fc" cx="1173.5" cy="894" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fc" x="1173.5" y="899" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Type</text>
+<ellipse data-element="attribute:admin:fcname" cx="1173.5" cy="942" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcname" x="1173.5" y="947" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<ellipse data-element="attribute:admin:fcaddress" cx="1186" cy="990" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcaddress" x="1186" y="995" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Address</text>
+<ellipse data-element="attribute:admin:fcphone" cx="1177.5" cy="1038" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcphone" x="1177.5" y="1043" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
+<ellipse data-element="attribute:admin:fcphonem" cx="1181.5" cy="1086" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcphonem" x="1181.5" y="1091" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Mobile</text>
+<ellipse data-element="attribute:admin:fcemail" cx="1183.5" cy="1134" rx="39" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcemail" x="1183.5" y="1139" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Email</text>
+<ellipse data-element="attribute:admin:fcid" cx="1204.5" cy="1182" rx="60" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcid" x="1204.5" y="1187" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Reference ID</text>
+<ellipse data-element="attribute:admin:enabled" cx="1186" cy="1230" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:enabled" x="1186" y="1235" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Enabled</text>
+<ellipse data-element="attribute:admin:open" cx="1173.5" cy="1278" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:open" x="1173.5" y="1283" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Open</text>
+<ellipse data-element="attribute:admin:status" cx="1181.5" cy="1326" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:status" x="1181.5" y="1331" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
+<polygon data-element="relationship:PLACES" points="488,605 545,636 488,667 431,636" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:PLACES" x="488" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Places</text>
+<polygon data-element="relationship:HANDLES" points="673,380 737,411 673,442 609,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:HANDLES" x="673" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Handles</text>
+<polygon data-element="relationship:CONTAINS" points="858,605 928.5,636 858,667 787.5,636" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:CONTAINS" x="858" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Contains</text>
+<ellipse data-element="attribute:CONTAINS:Quantity" cx="858" cy="486" rx="45.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:CONTAINS:Quantity" x="858" y="491" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Quantity</text>
+<polygon data-element="relationship:SHIPS" points="858,380 908,411 858,442 808,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:SHIPS" x="858" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Ships</text>
+<polygon data-element="relationship:DISPATCHES" points="858,155 941.5,186 858,217 774.5,186" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:DISPATCHES" x="858" y="191" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Dispatches</text>
+<polygon data-element="relationship:BILLS" points="488,380 538,411 488,442 438,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:BILLS" x="488" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Bills</text>
+<polygon data-element="relationship:BILLED_TO" points="303,380 377,411 303,442 229,411" fill="#4a3f2a" stroke="#9ab6d3"/>
+<text data-text-for="relationship:BILLED_TO" x="303" y="416" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Billed to</text>
+<text data-cardinality-for="relationship:PLACES:Customer:0" x="367.5" y="656" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:PLACES:Orders:0" x="623" y="626" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:HANDLES:Employee:0" x="688" y="231" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:HANDLES:Orders:0" x="688" y="601" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:CONTAINS:Orders:0" x="723" y="626" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:CONTAINS:Product:0" x="983" y="626" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">M</text>
+<text data-cardinality-for="relationship:SHIPS:Orders:0" x="722.47690045705" y="604.44351835812" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:SHIPS:Shipment:0" x="1024.3171289178" y="237.34053779776" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:DISPATCHES:Employee:0" x="737.5" y="206" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:DISPATCHES:Shipment:0" x="978.5" y="176" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:BILLS:Orders:0" x="654.31712891779" y="594.65946220224" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:BILLS:orderandinvoice:0" x="326.97708674497" y="243.33928263848" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-cardinality-for="relationship:BILLED_TO:Customer:0" x="318" y="601" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
+<text data-cardinality-for="relationship:BILLED_TO:orderandinvoice:0" x="318.28358853079" y="236.99999997384" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
+<text data-note="legend" x="24" y="1440" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">Rectangle = entity   Diamond = relationship   Ellipse = attribute   Underline = primary key   Double line = total participation</text>
+<line data-note-separator="true" x1="24" y1="1460" x2="1265" y2="1460" stroke="#9ab6d3"/>
+<text data-note="isolated" x="24" y="1468" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">User accounts and the party master have no foreign keys</text>
+</svg>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1169" height="746" viewBox="0 0 1169 746" role="img">
+<title>orders Chen ER</title>
+<desc>訂單核心概念模型。</desc>
+<rect data-element="canvas" x="0" y="0" width="1169" height="746" fill="#ffffff"/>
+<line data-line="entity:Employee--attribute:Employee:EmployeeID" data-owner="entity:Employee" data-target="attribute:Employee:EmployeeID" x1="578.83333333333" y1="94" x2="563.49420132206" y2="59.815648660594" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Employee--attribute:Employee:EmployeeName" data-owner="entity:Employee" data-target="attribute:Employee:EmployeeName" x1="611.16666666667" y1="94" x2="639.66895739758" y2="58.142279403044" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerID" data-owner="entity:Customer" data-target="attribute:Customer:CustomerID" x1="170" y1="554.4" x2="136" y2="498" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerName" data-owner="entity:Customer" data-target="attribute:Customer:CustomerName" x1="170" y1="564.8" x2="136" y2="546" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerPhoneNumber" data-owner="entity:Customer" data-target="attribute:Customer:CustomerPhoneNumber" x1="170" y1="575.2" x2="136" y2="594" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Customer--attribute:Customer:CustomerAddress" data-owner="entity:Customer" data-target="attribute:Customer:CustomerAddress" x1="170" y1="585.6" x2="136" y2="642" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:OrderID" data-owner="entity:Orders" data-target="attribute:Orders:OrderID" x1="554.5" y1="581.72442588727" x2="385.18254932395" y2="636.86747871704" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:OrderTime" data-owner="entity:Orders" data-target="attribute:Orders:OrderTime" x1="554.5" y1="591.27272727273" x2="484.78378570846" y2="632.46867208136" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:ShipDate" data-owner="entity:Orders" data-target="attribute:Orders:ShipDate" x1="583.66666666667" y1="596" x2="574.70747964393" y2="630.08861403773" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:TrackingNumber" data-owner="entity:Orders" data-target="attribute:Orders:TrackingNumber" x1="623.5" y1="596" x2="668.14924883002" y2="631.1781960479" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Orders--attribute:Orders:ShipMethod" data-owner="entity:Orders" data-target="attribute:Orders:ShipMethod" x1="626.5" y1="582.37004405286" x2="779.24416720043" y2="634.85482397195" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:ProductID" data-owner="entity:Product" data-target="attribute:Product:ProductID" x1="1006.5" y1="554.4" x2="1040.5" y2="498" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:ProductName" data-owner="entity:Product" data-target="attribute:Product:ProductName" x1="1006.5" y1="564.8" x2="1040.5" y2="546" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:ProductCategory" data-owner="entity:Product" data-target="attribute:Product:ProductCategory" x1="1006.5" y1="575.2" x2="1040.5" y2="594" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="entity:Product--attribute:Product:UnitPrice" data-owner="entity:Product" data-target="attribute:Product:UnitPrice" x1="1006.5" y1="585.6" x2="1040.5" y2="642" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:CONTAINS--attribute:CONTAINS:Quantity" data-owner="relationship:CONTAINS" data-target="attribute:CONTAINS:Quantity" x1="775.5" y1="539" x2="775.5" y2="438" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:PLACES:Customer:0" data-owner="entity:Customer" data-target="relationship:PLACES" x1="271" y1="570" x2="348.5" y2="570" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:PLACES:Orders:0" data-owner="entity:Orders" data-target="relationship:PLACES" x1="554.5" y1="570" x2="462.5" y2="570" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:HANDLES:Employee:0" data-owner="entity:Employee" data-target="relationship:HANDLES" x1="590.5" y1="146" x2="590.5" y2="314" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:HANDLES:Orders:0" data-owner="entity:Orders" data-target="relationship:HANDLES" x1="590.5" y1="544" x2="590.5" y2="376" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:CONTAINS:Orders:0" data-owner="entity:Orders" data-target="relationship:CONTAINS" x1="626.5" y1="570" x2="705" y2="570" stroke="#41566e" stroke-width="1.5"/>
+<line data-line="relationship:CONTAINS:Product:0" data-owner="entity:Product" data-target="relationship:CONTAINS" x1="914.5" y1="570" x2="846" y2="570" stroke="#41566e" stroke-width="1.5"/>
+<rect data-element="entity:Employee" x="540" y="94" width="101" height="52" fill="#eef2f6" stroke="#41566e"/>
+<text data-text-for="entity:Employee" x="590.5" y="125" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">員工</text>
+<ellipse data-element="attribute:Employee:EmployeeID" cx="555.5" cy="42" rx="56" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Employee:EmployeeID" x="555.5" y="47" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530" text-decoration="underline">員工編號</text>
+<ellipse data-element="attribute:Employee:EmployeeName" cx="652.5" cy="42" rx="29" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Employee:EmployeeName" x="652.5" y="47" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">姓名</text>
+<rect data-element="entity:Customer" x="170" y="544" width="101" height="52" fill="#eef2f6" stroke="#41566e"/>
+<text data-text-for="entity:Customer" x="220.5" y="575" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">顧客</text>
+<ellipse data-element="attribute:Customer:CustomerID" cx="80" cy="498" rx="56" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Customer:CustomerID" x="80" y="503" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530" text-decoration="underline">顧客編號</text>
+<ellipse data-element="attribute:Customer:CustomerName" cx="107" cy="546" rx="29" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Customer:CustomerName" x="107" y="551" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">姓名</text>
+<ellipse data-element="attribute:Customer:CustomerPhoneNumber" cx="103" cy="594" rx="33" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Customer:CustomerPhoneNumber" x="103" y="599" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">電話</text>
+<ellipse data-element="attribute:Customer:CustomerAddress" cx="94.5" cy="642" rx="41.5" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Customer:CustomerAddress" x="94.5" y="647" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">地址</text>
+<rect data-element="entity:Orders" x="554.5" y="544" width="72" height="52" fill="#eef2f6" stroke="#41566e"/>
+<text data-text-for="entity:Orders" x="590.5" y="575" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">訂單</text>
+<ellipse data-element="attribute:Orders:OrderID" cx="351" cy="648" rx="43.5" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Orders:OrderID" x="351" y="653" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530" text-decoration="underline">訂單編號</text>
+<ellipse data-element="attribute:Orders:OrderTime" cx="458.5" cy="648" rx="52" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Orders:OrderTime" x="458.5" y="653" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">下單時間</text>
+<ellipse data-element="attribute:Orders:ShipDate" cx="570" cy="648" rx="47.5" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Orders:ShipDate" x="570" y="653" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">出貨日期</text>
+<ellipse data-element="attribute:Orders:TrackingNumber" cx="689.5" cy="648" rx="60" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Orders:TrackingNumber" x="689.5" y="653" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">追蹤號碼</text>
+<ellipse data-element="attribute:Orders:ShipMethod" cx="817.5" cy="648" rx="56" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Orders:ShipMethod" x="817.5" y="653" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">運送方式</text>
+<rect data-element="entity:Product" x="914.5" y="544" width="92" height="52" fill="#eef2f6" stroke="#41566e"/>
+<text data-text-for="entity:Product" x="960.5" y="575" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">產品</text>
+<ellipse data-element="attribute:Product:ProductID" cx="1092.5" cy="498" rx="52" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Product:ProductID" x="1092.5" y="503" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530" text-decoration="underline">產品編號</text>
+<ellipse data-element="attribute:Product:ProductName" cx="1069.5" cy="546" rx="29" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Product:ProductName" x="1069.5" y="551" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">名稱</text>
+<ellipse data-element="attribute:Product:ProductCategory" cx="1086" cy="594" rx="45.5" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Product:ProductCategory" x="1086" y="599" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">類別</text>
+<ellipse data-element="attribute:Product:UnitPrice" cx="1092.5" cy="642" rx="52" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:Product:UnitPrice" x="1092.5" y="647" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">單價</text>
+<polygon data-element="relationship:PLACES" points="405.5,539 462.5,570 405.5,601 348.5,570" fill="#fff7df" stroke="#41566e"/>
+<text data-text-for="relationship:PLACES" x="405.5" y="575" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">下單</text>
+<polygon data-element="relationship:HANDLES" points="590.5,314 654.5,345 590.5,376 526.5,345" fill="#fff7df" stroke="#41566e"/>
+<text data-text-for="relationship:HANDLES" x="590.5" y="350" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">承辦</text>
+<polygon data-element="relationship:CONTAINS" points="775.5,539 846,570 775.5,601 705,570" fill="#fff7df" stroke="#41566e"/>
+<text data-text-for="relationship:CONTAINS" x="775.5" y="575" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#1c2530">包含</text>
+<ellipse data-element="attribute:CONTAINS:Quantity" cx="775.5" cy="420" rx="45.5" ry="18" fill="#ffffff" stroke="#41566e"/>
+<text data-text-for="attribute:CONTAINS:Quantity" x="775.5" y="425" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">數量</text>
+<text data-cardinality-for="relationship:PLACES:Customer:0" x="285" y="590" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">1</text>
+<text data-cardinality-for="relationship:PLACES:Orders:0" x="540.5" y="560" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">N</text>
+<text data-cardinality-for="relationship:HANDLES:Employee:0" x="605.5" y="165" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">1</text>
+<text data-cardinality-for="relationship:HANDLES:Orders:0" x="605.5" y="535" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">N</text>
+<text data-cardinality-for="relationship:CONTAINS:Orders:0" x="640.5" y="560" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">N</text>
+<text data-cardinality-for="relationship:CONTAINS:Product:0" x="900.5" y="560" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#1c2530">M</text>
+<text data-note="legend" x="24" y="718" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#1c2530">矩形＝實體　菱形＝關聯　橢圓＝屬性　底線＝主鍵　雙線＝全部參與</text>
+</svg>
