@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise Operations Management System — Project Overview</title>
+<meta name="description" content="A PHP 8 and SQLite enterprise operations management demonstration: architecture, database structure, permission model, and local setup.">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('eoms-pages-theme');
+      var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+    } catch (error) {
+      document.documentElement.dataset.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+  }());
+</script>
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="alternate" hreflang="zh-Hant" href="../index.html">
+</head>
+<body>
+<nav class="top"><div class="wrap">
+  <strong>EOMS</strong>
+  <div class="nav-links"><a href="#overview">Overview</a><a href="#architecture">Architecture</a><a href="#data">Data</a><a href="#features">Features</a><a href="#permissions">Permissions</a><a href="#verify">Verification</a></div>
+  <div class="nav-tools"><a id="eoms-language-toggle" href="../index.html" hreflang="zh-Hant">中文</a><button id="eoms-theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark theme">Dark mode</button></div>
+</div></nav>
+<div class="wrap">
+  <header class="hero" id="top"><h1>Enterprise Operations Management System</h1><p>A PHP 8 and SQLite demonstration system for everyday enterprise operations.</p></header>
+
+  <section id="overview">
+    <h2>System Overview</h2>
+    <p>This management system covers everyday enterprise operations: employees, customers, products, orders, shipments, order invoices, and vendor-customer relationships, with create, read, update, and delete operations. The whole database is a <strong>single SQLite file</strong>; there is no database server or database credential to configure. One <code>docker compose up -d</code> command runs it locally with seed data.</p>
+    <p>The backend is plain PHP 8, with no framework, Composer, or build step. The frontend uses Bootstrap 4.3.1 and jQuery. The project includes a repeatable verification script covering 41 checks.</p>
+  </section>
+
+  <section id="technology">
+    <h2>Technology Stack</h2>
+    <div class="scroll"><table><thead><tr><th>Layer</th><th>Contents</th></tr></thead><tbody>
+      <tr><td>Frontend</td><td>Bootstrap 4.3.1 and jQuery 3.6.0 (both are bundled assets; styles are embedded in each application page)</td></tr>
+      <tr><td>Backend</td><td>PHP 8 (no framework, Composer, or build step)</td></tr>
+      <tr><td>Database</td><td>SQLite, stored as the single file <code>data/fiance2024.sqlite</code></td></tr>
+      <tr><td>Data access</td><td>Query values use PDO prepared statements; field names and sort direction use a server-side allowlist</td></tr>
+      <tr><td>Container</td><td><code>php:8-apache</code></td></tr>
+      <tr><td>Verification</td><td><code>scripts/smoke.sh</code>, 41 repeatable checks</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="architecture">
+    <h2>System Architecture</h2>
+    <p>Every request passes through the single front controller <code>index.php</code>, whose <code>?Act=&lt;number&gt;</code> URL parameter determines which page to <code>include</code>. Permissions have three layers: the route allowlist in <code>index.php</code>, named guards in <code>auth.inc.php</code>, and a guard inside every page. Query values use PDO prepared statements; field names and sort direction are mapped to fixed strings by a server-side allowlist.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    U["Browser&lt;br/&gt;Bootstrap 4.3.1 + jQuery 3.6.0"]
+    FC["index.php&lt;br/&gt;Front controller"]
+    RT["Route allowlist&lt;br/&gt;inside index.php"]
+    G["auth.inc.php&lt;br/&gt;Named permission guards"]
+    PG["Feature pages&lt;br/&gt;Guard again inside the page"]
+    P["Feature pages: Profile / Users / Customers / Employees&lt;br/&gt;Products / Orders / Shipments / Vendor customers / Order invoices"]
+    DA["PDO prepared statement"]
+    DB[("SQLite file&lt;br/&gt;data/fiance2024.sqlite")]
+    X["Permission denied"]
+    U -->|"HTTP request with ?Act="| FC
+    FC --> RT
+    RT --> G
+    G -->|"Allowed"| PG
+    G -->|"Denied"| X
+    PG --> P
+    P --> DA
+    DA --> DB
+    DB -->|"Query results"| DA
+    DA --> P
+    P -->|"HTML response"| U
+    </pre></div>
+  </section>
+
+  <section id="data">
+    <h2>Database Structure</h2>
+    <p>There are <strong>9 tables</strong>; 7 are connected by <strong>8 foreign keys</strong>. The <code>User</code> and <code>admin</code> tables intentionally have <strong>no foreign keys</strong> and no relationship to other tables, so they appear as independent entities below.</p>
+    <div class="diagram"><pre class="mermaid">
+erDiagram
+    Customer ||--o{ Orders : "ON DELETE CASCADE"
+    Employee ||--o{ Orders : "ON DELETE CASCADE"
+    Orders ||--o{ Contain : "ON DELETE CASCADE"
+    Product ||--o{ Contain : "ON DELETE RESTRICT"
+    Employee ||--o{ Shipment : "ON DELETE CASCADE"
+    Orders ||--o{ Shipment : "ON DELETE CASCADE"
+    Orders ||--o{ orderandinvoice : "ON DELETE RESTRICT"
+    Customer ||--o{ orderandinvoice : "ON DELETE RESTRICT"
+    Customer { integer CustomerID PK text CustomerName text CustomerPhoneNumber text CustomerAddress }
+    Employee { integer EmployeeID PK text EmployeeName }
+    Product { integer ProductID PK text ProductName text ProductCategory numeric UnitPrice }
+    Orders { integer OrderID PK text OrderTime text ShipDate integer CustomerID FK integer EmployeeID FK text TrackingNumber text ShipMethod }
+    Contain { integer OrderID PK "FK" integer ProductID PK "FK" integer Quantity "NOT NULL, CHECK > 0" }
+    Shipment { integer ShipmentID PK integer EmployeeID FK integer OrderID FK text ShipDate text TrackingNumber text ShipMethod integer status }
+    orderandinvoice { integer id PK integer order_id FK "NOT NULL" integer order_number "snapshot on issue" text invoice_number integer customer_id FK "NOT NULL" text customer_name "snapshot on issue" numeric amount integer status text created_at }
+    User { integer prikey PK text datechg text dateadd text name text id text pw "bcrypt 2y length 60" text phone text phonem text email integer enabled integer open integer status integer limited "0/1/2/3" text party_type "vendor / customer / NULL" }
+    admin { integer prikey PK text fc "vendor / customer" text fcname text fcaddress text fcphone text fcphonem text fcemail text fcid integer enabled integer open integer status }
+    </pre></div>
+    <h3>All 8 Foreign Keys</h3>
+    <div class="scroll"><table><thead><tr><th>From</th><th>To</th><th>ON DELETE</th></tr></thead><tbody>
+      <tr><td><code>Orders.CustomerID</code></td><td><code>Customer.CustomerID</code></td><td>CASCADE</td></tr><tr><td><code>Orders.EmployeeID</code></td><td><code>Employee.EmployeeID</code></td><td>CASCADE</td></tr><tr><td><code>Contain.OrderID</code></td><td><code>Orders.OrderID</code></td><td>CASCADE</td></tr><tr><td><code>Contain.ProductID</code></td><td><code>Product.ProductID</code></td><td>RESTRICT</td></tr><tr><td><code>Shipment.OrderID</code></td><td><code>Orders.OrderID</code></td><td>CASCADE</td></tr><tr><td><code>Shipment.EmployeeID</code></td><td><code>Employee.EmployeeID</code></td><td>CASCADE</td></tr><tr><td><code>orderandinvoice.order_id</code></td><td><code>Orders.OrderID</code></td><td>RESTRICT</td></tr><tr><td><code>orderandinvoice.customer_id</code></td><td><code>Customer.CustomerID</code></td><td>RESTRICT</td></tr>
+    </tbody></table></div>
+    <h3>Two Notable Design Decisions</h3>
+    <ul><li><strong><code>User</code> and <code>admin</code> have no foreign keys</strong> and are unrelated to other tables. <code>admin</code> is the master data for vendors and customers, not a user table; it reuses part of <code>User</code>'s naming but has a different purpose.</li><li><strong><code>orderandinvoice.order_number</code> and <code>customer_name</code> are read-only snapshots taken when an invoice is issued</strong>, not redundant fields. If a customer later changes name, an old invoice still shows the issued name. The relationship truth remains in the <code>order_id</code> and <code>customer_id</code> foreign keys, whose <code>RESTRICT</code> deletion behavior prevents deleting an order or customer from orphaning an invoice.</li></ul>
+    <div class="note">SQLite foreign-key enforcement is off by default and must be enabled on every connection. This project runs <code>PRAGMA foreign_keys = ON</code> immediately after each PDO connection; otherwise <code>ON DELETE CASCADE</code> silently stops working.</div>
+  </section>
+
+  <section id="chen-er">
+    <h2>ER Diagrams (Chen Notation)</h2>
+    <p>Rectangles represent entities, diamonds relationships, ovals attributes, and an asterisk marks a primary key. The first diagram is the order core: one employee handles many orders, one customer places many orders, and orders and products have an <strong>M:N</strong> <code>Contain</code> relationship. <code>Quantity</code> is an attribute of that relationship, not either entity.</p>
+    <div class="figure-scroll"><a href="../diagrams/er-orders-en-light.svg" target="_blank"><img src="../diagrams/er-orders-en-light.svg" data-src-dark="../diagrams/er-orders-en-dark.svg" alt="Order-core Chen ER diagram"></a></div>
+    <p>Shipments and invoices are independent entities with their own primary keys and attributes; their relationships to the order core are shown below.</p>
+    <div class="figure-scroll"><a href="../diagrams/er-fulfillment-en-light.svg" target="_blank"><img src="../diagrams/er-fulfillment-en-light.svg" data-src-dark="../diagrams/er-fulfillment-en-dark.svg" alt="Fulfillment and invoice Chen ER diagram"></a></div>
+    <p>The following diagram adds the entities and relationships of the complete system, including the intentionally foreign-key-free <code>User</code> and <code>admin</code> tables.</p>
+    <div class="figure-scroll"><a href="../diagrams/er-system-en-light.svg" target="_blank"><img src="../diagrams/er-system-en-light.svg" data-src-dark="../diagrams/er-system-en-dark.svg" alt="Whole-system Chen ER diagram"></a></div>
+  </section>
+
+  <section id="relational-schema">
+    <h2>Relational Schema</h2>
+    <p>This turns the ER diagram into actual tables: each row is a table and each box a column. <strong>Underlining denotes a primary key</strong>; arrows point from a foreign key to its referenced primary key. Solid lines are <code>ON DELETE CASCADE</code>; dashed lines are <code>ON DELETE RESTRICT</code>.</p>
+    <div class="figure-scroll"><a href="../diagrams/relational-schema-en-light.svg" target="_blank"><img src="../diagrams/relational-schema-en-light.svg" data-src-dark="../diagrams/relational-schema-en-dark.svg" alt="Relational schema for 9 tables and 8 foreign keys"></a></div>
+    <div class="note"><code>User</code> (system accounts) and <code>admin</code> (vendor and customer master data) intentionally have no foreign keys and are unrelated to the other 7 tables; they are at the bottom of the diagram.</div>
+  </section>
+
+  <section id="features">
+    <h2>Feature List and Page Routes</h2>
+    <p>Every module supports list, create, delete, edit, and query operations; <code>index.php</code> maps an <code>Act</code> number to each feature page.</p>
+    <div class="scroll"><table><thead><tr><th>Module</th><th>List</th><th>Add</th><th>Edit</th><th>Delete</th><th>Batch delete</th></tr></thead><tbody>
+      <tr><td>Profile</td><td>100</td><td>—</td><td>105</td><td>115</td><td>—</td></tr><tr><td>Users</td><td>110</td><td>140</td><td>120</td><td>130</td><td>135</td></tr><tr><td>Vendor customers</td><td>200</td><td>210</td><td>230</td><td>220</td><td>—</td></tr><tr><td>Order invoices</td><td>240</td><td>250</td><td>270</td><td>260</td><td>265</td></tr><tr><td>Customers</td><td>300</td><td>320</td><td>340</td><td>330</td><td>335</td></tr><tr><td>Employees</td><td>350</td><td>360</td><td>380</td><td>370</td><td>375</td></tr><tr><td>Products</td><td>390</td><td>400</td><td>420</td><td>410</td><td>415</td></tr><tr><td>Orders</td><td>430</td><td>440</td><td>460</td><td>450</td><td>—</td></tr><tr><td>Shipments</td><td>470</td><td>480</td><td>490</td><td>500</td><td>510</td></tr>
+    </tbody></table></div>
+    <p>Other routes: <code>150</code> home and <code>160</code> registration.</p>
+  </section>
+
+  <section id="permissions">
+    <h2>Permission Model</h2>
+    <p>A role is represented by the integer <code>User.limited</code> field; <strong>roles are not compared by magnitude</strong>. A new role must be explicitly added to the corresponding allowlist in <code>auth.inc.php</code>.</p>
+    <div class="scroll"><table><thead><tr><th><code>limited</code></th><th>Role</th><th>Accessible scope</th></tr></thead><tbody><tr><td>0</td><td>Unauthorized</td><td>None (the default after registration or after disabling)</td></tr><tr><td>1</td><td>Administrator</td><td>Everything, including user management</td></tr><tr><td>2</td><td>Internal employee</td><td>Profile plus all business data</td></tr><tr><td>3</td><td>External user (vendor or customer)</td><td>Profile only</td></tr></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th>Named guard</th><th>Condition to pass</th></tr></thead><tbody><tr><td><code>is_logged_in()</code></td><td><code>limited</code> is set (logged in)</td></tr><tr><td><code>is_admin()</code> / <code>can_manage_users()</code></td><td><code>limited == 1</code></td></tr><tr><td><code>can_view_business_data()</code></td><td><code>limited</code> is 1 or 2</td></tr><tr><td><code>can_access_self()</code></td><td><code>limited</code> is 1, 2, or 3</td></tr></tbody></table></div>
+    <p>Passwords use PHP's built-in <code>password_hash()</code> (bcrypt, with the <code>$2y$</code> prefix and length 60). An external user selects a <code>party_type</code> (vendor or customer) at registration; their <code>limited</code> value is always 3 after registration.</p>
+  </section>
+
+  <section id="key-flows">
+    <h2>Key Flows</h2>
+    <h3>Sign-in and Permission Check</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    participant B as Browser
+    participant L as public/login.php
+    participant U as SQLite User table
+    participant P as password_verify()
+    participant S as PHP session
+    participant I as public/index.php
+    participant A as src/auth.inc.php
+    B->>L: POST account and password
+    L->>U: Look up account
+    U-->>L: User and password hash
+    L->>P: Verify password
+    P-->>L: Success
+    L->>S: Create session
+    L-->>B: Redirect to index.php
+    B->>I: Request with Act
+    I->>I: Apply Act route allowlist
+    I->>A: can_manage_users() or can_view_business_data()
+    alt Allowed
+        A-->>I: Allow
+        I->>I: Include feature page; page checks again
+        I-->>B: Feature-page HTML
+    else Denied
+        A-->>I: Deny
+        I-->>B: Act=forbidden, permission denied
+    end
+    </pre></div>
+    <h3>Create and Edit an Invoice</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    participant B as Browser
+    participant F as Invoice add or edit page
+    participant G as src/invoice.inc.php get_invoice_snapshot()
+    participant D as SQLite Orders and Customer
+    participant I as SQLite orderandinvoice
+    B->>F: Submit invoice fields
+    alt Create
+        F->>G: Get snapshot by order_id and customer_id
+        G->>D: Read order number and customer name
+        D-->>G: Values at issue time
+        G-->>F: order_number and customer_name
+        F->>I: INSERT foreign keys and snapshot
+    else Edit with changed foreign keys
+        F->>G: Get a fresh snapshot
+        G->>D: Read new order and customer
+        D-->>G: New snapshot
+        G-->>F: order_number and customer_name
+        F->>I: UPDATE foreign keys and new snapshot
+    else Edit with unchanged foreign keys
+        F->>I: Read existing stored snapshot
+        I-->>F: Reuse order_number and customer_name
+        F->>I: UPDATE other fields
+    end
+    </pre></div>
+    <h3>Status Search</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    participant B as Browser
+    participant L as List page
+    participant S as src/search.inc.php search_enum_code()
+    participant D as SQLite
+    B->>L: Submit status keyword
+    L->>S: Match every locale label
+    alt Mapped to a code
+        S-->>L: status code
+        L->>D: WHERE status = :code
+        D-->>L: Matching rows
+    else Not mapped
+        S-->>L: null
+        L->>D: WHERE 1=0
+        D-->>L: Empty result
+    end
+    L-->>B: List HTML
+    </pre></div>
+  </section>
+
+  <section id="run-local">
+    <h2>Run It Locally</h2>
+    <h3>Docker (One Command)</h3>
+    <p>Prerequisite: Docker Desktop.</p>
+    <pre><code>git clone &lt;this repo&gt;
+cd Enterprise-Operations-Management-System
+docker compose up -d</code></pre>
+    <p>When the container starts, it copies <code>config.inc.php</code> from the example file and runs <code>create.php</code> once, so the application opens with seed data.</p>
+    <ul><li>Application: <code>http://localhost:8080/login.php</code> — sign in as <code>Admin</code> / <code>123456</code></li></ul>
+    <p>Rebuild the database at any time (repeatable; it rebuilds tables and seed data each time):</p>
+    <pre><code>docker compose exec web php scripts/create.php</code></pre>
+    <div class="note"><code>create.php</code> is in <code>scripts/</code>, outside the DocumentRoot. <strong>It cannot be run from a browser</strong>, so no one can clear the database merely by visiting a URL.</div>
+    <h3>Without Docker</h3>
+    <p>PHP 8 with the <code>pdo_sqlite</code> extension is required (it is built in by default). The DocumentRoot is <code>public/</code>:</p>
+    <pre><code>cp src/config.inc.php.example src/config.inc.php
+php scripts/create.php              # Create the database and seed data
+php -S localhost:8080 -t public     # Then open http://localhost:8080/login.php</code></pre>
+  </section>
+
+  <section id="tour">
+    <h2>Five-Minute Tour</h2>
+    <p>After signing in as <code>Admin</code> / <code>123456</code>, these four steps show what the project is designed to demonstrate:</p>
+    <ol><li><strong>Order list</strong> (navigation bar → order list): every row has an item count and order amount. The amount is not stored on the order; it is calculated live by <code>SUM(Contain.Quantity × Product.UnitPrice)</code>. An order can contain many products, each with a quantity.</li><li><strong>Add an order</strong>: the product area can add multiple product-and-quantity rows. This is the practical operation of the <code>Contain</code> M:N relationship table—the diamond in the ER diagram.</li><li><strong>Register a vendor account and sign in with it</strong>: customers, employees, orders, and invoices all show “Permission denied”; only the profile remains. Permissions are not based on numeric order: a new role inherits nothing and must be explicitly added to the allowlist in <code>src/auth.inc.php</code>.</li><li><strong>Run the verification script</strong> (about 20 seconds): <code>docker compose exec web bash scripts/smoke.sh</code>. Its 41 checks cover schema, foreign-key cascading, time zones, sign-in, password hashing, SQL-injection probes, permission boundaries, direct-access protection, and order-total accuracy.</li></ol>
+    <div class="note">Incidentally, directly opening <code>http://localhost:8080/src/pages/customer/CustomerAdd.php</code> returns <strong>404</strong>: every page file is outside the DocumentRoot. Only the four public entry points—<code>index.php</code>, <code>login.php</code>, <code>logout.php</code>, and <code>register.php</code>—are exposed.</div>
+  </section>
+
+  <section id="verify">
+    <h2>How to Verify It Is Correct</h2>
+    <p>The project includes a repeatable verification script covering <strong>41 smoke checks</strong>; any failure exits with a non-zero status.</p>
+    <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>
+    <ul><li><strong>Database structure and seed data</strong>: exactly 9 tables; expected seed counts; <code>PRAGMA foreign_keys</code> is 1; <code>ON DELETE CASCADE</code> actually cascades (verified in a transaction and rolled back); PHP and SQLite time zones agree; clearing <code>orderandinvoice</code> resets the next sequence to 1; every invoice has foreign keys and non-empty snapshots.</li><li><strong>Sign-in and passwords</strong>: <code>Admin</code> / <code>123456</code> can sign in and receives <code>PHPSESSID</code>; wrong passwords are rejected; the <code>Admin</code> hash starts <code>$2y$</code> and has length 60.</li><li><strong>Permissions and direct access</strong>: all 45 feature files use their required named guards; an external user is registered with <code>limited=3</code>, can sign in, and sees only the profile; every non-exempt <code>.php</code> file under the web root displays “Permission denied!” without application content when opened while unauthenticated.</li><li><strong>Order totals</strong>: every order has <code>Contain</code> details; at least one has an item count ≥ 2; and the order amount rendered by <code>OrderList.php</code> over HTTP equals <code>SUM(quantity × unit price)</code> (omitting quantity would produce a different result, so the probe is discriminating).</li><li><strong>Injection prevention, routes, and hygiene</strong>: an SQL-injection probe submits a field value containing <code>'); DROP TABLE admin;--</code>; the string is stored literally and the <code>admin</code> table remains intact; all 18 specified <code>Act</code> routes return 2xx/3xx with no PHP error; Apache output has no <code>Deprecated</code>, <code>Warning</code>, or <code>Fatal</code>; tracked Git files contain no <code>*.sqlite</code>, <code>sess_*</code>, <code>config.inc.php</code>, or <code>*.mp3</code>.</li></ul>
+  </section>
+
+  <footer><p>The project code has no license and all rights are reserved. The main visual is supplied by the project author; this repository contains no third-party photos or audio. Pages use Bootstrap 4.3.1, Bootstrap Icons, and jQuery 3.6.0; Select2 and Font Awesome Free load from CDNs, and the home page embeds an OpenStreetMap map. See <a href="https://github.com/PomeloBiscuit/Enterprise-Operations-Management-System/blob/main/THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES.md</a> for licenses and copyright notices. Demonstration data is fictional; email addresses use the reserved <code>example.com</code> domain.</p></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

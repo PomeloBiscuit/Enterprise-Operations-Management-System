@@ -5,169 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Enterprise Operations Management System — 系統介紹</title>
 <meta name="description" content="以 PHP 8 + SQLite 打造的企業日常作業管理示範系統：架構、資料庫結構、權限模型與本機執行方式。">
-<style>
-  :root {
-    color-scheme: light dark;
-    --bg: #f7f8fa;
-    --surface: #ffffff;
-    --surface-2: #f0f2f5;
-    --border: #d9dee5;
-    --text: #1c2430;
-    --text-muted: #5b6675;
-    --accent: #2557a7;
-    --accent-soft: #e8f0fb;
-    --code-bg: #f0f2f5;
-    --shadow: 0 1px 3px rgba(20, 30, 45, 0.08), 0 1px 2px rgba(20, 30, 45, 0.06);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #12161c;
-      --surface: #1a2029;
-      --surface-2: #222a35;
-      --border: #333d4a;
-      --text: #e6eaf0;
-      --text-muted: #9aa6b4;
-      --accent: #6ea8fe;
-      --accent-soft: #1e2c3f;
-      --code-bg: #222a35;
-      --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('eoms-pages-theme');
+      var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = saved || (dark ? 'dark' : 'light');
+    } catch (error) {
+      document.documentElement.dataset.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-  }
-
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC",
-      "PingFang TC", "Microsoft JhengHei", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.7;
-    font-size: 16px;
-  }
-  .wrap {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 2rem 1.1rem 4rem;
-  }
-  header.hero {
-    padding: 1.4rem 0 1.8rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 2rem;
-  }
-  header.hero h1 {
-    font-size: 1.7rem;
-    line-height: 1.3;
-    margin: 0 0 .5rem;
-  }
-  header.hero p {
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 1.02rem;
-  }
-  h2 {
-    font-size: 1.28rem;
-    margin: 2.6rem 0 .9rem;
-    padding-bottom: .35rem;
-    border-bottom: 1px solid var(--border);
-  }
-  h3 {
-    font-size: 1.05rem;
-    margin: 1.6rem 0 .6rem;
-  }
-  p { margin: .7rem 0; }
-  a { color: var(--accent); }
-  ul { padding-left: 1.3rem; }
-  li { margin: .3rem 0; }
-  strong { font-weight: 700; }
-
-  .scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 1rem 0;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: .92rem;
-  }
-  th, td {
-    border-bottom: 1px solid var(--border);
-    padding: .5rem .7rem;
-    text-align: left;
-    white-space: nowrap;
-  }
-  thead th {
-    background: var(--surface-2);
-    font-weight: 700;
-  }
-  tbody tr:last-child td { border-bottom: none; }
-
-  code {
-    background: var(--code-bg);
-    padding: .12em .4em;
-    border-radius: 4px;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: .88em;
-  }
-  /* 行內 code 常是不含空白的長字串（網址、檔案路徑），預設不會換行，
-     會把所在容器整個撐開。.note 沒有 overflow-x，所以會直接變成整頁水平捲動。
-     375px 實測：'http://localhost:8080/src/pages/customer/CustomerAdd.php'
-     的 code 元素寬 422px，撐得 .note（340px）溢出，整頁 scrollWidth 458 > 375。
-     只作用在行內 code —— pre 內的 code 要維持不換行、由 pre 自己橫向捲動。 */
-  :not(pre) > code { overflow-wrap: anywhere; }
-  pre {
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: .9rem 1rem;
-    overflow-x: auto;
-    font-size: .86rem;
-    line-height: 1.55;
-  }
-  pre code { background: none; padding: 0; }
-
-  .diagram {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    margin: 1rem 0;
-    overflow-x: auto;
-    box-shadow: var(--shadow);
-  }
-  .mermaid { margin: 0; text-align: center; }
-  .mermaid svg { max-width: 100%; height: auto; }
-
-  .note {
-    background: var(--accent-soft);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 8px 8px 0;
-    padding: .7rem 1rem;
-    margin: 1rem 0;
-    font-size: .95rem;
-  }
-
-  footer {
-    margin-top: 3rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: .88rem;
-  }
-</style>
+  }());
+</script>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" hreflang="en" href="en/index.html">
 </head>
 <body>
+<nav class="top"><div class="wrap">
+  <strong>EOMS</strong>
+  <div class="nav-links"><a href="#overview">簡介</a><a href="#architecture">架構</a><a href="#data">資料</a><a href="#features">功能</a><a href="#permissions">權限</a><a href="#verify">驗證</a></div>
+  <div class="nav-tools"><a id="eoms-language-toggle" href="en/index.html" hreflang="en">English</a><button id="eoms-theme-toggle" type="button" aria-pressed="false" aria-label="切換至深色模式">深色模式</button></div>
+</div></nav>
 <div class="wrap">
 
-  <header class="hero">
+  <header class="hero" id="top">
     <h1>Enterprise Operations Management System</h1>
     <p>以 PHP 8 + SQLite 打造的企業日常作業管理示範系統</p>
   </header>
 
-  <section>
+  <section id="overview">
     <h2>系統簡介</h2>
     <p>
       這是一套涵蓋企業日常作業的管理系統：員工、顧客、產品、訂單、出貨、訂單發票，
@@ -177,11 +42,11 @@
     </p>
     <p>
       後端是純 PHP 8，沒有框架、沒有 Composer、沒有建置步驟；前端用 Bootstrap 4.3.1 與
-      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 22 項檢查。
+      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 41 項檢查。
     </p>
   </section>
 
-  <section>
+  <section id="technology">
     <h2>技術棧</h2>
     <div class="scroll">
       <table>
@@ -192,13 +57,13 @@
           <tr><td>資料庫</td><td>SQLite，單檔存於 <code>data/fiance2024.sqlite</code></td></tr>
           <tr><td>資料存取</td><td>查詢值使用 PDO prepared statement；欄位名與排序方向使用伺服器端白名單</td></tr>
           <tr><td>容器</td><td><code>php:8-apache</code></td></tr>
-          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，22 項可重跑檢查</td></tr>
+          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，41 項可重跑檢查</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section>
+  <section id="architecture">
     <h2>系統架構</h2>
     <p>
       所有請求都經過單一前端控制器 <code>index.php</code>，由網址參數
@@ -234,7 +99,7 @@ flowchart TD
     </div>
   </section>
 
-  <section>
+  <section id="data">
     <h2>資料庫結構</h2>
     <p>
       共 <strong>9 張表</strong>，其中 7 張以 <strong>8 條外鍵</strong>互相關聯。
@@ -374,7 +239,7 @@ erDiagram
     </div>
   </section>
 
-  <section>
+  <section id="chen-er">
     <h2>ER 圖（Chen 記法）</h2>
     <p>
       以矩形表示實體、菱形表示關聯、橢圓表示屬性、星號表示主鍵。
@@ -382,101 +247,31 @@ erDiagram
       而訂單與產品之間是 <strong>M:N</strong> 的 <code>Contain</code> 關聯，
       <code>Quantity</code>（數量）是掛在關聯上的屬性，不屬於任何一端的實體。
     </p>
-    <div class="diagram">
-      <pre class="mermaid">
-flowchart TB
-    EMP[Employee]
-    ORD[Orders]
-    PRD[Product]
-    CUS[Customer]
-
-    HAN{Handle}
-    CON{Contain}
-    PLA{Place}
-
-    eid((EmployeeID*)) --- EMP
-    enm((EmployeeName)) --- EMP
-    EMP ---|1| HAN
-    HAN ---|N| ORD
-
-    oid((OrderID*)) --- ORD
-    otm((OrderTime)) --- ORD
-    osd((ShipDate)) --- ORD
-    otn((TrackingNumber)) --- ORD
-    osm((ShipMethod)) --- ORD
-
-    ORD ---|N| CON
-    CON ---|M| PRD
-    qty((Quantity)) --- CON
-
-    pid((ProductID*)) --- PRD
-    pnm((ProductName)) --- PRD
-    pct((ProductCategory)) --- PRD
-    pup((UnitPrice)) --- PRD
-
-    ORD ---|N| PLA
-    PLA ---|1| CUS
-
-    cid((CustomerID*)) --- CUS
-    cnm((CustomerName)) --- CUS
-    cad((CustomerAddress)) --- CUS
-    cph((CustomerPhoneNumber)) --- CUS
-      </pre>
-    </div>
+    <div class="figure-scroll"><a href="diagrams/er-orders-zh-light.svg" target="_blank"><img src="diagrams/er-orders-zh-light.svg" data-src-dark="diagrams/er-orders-zh-dark.svg" alt="訂單核心 Chen ER 圖"></a></div>
 
     <p>
       出貨與發票是各自獨立的實體（有自己的主鍵與屬性），與訂單核心的關係如下：
     </p>
-    <div class="diagram">
-      <pre class="mermaid">
-flowchart LR
-    EMP[Employee]
-    CUS[Customer]
-    ORD[Orders]
-    SHP[Shipment]
-    INV[orderandinvoice]
-
-    HAN{Handle}
-    PLA{Place}
-    SHIPS{ShipFor}
-    BYEMP{HandledBy}
-    BILLS{BillFor}
-    ISSUED{IssuedTo}
-
-    EMP ---|1| HAN
-    HAN ---|N| ORD
-    CUS ---|1| PLA
-    PLA ---|N| ORD
-    ORD ---|1| SHIPS
-    SHIPS ---|N| SHP
-    EMP ---|1| BYEMP
-    BYEMP ---|N| SHP
-    ORD ---|1| BILLS
-    BILLS ---|N| INV
-    CUS ---|1| ISSUED
-    ISSUED ---|N| INV
-      </pre>
-    </div>
+    <div class="figure-scroll"><a href="diagrams/er-fulfillment-zh-light.svg" target="_blank"><img src="diagrams/er-fulfillment-zh-light.svg" data-src-dark="diagrams/er-fulfillment-zh-dark.svg" alt="出貨與發票 Chen ER 圖"></a></div>
+    <p>下圖補上整個系統的實體與關聯，包含刻意沒有外鍵的 <code>User</code> 與 <code>admin</code>。</p>
+    <div class="figure-scroll"><a href="diagrams/er-system-zh-light.svg" target="_blank"><img src="diagrams/er-system-zh-light.svg" data-src-dark="diagrams/er-system-zh-dark.svg" alt="全系統 Chen ER 圖"></a></div>
   </section>
 
-  <section>
+  <section id="relational-schema">
     <h2>關聯綱目</h2>
     <p>
       把上面的 ER 圖轉成實際的資料表：每一列是一張表，格子是欄位，
       <strong>底線代表主鍵</strong>，箭頭由外鍵指向它參照的主鍵。
       實線是 <code>ON DELETE CASCADE</code>，虛線是 <code>ON DELETE RESTRICT</code>。
     </p>
-    <div class="diagram" style="overflow-x:auto">
-      <img src="diagrams/relational-schema-zh-light.svg" alt="關聯綱目：9 張表與 8 條外鍵的對應關係"
-           style="min-width:820px; width:100%; height:auto">
-    </div>
+    <div class="figure-scroll"><a href="diagrams/relational-schema-zh-light.svg" target="_blank"><img src="diagrams/relational-schema-zh-light.svg" data-src-dark="diagrams/relational-schema-zh-dark.svg" alt="關聯綱目：9 張表與 8 條外鍵的對應關係"></a></div>
     <div class="note">
       <code>User</code>（系統帳號）與 <code>admin</code>（廠商與顧客主檔）
       刻意不設任何外鍵，與其他 7 張表沒有關聯，畫在圖的最下方。
     </div>
   </section>
 
-  <section>
+  <section id="features">
     <h2>功能清單與頁面路由</h2>
     <p>
       每個模組都支援列表與增刪修查；<code>index.php</code> 以 <code>Act</code> 數字對應
@@ -503,7 +298,7 @@ flowchart LR
     <p>其他：<code>150</code> 首頁、<code>160</code> 註冊。</p>
   </section>
 
-  <section>
+  <section id="permissions">
     <h2>權限模型</h2>
     <p>
       角色以 <code>User.limited</code> 一個整數欄位表示，<strong>不做大小比較</strong>
@@ -538,7 +333,87 @@ flowchart LR
     </p>
   </section>
 
-  <section>
+  <section id="key-flows">
+    <h2>關鍵流程</h2>
+    <h3>登入與權限檢查</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    participant B as 瀏覽器
+    participant L as public/login.php
+    participant U as SQLite User 表
+    participant P as password_verify()
+    participant S as PHP session
+    participant I as public/index.php
+    participant A as src/auth.inc.php
+    B->>L: POST 帳密
+    L->>U: 依帳號查詢帳戶
+    U-->>L: 使用者與密碼雜湊
+    L->>P: 驗證密碼
+    P-->>L: 成功
+    L->>S: 建立 session
+    L-->>B: 轉址到 index.php
+    B->>I: 帶 Act 的請求
+    I->>I: 依 Act 路由白名單
+    I->>A: can_manage_users() 或 can_view_business_data()
+    alt 允許
+        A-->>I: 允許
+        I->>I: include 功能頁，頁內再檢查一次
+        I-->>B: 功能頁 HTML
+    else 拒絕
+        A-->>I: 拒絕
+        I-->>B: Act=forbidden，「權限不足」
+    end
+    </pre></div>
+    <h3>開立與編輯發票</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    participant B as 瀏覽器
+    participant F as 訂單發票新增或編輯頁
+    participant G as src/invoice.inc.php get_invoice_snapshot()
+    participant D as SQLite Orders 與 Customer
+    participant I as SQLite orderandinvoice
+    B->>F: 送出發票欄位
+    alt 新增
+        F->>G: 以 order_id、customer_id 取得快照
+        G->>D: 查訂單編號與顧客名稱
+        D-->>G: 開立當下的資料
+        G-->>F: order_number、customer_name
+        F->>I: INSERT 外鍵與快照
+    else 編輯且外鍵有變
+        F->>G: 重取快照
+        G->>D: 查新的訂單與顧客
+        D-->>G: 新快照
+        G-->>F: order_number、customer_name
+        F->>I: UPDATE 外鍵與新快照
+    else 編輯且外鍵沒變
+        F->>I: 讀取資料庫既有快照
+        I-->>F: 沿用 order_number、customer_name
+        F->>I: UPDATE 其他欄位
+    end
+    </pre></div>
+    <h3>狀態搜尋</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    participant B as 瀏覽器
+    participant L as 列表頁
+    participant S as src/search.inc.php search_enum_code()
+    participant D as SQLite
+    B->>L: 送出狀態關鍵字
+    L->>S: 比對所有語言的列舉名稱
+    alt 對應到代碼
+        S-->>L: status 代碼
+        L->>D: WHERE status = :code
+        D-->>L: 相符資料列
+    else 對應不到
+        S-->>L: null
+        L->>D: WHERE 1=0
+        D-->>L: 空結果
+    end
+    L-->>B: 列表 HTML
+    </pre></div>
+  </section>
+
+  <section id="run-local">
     <h2>在本機跑起來</h2>
     <h3>Docker（一道指令）</h3>
     <p>前置需求：Docker Desktop。</p>
@@ -565,7 +440,7 @@ php scripts/create.php              # 建立資料庫與種子資料
 php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php</code></pre>
   </section>
 
-  <section>
+  <section id="tour">
     <h2>五分鐘導覽</h2>
     <p>用 <code>Admin</code> / <code>123456</code> 登入後，這四步能看到這個專案真正想展示的東西：</p>
     <ol>
@@ -589,7 +464,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
       <li>
         <strong>跑一次驗證腳本</strong>（約 20 秒）——
         <code>docker compose exec web bash scripts/smoke.sh</code>，
-        22 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+        41 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
         權限邊界、直接存取防護與訂單金額正確性。
       </li>
     </ol>
@@ -601,10 +476,10 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
     </div>
   </section>
 
-  <section>
+  <section id="verify">
     <h2>如何驗證它是對的</h2>
     <p>
-      專案內建一支可重跑的驗證腳本，涵蓋 <strong>22 項檢查</strong>；任一項失敗會以
+      專案內建一支可重跑的驗證腳本，涵蓋 <strong>41 項檢查</strong>；任一項失敗會以
       非 0 結束碼退出。
     </p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>
@@ -624,20 +499,6 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
-<script>
-  (function () {
-    var prefersDark = window.matchMedia &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (window.mermaid && typeof window.mermaid.initialize === 'function') {
-      window.mermaid.initialize({
-        startOnLoad: true,
-        theme: prefersDark ? 'dark' : 'default',
-        securityLevel: 'strict',
-        flowchart: { htmlLabels: true, useMaxWidth: true },
-        er: { useMaxWidth: true }
-      });
-    }
-  })();
-</script>
+<script src="assets/site.js"></script>
 </body>
 </html>
