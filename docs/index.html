@@ -42,7 +42,7 @@
     </p>
     <p>
       後端是純 PHP 8，沒有框架、沒有 Composer、沒有建置步驟；前端用 Bootstrap 4.3.1 與
-      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 41 項檢查。
+      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 42 項檢查。
     </p>
   </section>
 
@@ -57,7 +57,7 @@
           <tr><td>資料庫</td><td>SQLite，單檔存於 <code>data/fiance2024.sqlite</code></td></tr>
           <tr><td>資料存取</td><td>查詢值使用 PDO prepared statement；欄位名與排序方向使用伺服器端白名單</td></tr>
           <tr><td>容器</td><td><code>php:8-apache</code></td></tr>
-          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，41 項可重跑檢查</td></tr>
+          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，42 項可重跑檢查</td></tr>
         </tbody>
       </table>
     </div>
@@ -247,14 +247,14 @@ erDiagram
       而訂單與產品之間是 <strong>M:N</strong> 的 <code>Contain</code> 關聯，
       <code>Quantity</code>（數量）是掛在關聯上的屬性，不屬於任何一端的實體。
     </p>
-    <div class="figure-scroll"><a href="diagrams/er-orders-zh-light.svg" target="_blank"><img src="diagrams/er-orders-zh-light.svg" data-src-dark="diagrams/er-orders-zh-dark.svg" alt="訂單核心 Chen ER 圖"></a></div>
+    <div class="figure-scroll"><a href="diagrams/er-orders-zh-light.svg" target="_blank"><img src="diagrams/er-orders-zh-light.svg" data-src-dark="diagrams/er-orders-zh-dark.svg" alt="訂單核心 Chen ER 圖" width="1169" height="746"></a></div>
 
     <p>
       出貨與發票是各自獨立的實體（有自己的主鍵與屬性），與訂單核心的關係如下：
     </p>
-    <div class="figure-scroll"><a href="diagrams/er-fulfillment-zh-light.svg" target="_blank"><img src="diagrams/er-fulfillment-zh-light.svg" data-src-dark="diagrams/er-fulfillment-zh-dark.svg" alt="出貨與發票 Chen ER 圖"></a></div>
+    <div class="figure-scroll"><a href="diagrams/er-fulfillment-zh-light.svg" target="_blank"><img src="diagrams/er-fulfillment-zh-light.svg" data-src-dark="diagrams/er-fulfillment-zh-dark.svg" alt="出貨與發票 Chen ER 圖" width="1272" height="742"></a></div>
     <p>下圖補上整個系統的實體與關聯，包含刻意沒有外鍵的 <code>User</code> 與 <code>admin</code>。</p>
-    <div class="figure-scroll"><a href="diagrams/er-system-zh-light.svg" target="_blank"><img src="diagrams/er-system-zh-light.svg" data-src-dark="diagrams/er-system-zh-dark.svg" alt="全系統 Chen ER 圖"></a></div>
+    <div class="figure-scroll"><a href="diagrams/er-system-zh-light.svg" target="_blank"><img src="diagrams/er-system-zh-light.svg" data-src-dark="diagrams/er-system-zh-dark.svg" alt="全系統 Chen ER 圖" width="1289" height="1540"></a></div>
   </section>
 
   <section id="relational-schema">
@@ -264,7 +264,7 @@ erDiagram
       <strong>底線代表主鍵</strong>，箭頭由外鍵指向它參照的主鍵。
       實線是 <code>ON DELETE CASCADE</code>，虛線是 <code>ON DELETE RESTRICT</code>。
     </p>
-    <div class="figure-scroll"><a href="diagrams/relational-schema-zh-light.svg" target="_blank"><img src="diagrams/relational-schema-zh-light.svg" data-src-dark="diagrams/relational-schema-zh-dark.svg" alt="關聯綱目：9 張表與 8 條外鍵的對應關係"></a></div>
+    <div class="figure-scroll"><a href="diagrams/relational-schema-zh-light.svg" target="_blank"><img src="diagrams/relational-schema-zh-light.svg" data-src-dark="diagrams/relational-schema-zh-dark.svg" alt="關聯綱目：9 張表與 8 條外鍵的對應關係" width="1365" height="792"></a></div>
     <div class="note">
       <code>User</code>（系統帳號）與 <code>admin</code>（廠商與顧客主檔）
       刻意不設任何外鍵，與其他 7 張表沒有關聯，畫在圖的最下方。
@@ -464,7 +464,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
       <li>
         <strong>跑一次驗證腳本</strong>（約 20 秒）——
         <code>docker compose exec web bash scripts/smoke.sh</code>，
-        41 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+        42 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
         權限邊界、直接存取防護與訂單金額正確性。
       </li>
     </ol>
@@ -479,7 +479,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
   <section id="verify">
     <h2>如何驗證它是對的</h2>
     <p>
-      專案內建一支可重跑的驗證腳本，涵蓋 <strong>41 項檢查</strong>；任一項失敗會以
+      專案內建一支可重跑的驗證腳本，涵蓋 <strong>42 項檢查</strong>；任一項失敗會以
       非 0 結束碼退出。
     </p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>

@@ -919,8 +919,8 @@ pages_check() {
             $copy = preg_replace("~<pre[^>]*class=[^>]*mermaid[^>]*>.*?</pre>~is", "", $copy);
             $visibleBytes = strlen(preg_replace("~\s+~u", "", html_entity_decode(strip_tags($copy), ENT_QUOTES | ENT_HTML5, "UTF-8")));
             $tables = $count($zh, "~<table\\b~i"); $pres = $count($zh, "~<pre\\b~i");
-            if ($cursor !== count($required) || $visibleBytes < 7650 || $tables < 5 || $pres < 8) $fail("visible=$visibleBytes headings=$cursor tables=$tables code-blocks=$pres; expected baseline, >=7650, >=5, >=8");
-            echo "visible=$visibleBytes, headings=".count($actual).", tables=$tables, code-blocks=$pres"; exit(0);
+            if ($cursor !== count($required) || $visibleBytes < 8300 || $tables < 5 || $pres < 8) $fail("visible-bytes=$visibleBytes headings=$cursor tables=$tables code-blocks=$pres; expected baseline, >=8300 bytes, >=5, >=8");
+            echo "visible-bytes=$visibleBytes, headings=".count($actual).", tables=$tables, code-blocks=$pres"; exit(0);
         }
         if ($name === "numbers") {
             $smoke = file_get_contents("$root/scripts/smoke.sh"); $start = strrpos($smoke, "for check in"); $end = strpos($smoke, "; do", $start);
@@ -933,6 +933,21 @@ pages_check() {
                 foreach ($found[1] as $n) if ((int) $n !== $expected) $fail("$relative documents $n checks; registered=$expected");
             }
             echo "documented check count=$expected"; exit(0);
+        }
+        if ($name === "image-size") {
+            foreach ([["zh", $paths["zh"], $zh], ["en", $paths["en"], $en]] as [$language, $page, $html]) {
+                preg_match_all("~<img\b[^>]*\bdata-src-dark=[^>]*>~i", $html, $images);
+                if (count($images[0]) !== 4) $fail("$language image count with data-src-dark=" . count($images[0]) . ", expected 4");
+                foreach ($images[0] as $tag) {
+                    $image = $attrs($tag);
+                    if (!isset($image["src"], $image["width"], $image["height"])) $fail("$language image missing src, width, or height: $tag");
+                    $svgPath = $resolve($page, $image["src"]);
+                    if (!$svgPath || !preg_match("~<svg\b[^>]*>~i", file_get_contents($svgPath), $svgTag)) $fail("$language cannot read SVG root for " . $image["src"]);
+                    $svg = $attrs($svgTag[0]);
+                    if (($image["width"] ?? "") !== ($svg["width"] ?? "") || ($image["height"] ?? "") !== ($svg["height"] ?? "")) $fail("$language image size {$image["src"]}={$image["width"]}x{$image["height"]}; SVG={$svg["width"]}x{$svg["height"]}");
+                }
+            }
+            echo "all 8 page diagram images match their SVG width and height"; exit(0);
         }
         switch ($name) {
         case "structure":
@@ -962,12 +977,8 @@ pages_check() {
         case "scroll": if (!preg_match("~\\.figure-scroll\\s*\\{[^}]*overflow-x\\s*:\\s*auto~s", $css) || !preg_match("~\\.figure-scroll img\\s*\\{[^}]*max-width\\s*:\\s*none~s", $css)) $fail("figure-scroll CSS contract missing"); echo "wide figures scroll within their containers"; break;
         case "contrast":
             preg_match("~:root\\s*\\{([^}]*)\\}~s", $css, $lightBlock); preg_match("~:root\\[data-theme=[\\\"\\x27]dark[\\\"\\x27]\\]\\s*\\{([^}]*)\\}~s", $css, $darkBlock); $vars = static function ($block): array { preg_match_all("~(--[a-z-]+)\\s*:\\s*(#[0-9a-fA-F]{6})\\s*;~", $block, $m, PREG_SET_ORDER); $out=[]; foreach ($m as $v) $out[$v[1]]=$v[2]; return $out; }; $lum = static function ($hex): float { $c=[]; for($i=1;$i<7;$i+=2){$v=hexdec(substr($hex,$i,2))/255;$c[]=$v<=.04045?$v/12.92:(($v+.055)/1.055)**2.4;} return $c[0]*.2126+$c[1]*.7152+$c[2]*.0722; }; foreach (["light"=>$vars($lightBlock[1]??""), "dark"=>array_replace($vars($lightBlock[1]??""), $vars($darkBlock[1]??""))] as $theme=>$v) foreach ([["--text","--bg"],["--muted","--bg"],["--primary","--bg"],["--text","--surface"],["--button-text","--button-bg"]] as [$fg,$bg]) { if(!isset($v[$fg],$v[$bg])) $fail("$theme missing $fg/$bg"); $ratio=(max($lum($v[$fg]),$lum($v[$bg]))+.05)/(min($lum($v[$fg]),$lum($v[$bg]))+.05); if($ratio<4.5)$fail("$theme $fg/$bg contrast $ratio"); } echo "five foreground/background pairs are at least 4.5:1 in both themes"; break;
-        case "content":
-            preg_match_all("~<h[23]\\b[^>]*>(.*?)</h[23]>~is", $zh, $headings); $actual = array_map(static fn($v) => trim(html_entity_decode(strip_tags($v), ENT_QUOTES | ENT_HTML5, "UTF-8")), $headings[1]); $required = ["系統簡介","技術棧","系統架構","資料庫結構","8 條外鍵一覽","兩個值得注意的設計","ER 圖（Chen 記法）","關聯綱目","功能清單與頁面路由","權限模型","在本機跑起來","Docker（一道指令）","不使用 Docker","五分鐘導覽","如何驗證它是對的"]; $cursor=0; foreach($actual as $heading) if($cursor<count($required) && $heading===$required[$cursor])$cursor++; if($cursor!==count($required))$fail("Chinese heading baseline missing or reordered"); $chars=$visible($zh); $tables=$count($zh,"~<table\\b~i"); $pres=$count($zh,"~<pre\\b~i"); if($chars<7650 || $tables<5 || $pres<8)$fail("visible=$chars tables=$tables code-blocks=$pres; expected >=7650, >=5, >=8"); echo "visible=$chars, headings=".count($actual).", tables=$tables, code-blocks=$pres"; break;
         case "parity":
             $segment = static function ($html): array { preg_match_all("~<section\\b[^>]*\\bid=[\\\"\\x27]([^\\\"\\x27]+)[\\\"\\x27][^>]*>(.*?)</section>~is", $html, $m, PREG_SET_ORDER); $out=[]; foreach($m as $s){$out[$s[1]]=[preg_match_all("~<table\\b~i",$s[2]),preg_match_all("~<pre\\b~i",$s[2]),preg_match_all("~<img\\b~i",$s[2]),preg_match_all("~\\bclass=[\\\"\\x27][^\\\"\\x27]*\\bmermaid\\b~i",$s[2])];} return $out; }; if($segment($zh)!==$segment($en))$fail("section table/code/image/Mermaid counts differ"); echo "per-section tables, code blocks, images, and Mermaid blocks match"; break;
-        case "numbers":
-            $smoke=file_get_contents("$root/scripts/smoke.sh"); preg_match("~for check in \\\\?(.*?); do~s",$smoke,$list); preg_match_all("~\\x27[^\\x27]+\\x27~",$list[1]??"",$registered); $expected=count($registered[0]); foreach(["README.md","docs/index.html","docs/en/index.html"] as $relative){$doc=file_get_contents("$root/$relative"); preg_match_all("~(\\d+)\\s*(?:項(?:可重跑的)?檢查|smoke checks)~u",$doc,$found); if(!$found[1])$fail("$relative has no documented check count"); foreach($found[1] as $n)if((int)$n!==$expected)$fail("$relative documents $n checks; registered=$expected");} echo "documented check count=$expected"; break;
         default: $fail("unknown pages check: $name");
         }
     ' "$APP_DIR" "$name" 2>&1)" || { CHECK_DETAIL="$output"; return 1; }
@@ -985,6 +996,7 @@ check_pages_alternate() { pages_check alternate; }
 check_pages_relative_links() { pages_check relative-links; }
 check_pages_scroll() { pages_check scroll; }
 check_pages_contrast() { pages_check contrast; }
+check_pages_image_size() { pages_check image-size; }
 check_pages_content() { pages_check content; }
 check_pages_parity() { pages_check parity; }
 check_docs_numbers() { pages_check numbers; }
@@ -1029,6 +1041,7 @@ for check in \
     'PAGES-10 check_pages_relative_links' \
     'PAGES-11 check_pages_scroll' \
     'PAGES-12 check_pages_contrast' \
+    'PAGES-IMGSIZE check_pages_image_size' \
     'PAGES-CONTENT check_pages_content' \
     'PAGES-PARITY check_pages_parity' \
     'DOCS-NUMBERS check_docs_numbers' \

@@ -40,6 +40,17 @@
     return renderQueue;
   }
 
+  function restoreHashPosition() {
+    var target = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
+
+  function restoreHashAfterLoad(rendered) {
+    window.addEventListener('load', function () {
+      rendered.then(restoreHashPosition);
+    }, { once: true });
+  }
+
   languageLink.addEventListener('click', function (event) {
     event.preventDefault();
     var destination = new URL(languageLink.getAttribute('href'), location.href);
@@ -55,7 +66,8 @@
   updateToggle(); updateImages();
   if (typeof mermaid === 'undefined') {
     diagrams.forEach(function (diagram) { var pre = document.createElement('pre'); pre.textContent = diagram.dataset.source; diagram.replaceWith(pre); });
+    restoreHashAfterLoad(Promise.resolve());
     return;
   }
-  renderDiagrams();
+  restoreHashAfterLoad(renderDiagrams());
 }());

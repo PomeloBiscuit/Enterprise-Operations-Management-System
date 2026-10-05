@@ -14,7 +14,7 @@
   --warn: #f7d58b; --code-bg: #263744; --pre-bg: #0a1117; --pre-text: #e6edf3;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+html { scroll-padding-top: 64px; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.75; -webkit-font-smoothing: antialiased; }
 a { color: var(--primary); text-decoration: none; }
 a:hover { color: var(--primary-dark); text-decoration: underline; }
