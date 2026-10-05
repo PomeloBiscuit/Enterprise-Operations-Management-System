@@ -887,6 +887,108 @@ check_diagrams() {
     CHECK_DETAIL="自我檢查通過；16 個 SVG 與重產結果位元組一致"
 }
 
+# GitHub Pages 是靜態檔，不經 PHP 路由。這 12 項各自列印結果，避免一個大檢查掩蓋契約遺漏。
+pages_check() {
+    local name="$1" output
+    output="$(php -r '
+        $root = rtrim($argv[1], "/"); $name = $argv[2];
+        $paths = ["zh" => "$root/docs/index.html", "en" => "$root/docs/en/index.html", "css" => "$root/docs/assets/site.css"];
+        foreach ($paths as $label => $path) if (!is_file($path)) { fwrite(STDERR, "missing $label file: $path\\n"); exit(1); }
+        $zh = file_get_contents($paths["zh"]); $en = file_get_contents($paths["en"]); $css = file_get_contents($paths["css"]);
+        $fail = static function ($message): void { fwrite(STDERR, $message . "\\n"); exit(1); };
+        $sections = static function ($html): array { preg_match_all("~<section\\b[^>]*\\bid=[\\\"\\x27]([^\\\"\\x27]+)[\\\"\\x27]~i", $html, $m); return $m[1]; };
+        $count = static function ($html, $pattern): int { preg_match_all($pattern, $html, $m); return count($m[0]); };
+        $attrs = static function ($tag): array { preg_match_all("~\\s([a-zA-Z_:][-a-zA-Z0-9_:.]*)\\s*=\\s*([\\\"\\x27])([^\\2]*?)\\2~", $tag, $m, PREG_SET_ORDER); $out = []; foreach ($m as $v) $out[strtolower($v[1])] = $v[3]; return $out; };
+        $resolve = static function ($page, $value): string { return realpath(dirname($page) . "/" . explode("#", $value, 2)[0]) ?: ""; };
+        $visible = static function ($html): int { $html = preg_replace("~<(?:script|style)\\b[^>]*>.*?</(?:script|style)>~is", "", $html); $html = preg_replace("~<pre\\b[^>]*\\bclass=[\\\"\\x27][^\\\"\\x27]*\\bmermaid\\b[^\\\"\\x27]*[\\\"\\x27][^>]*>.*?</pre>~is", "", $html); $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, "UTF-8"); return mb_strlen(preg_replace("~\\s+~u", "", $text), "UTF-8"); };
+        if ($name === "bootstrap") {
+            foreach (["zh" => $zh, "en" => $en] as $language => $html) {
+                preg_match("~<head[^>]*>(.*?)</head>~is", $html, $head);
+                $script = strpos($head[1] ?? "", "localStorage.getItem");
+                $link = strpos($head[1] ?? "", "site.css");
+                if ($script === false || $link === false || $script > $link || !str_contains($head[1], "prefers-color-scheme: dark") || !str_contains($head[1], "document.documentElement.dataset.theme")) $fail("$language bootstrap is after stylesheet or incomplete");
+            }
+            echo "theme bootstrap precedes stylesheet"; exit(0);
+        }
+        if ($name === "content") {
+            preg_match_all("~<h[23][^>]*>(.*?)</h[23]>~is", $zh, $headings);
+            $actual = array_map(static fn($v) => trim(html_entity_decode(strip_tags($v), ENT_QUOTES | ENT_HTML5, "UTF-8")), $headings[1]);
+            $required = ["系統簡介","技術棧","系統架構","資料庫結構","8 條外鍵一覽","兩個值得注意的設計","ER 圖（Chen 記法）","關聯綱目","功能清單與頁面路由","權限模型","在本機跑起來","Docker（一道指令）","不使用 Docker","五分鐘導覽","如何驗證它是對的"];
+            $cursor = 0; foreach ($actual as $heading) if ($cursor < count($required) && $heading === $required[$cursor]) $cursor++;
+            $copy = preg_replace("~<(?:script|style)[^>]*>.*?</(?:script|style)>~is", "", $zh);
+            $copy = preg_replace("~<pre[^>]*class=[^>]*mermaid[^>]*>.*?</pre>~is", "", $copy);
+            $visibleBytes = strlen(preg_replace("~\s+~u", "", html_entity_decode(strip_tags($copy), ENT_QUOTES | ENT_HTML5, "UTF-8")));
+            $tables = $count($zh, "~<table\\b~i"); $pres = $count($zh, "~<pre\\b~i");
+            if ($cursor !== count($required) || $visibleBytes < 7650 || $tables < 5 || $pres < 8) $fail("visible=$visibleBytes headings=$cursor tables=$tables code-blocks=$pres; expected baseline, >=7650, >=5, >=8");
+            echo "visible=$visibleBytes, headings=".count($actual).", tables=$tables, code-blocks=$pres"; exit(0);
+        }
+        if ($name === "numbers") {
+            $smoke = file_get_contents("$root/scripts/smoke.sh"); $start = strrpos($smoke, "for check in"); $end = strpos($smoke, "; do", $start);
+            if ($start === false || $end === false) $fail("cannot locate smoke check registry");
+            preg_match_all("~\x27[^\x27]+\x27~", substr($smoke, $start, $end - $start), $registered); $expected = count($registered[0]);
+            foreach (["README.md", "docs/index.html", "docs/en/index.html"] as $relative) {
+                $doc = file_get_contents("$root/$relative");
+                preg_match_all("~(\d+)\s*(?:項(?:可重跑的)?檢查|(?:repeatable )?smoke checks)~u", $doc, $found);
+                if (!$found[1]) $fail("$relative has no documented check count");
+                foreach ($found[1] as $n) if ((int) $n !== $expected) $fail("$relative documents $n checks; registered=$expected");
+            }
+            echo "documented check count=$expected"; exit(0);
+        }
+        switch ($name) {
+        case "structure":
+            if (!preg_match("~<html\\b[^>]*\\blang=[\\\"\\x27]zh-Hant[\\\"\\x27]~i", $zh) || !preg_match("~<html\\b[^>]*\\blang=[\\\"\\x27]en[\\\"\\x27]~i", $en)) $fail("page languages are incorrect");
+            if (!$sections($zh) || $sections($zh) !== $sections($en)) $fail("section id sequences differ"); echo "sections=" . implode(",", $sections($zh)); break;
+        case "content-parity":
+            $stats = static function ($html) use ($count): array { return [$count($html, "~<img\\b~i"), $count($html, "~\\bclass=[\\\"\\x27][^\\\"\\x27]*\\bmermaid\\b~i")]; };
+            if ($stats($zh) !== $stats($en)) $fail("page image or Mermaid totals differ"); echo "images=" . $stats($zh)[0] . ", mermaid=" . $stats($zh)[1]; break;
+        case "english-cjk":
+            if (!preg_match("~<a\\b[^>]*\\bid=[\\\"\\x27]eoms-language-toggle[\\\"\\x27][^>]*>中文</a>~", $en)) $fail("English language control is not exactly the allowed label");
+            $masked = preg_replace("~(<a\\b[^>]*\\bid=[\\\"\\x27]eoms-language-toggle[\\\"\\x27][^>]*>)中文(</a>)~", "$1__$2", $en);
+            if (preg_match("~[\\x{3000}-\\x{303F}\\x{3400}-\\x{9FFF}\\x{F900}-\\x{FAFF}\\x{FF00}-\\x{FFEF}]~u", $masked, $bad)) $fail("unexpected CJK/full-width character " . $bad[0]); echo "English CJK=0 outside language label"; break;
+        case "variants":
+            foreach ([["zh", $paths["zh"], $zh], ["en", $paths["en"], $en]] as [$language, $page, $html]) { preg_match_all("~<img\\b[^>]*>~i", $html, $tags); foreach ($tags[0] as $tag) { $a = $attrs($tag); if (!str_contains($a["src"] ?? "", "diagrams/")) continue; if (!isset($a["data-src-dark"]) || !str_contains($a["src"], "-$language-light.svg") || !str_contains($a["data-src-dark"], "-$language-dark.svg") || !$resolve($page, $a["src"]) || !$resolve($page, $a["data-src-dark"])) $fail("$language invalid or missing diagram variant"); } } echo "all diagram language/theme variants exist"; break;
+        case "data-figures":
+            foreach ([["zh", $zh], ["en", $en]] as [$language, $html]) { preg_match_all("~<img\\b[^>]*\\bsrc=[\\\"\\x27]([^\\\"\\x27]*diagrams/[^\\\"\\x27]+)[\\\"\\x27][^>]*>~i", $html, $tags); $stems = ["er-orders", "er-fulfillment", "er-system", "relational-schema"]; if (count($tags[1]) !== 4) $fail("$language figure count is not four"); foreach ($stems as $i => $stem) if (!str_contains($tags[1][$i], "$stem-$language-light.svg")) $fail("$language figure order wrong at $i"); } echo "four generated figures are in required order"; break;
+        case "navigation":
+            foreach (["zh" => $zh, "en" => $en] as $language => $html) { if (!preg_match("~<div\\b[^>]*\\bclass=[\\\"\\x27][^\\\"\\x27]*\\bnav-links\\b[^\\\"\\x27]*[\\\"\\x27][^>]*>(.*?)</div>.*?<div\\b[^>]*\\bclass=[\\\"\\x27][^\\\"\\x27]*\\bnav-tools\\b[^\\\"\\x27]*[\\\"\\x27][^>]*>(.*?)</div>~is", $html, $m) || str_contains($m[1], "eoms-theme-toggle") || str_contains($m[1], "eoms-language-toggle") || !str_contains($m[2], "eoms-theme-toggle") || !str_contains($m[2], "eoms-language-toggle")) $fail("$language controls are in the wrong navigation container"); } echo "controls are outside scrollable links"; break;
+        case "controls":
+            foreach ([["zh", $paths["zh"], "en"], ["en", $paths["en"], "zh-Hant"]] as [$language, $page, $target]) { $html = file_get_contents($page); if (!preg_match("~<a\\b[^>]*\\bid=[\\\"\\x27]eoms-language-toggle[\\\"\\x27][^>]*>[^<]+</a>~i", $html, $m)) $fail("$language language control missing"); $a = $attrs($m[0]); if (($a["hreflang"] ?? "") !== $target || !$resolve($page, $a["href"] ?? "")) $fail("$language language target invalid"); if (!preg_match("~<button\\b[^>]*\\bid=[\\\"\\x27]eoms-theme-toggle[\\\"\\x27][^>]*\\baria-pressed=[^>]*>[^<]*</button>~i", $html)) $fail("$language theme control missing or inaccessible"); } echo "language and theme controls exist"; break;
+        case "bootstrap":
+            foreach (["zh" => $zh, "en" => $en] as $language => $html) { preg_match("~<head\\b[^>]*>(.*?)</head>~is", $html, $head); $script = strpos($head[1] ?? "", "localStorage.getItem"); $link = strpos($head[1] ?? "", "rel=\\\"stylesheet\\\""); if ($script === false || $link === false || $script > $link || !str_contains($head[1], "prefers-color-scheme: dark") || !str_contains($head[1], "document.documentElement.dataset.theme")) $fail("$language bootstrap is after stylesheet or incomplete"); } echo "theme bootstrap precedes stylesheet"; break;
+        case "alternate":
+            foreach ([["zh", $paths["zh"], $paths["en"], "en"], ["en", $paths["en"], $paths["zh"], "zh-Hant"]] as [$language, $page, $targetPath, $targetLanguage]) { $html = file_get_contents($page); preg_match_all("~<link\\b[^>]*\\brel=[\\\"\\x27]alternate[\\\"\\x27][^>]*>~i", $html, $m); if (count($m[0]) !== 1) $fail("$language alternate count is not one"); $a = $attrs($m[0][0]); if (($a["hreflang"] ?? "") !== $targetLanguage || $resolve($page, $a["href"] ?? "") !== realpath($targetPath)) $fail("$language alternate is not reciprocal"); } echo "alternate language links are reciprocal"; break;
+        case "relative-links":
+            foreach ($paths as $language => $page) { if ($language === "css") continue; $html = file_get_contents($page); preg_match_all("~<(?:a|link|img|script)\\b[^>]*>~i", $html, $tags); foreach ($tags[0] as $tag) { $a = $attrs($tag); foreach (["href", "src", "data-src-dark"] as $key) { $v = $a[$key] ?? null; if ($v === null || str_starts_with($v, "#") || str_contains($v, "://")) continue; if (!$resolve($page, $v)) $fail("$language missing relative $key=$v"); } } } echo "all relative links resolve"; break;
+        case "scroll": if (!preg_match("~\\.figure-scroll\\s*\\{[^}]*overflow-x\\s*:\\s*auto~s", $css) || !preg_match("~\\.figure-scroll img\\s*\\{[^}]*max-width\\s*:\\s*none~s", $css)) $fail("figure-scroll CSS contract missing"); echo "wide figures scroll within their containers"; break;
+        case "contrast":
+            preg_match("~:root\\s*\\{([^}]*)\\}~s", $css, $lightBlock); preg_match("~:root\\[data-theme=[\\\"\\x27]dark[\\\"\\x27]\\]\\s*\\{([^}]*)\\}~s", $css, $darkBlock); $vars = static function ($block): array { preg_match_all("~(--[a-z-]+)\\s*:\\s*(#[0-9a-fA-F]{6})\\s*;~", $block, $m, PREG_SET_ORDER); $out=[]; foreach ($m as $v) $out[$v[1]]=$v[2]; return $out; }; $lum = static function ($hex): float { $c=[]; for($i=1;$i<7;$i+=2){$v=hexdec(substr($hex,$i,2))/255;$c[]=$v<=.04045?$v/12.92:(($v+.055)/1.055)**2.4;} return $c[0]*.2126+$c[1]*.7152+$c[2]*.0722; }; foreach (["light"=>$vars($lightBlock[1]??""), "dark"=>array_replace($vars($lightBlock[1]??""), $vars($darkBlock[1]??""))] as $theme=>$v) foreach ([["--text","--bg"],["--muted","--bg"],["--primary","--bg"],["--text","--surface"],["--button-text","--button-bg"]] as [$fg,$bg]) { if(!isset($v[$fg],$v[$bg])) $fail("$theme missing $fg/$bg"); $ratio=(max($lum($v[$fg]),$lum($v[$bg]))+.05)/(min($lum($v[$fg]),$lum($v[$bg]))+.05); if($ratio<4.5)$fail("$theme $fg/$bg contrast $ratio"); } echo "five foreground/background pairs are at least 4.5:1 in both themes"; break;
+        case "content":
+            preg_match_all("~<h[23]\\b[^>]*>(.*?)</h[23]>~is", $zh, $headings); $actual = array_map(static fn($v) => trim(html_entity_decode(strip_tags($v), ENT_QUOTES | ENT_HTML5, "UTF-8")), $headings[1]); $required = ["系統簡介","技術棧","系統架構","資料庫結構","8 條外鍵一覽","兩個值得注意的設計","ER 圖（Chen 記法）","關聯綱目","功能清單與頁面路由","權限模型","在本機跑起來","Docker（一道指令）","不使用 Docker","五分鐘導覽","如何驗證它是對的"]; $cursor=0; foreach($actual as $heading) if($cursor<count($required) && $heading===$required[$cursor])$cursor++; if($cursor!==count($required))$fail("Chinese heading baseline missing or reordered"); $chars=$visible($zh); $tables=$count($zh,"~<table\\b~i"); $pres=$count($zh,"~<pre\\b~i"); if($chars<7650 || $tables<5 || $pres<8)$fail("visible=$chars tables=$tables code-blocks=$pres; expected >=7650, >=5, >=8"); echo "visible=$chars, headings=".count($actual).", tables=$tables, code-blocks=$pres"; break;
+        case "parity":
+            $segment = static function ($html): array { preg_match_all("~<section\\b[^>]*\\bid=[\\\"\\x27]([^\\\"\\x27]+)[\\\"\\x27][^>]*>(.*?)</section>~is", $html, $m, PREG_SET_ORDER); $out=[]; foreach($m as $s){$out[$s[1]]=[preg_match_all("~<table\\b~i",$s[2]),preg_match_all("~<pre\\b~i",$s[2]),preg_match_all("~<img\\b~i",$s[2]),preg_match_all("~\\bclass=[\\\"\\x27][^\\\"\\x27]*\\bmermaid\\b~i",$s[2])];} return $out; }; if($segment($zh)!==$segment($en))$fail("section table/code/image/Mermaid counts differ"); echo "per-section tables, code blocks, images, and Mermaid blocks match"; break;
+        case "numbers":
+            $smoke=file_get_contents("$root/scripts/smoke.sh"); preg_match("~for check in \\\\?(.*?); do~s",$smoke,$list); preg_match_all("~\\x27[^\\x27]+\\x27~",$list[1]??"",$registered); $expected=count($registered[0]); foreach(["README.md","docs/index.html","docs/en/index.html"] as $relative){$doc=file_get_contents("$root/$relative"); preg_match_all("~(\\d+)\\s*(?:項(?:可重跑的)?檢查|smoke checks)~u",$doc,$found); if(!$found[1])$fail("$relative has no documented check count"); foreach($found[1] as $n)if((int)$n!==$expected)$fail("$relative documents $n checks; registered=$expected");} echo "documented check count=$expected"; break;
+        default: $fail("unknown pages check: $name");
+        }
+    ' "$APP_DIR" "$name" 2>&1)" || { CHECK_DETAIL="$output"; return 1; }
+    CHECK_DETAIL="$output"
+}
+check_pages_structure() { pages_check structure; }
+check_pages_content_parity() { pages_check content-parity; }
+check_pages_english_cjk() { pages_check english-cjk; }
+check_pages_variants() { pages_check variants; }
+check_pages_data_figures() { pages_check data-figures; }
+check_pages_navigation() { pages_check navigation; }
+check_pages_controls() { pages_check controls; }
+check_pages_bootstrap() { pages_check bootstrap; }
+check_pages_alternate() { pages_check alternate; }
+check_pages_relative_links() { pages_check relative-links; }
+check_pages_scroll() { pages_check scroll; }
+check_pages_contrast() { pages_check contrast; }
+check_pages_content() { pages_check content; }
+check_pages_parity() { pages_check parity; }
+check_docs_numbers() { pages_check numbers; }
+
 # 將 log 範圍限定為本次 smoke 的 HTTP 請求；entrypoint 會持續鏡像 Apache stderr 到此檔。
 : > "$APACHE_ERROR_LOG"
 
@@ -915,6 +1017,21 @@ for check in \
     'ROUTES check_routes' \
     'I18N-EN-CJK check_i18n_english_no_cjk' \
     'DIAGRAMS check_diagrams' \
+    'PAGES-1 check_pages_structure' \
+    'PAGES-2 check_pages_content_parity' \
+    'PAGES-3 check_pages_english_cjk' \
+    'PAGES-4 check_pages_variants' \
+    'PAGES-5 check_pages_data_figures' \
+    'PAGES-6 check_pages_navigation' \
+    'PAGES-7 check_pages_controls' \
+    'PAGES-8 check_pages_bootstrap' \
+    'PAGES-9 check_pages_alternate' \
+    'PAGES-10 check_pages_relative_links' \
+    'PAGES-11 check_pages_scroll' \
+    'PAGES-12 check_pages_contrast' \
+    'PAGES-CONTENT check_pages_content' \
+    'PAGES-PARITY check_pages_parity' \
+    'DOCS-NUMBERS check_docs_numbers' \
     '11 check_error_log' \
     '12 check_git_hygiene'; do
     number="${check%% *}"
