@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1289" height="1496" viewBox="0 0 1289 1496" role="img">
+<svg xmlns="http://www.w3.org/2000/svg" width="1289" height="1540" viewBox="0 0 1289 1540" role="img">
 <title>system Chen ER</title>
 <desc>User accounts and party masters have no foreign keys.</desc>
-<rect data-element="canvas" x="0" y="0" width="1289" height="1496" fill="#151b23"/>
+<rect data-element="canvas" x="0" y="0" width="1289" height="1540" fill="#151b23"/>
 <line data-line="entity:orderandinvoice--attribute:orderandinvoice:id" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:id" x1="257" y1="162" x2="223" y2="42" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="entity:orderandinvoice--attribute:orderandinvoice:order_number" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:order_number" x1="257" y1="170" x2="223" y2="90" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="entity:orderandinvoice--attribute:orderandinvoice:invoice_number" data-owner="entity:orderandinvoice" data-target="attribute:orderandinvoice:invoice_number" x1="257" y1="178" x2="223" y2="138" stroke="#9ab6d3" stroke-width="1.5"/>
@@ -30,31 +30,31 @@
 <line data-line="entity:Product--attribute:Product:ProductName" data-owner="entity:Product" data-target="attribute:Product:ProductName" x1="1089" y1="630.8" x2="1123" y2="612" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="entity:Product--attribute:Product:ProductCategory" data-owner="entity:Product" data-target="attribute:Product:ProductCategory" x1="1089" y1="641.2" x2="1123" y2="660" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="entity:Product--attribute:Product:UnitPrice" data-owner="entity:Product" data-target="attribute:Product:UnitPrice" x1="1089" y1="651.6" x2="1123" y2="708" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:prikey" data-owner="entity:User" data-target="attribute:User:prikey" x1="235.5" y1="1034" x2="201.5" y2="774" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:datechg" data-owner="entity:User" data-target="attribute:User:datechg" x1="235.5" y1="1042" x2="201.5" y2="822" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:dateadd" data-owner="entity:User" data-target="attribute:User:dateadd" x1="235.5" y1="1050" x2="201.5" y2="870" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:name" data-owner="entity:User" data-target="attribute:User:name" x1="235.5" y1="1058" x2="201.5" y2="918" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:id" data-owner="entity:User" data-target="attribute:User:id" x1="235.5" y1="1066" x2="201.5" y2="966" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:pw" data-owner="entity:User" data-target="attribute:User:pw" x1="235.5" y1="1074" x2="201.5" y2="1014" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:phone" data-owner="entity:User" data-target="attribute:User:phone" x1="235.5" y1="1082" x2="201.5" y2="1062" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:phonem" data-owner="entity:User" data-target="attribute:User:phonem" x1="235.5" y1="1090" x2="201.5" y2="1110" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:email" data-owner="entity:User" data-target="attribute:User:email" x1="235.5" y1="1098" x2="201.5" y2="1158" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:enabled" data-owner="entity:User" data-target="attribute:User:enabled" x1="235.5" y1="1106" x2="201.5" y2="1206" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:open" data-owner="entity:User" data-target="attribute:User:open" x1="235.5" y1="1114" x2="201.5" y2="1254" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:status" data-owner="entity:User" data-target="attribute:User:status" x1="235.5" y1="1122" x2="201.5" y2="1302" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:limited" data-owner="entity:User" data-target="attribute:User:limited" x1="235.5" y1="1130" x2="201.5" y2="1350" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:User--attribute:User:party_type" data-owner="entity:User" data-target="attribute:User:party_type" x1="235.5" y1="1138" x2="201.5" y2="1398" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:prikey" data-owner="entity:admin" data-target="attribute:admin:prikey" x1="1110.5" y1="1046" x2="1144.5" y2="846" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fc" data-owner="entity:admin" data-target="attribute:admin:fc" x1="1110.5" y1="1054" x2="1144.5" y2="894" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fcname" data-owner="entity:admin" data-target="attribute:admin:fcname" x1="1110.5" y1="1062" x2="1144.5" y2="942" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fcaddress" data-owner="entity:admin" data-target="attribute:admin:fcaddress" x1="1110.5" y1="1070" x2="1144.5" y2="990" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fcphone" data-owner="entity:admin" data-target="attribute:admin:fcphone" x1="1110.5" y1="1078" x2="1144.5" y2="1038" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fcphonem" data-owner="entity:admin" data-target="attribute:admin:fcphonem" x1="1110.5" y1="1086" x2="1144.5" y2="1086" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fcemail" data-owner="entity:admin" data-target="attribute:admin:fcemail" x1="1110.5" y1="1094" x2="1144.5" y2="1134" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:fcid" data-owner="entity:admin" data-target="attribute:admin:fcid" x1="1110.5" y1="1102" x2="1144.5" y2="1182" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:enabled" data-owner="entity:admin" data-target="attribute:admin:enabled" x1="1110.5" y1="1110" x2="1144.5" y2="1230" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:open" data-owner="entity:admin" data-target="attribute:admin:open" x1="1110.5" y1="1118" x2="1144.5" y2="1278" stroke="#9ab6d3" stroke-width="1.5"/>
-<line data-line="entity:admin--attribute:admin:status" data-owner="entity:admin" data-target="attribute:admin:status" x1="1110.5" y1="1126" x2="1144.5" y2="1326" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:prikey" data-owner="entity:User" data-target="attribute:User:prikey" x1="235.5" y1="1078" x2="201.5" y2="818" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:datechg" data-owner="entity:User" data-target="attribute:User:datechg" x1="235.5" y1="1086" x2="201.5" y2="866" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:dateadd" data-owner="entity:User" data-target="attribute:User:dateadd" x1="235.5" y1="1094" x2="201.5" y2="914" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:name" data-owner="entity:User" data-target="attribute:User:name" x1="235.5" y1="1102" x2="201.5" y2="962" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:id" data-owner="entity:User" data-target="attribute:User:id" x1="235.5" y1="1110" x2="201.5" y2="1010" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:pw" data-owner="entity:User" data-target="attribute:User:pw" x1="235.5" y1="1118" x2="201.5" y2="1058" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:phone" data-owner="entity:User" data-target="attribute:User:phone" x1="235.5" y1="1126" x2="201.5" y2="1106" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:phonem" data-owner="entity:User" data-target="attribute:User:phonem" x1="235.5" y1="1134" x2="201.5" y2="1154" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:email" data-owner="entity:User" data-target="attribute:User:email" x1="235.5" y1="1142" x2="201.5" y2="1202" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:enabled" data-owner="entity:User" data-target="attribute:User:enabled" x1="235.5" y1="1150" x2="201.5" y2="1250" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:open" data-owner="entity:User" data-target="attribute:User:open" x1="235.5" y1="1158" x2="201.5" y2="1298" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:status" data-owner="entity:User" data-target="attribute:User:status" x1="235.5" y1="1166" x2="201.5" y2="1346" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:limited" data-owner="entity:User" data-target="attribute:User:limited" x1="235.5" y1="1174" x2="201.5" y2="1394" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:User--attribute:User:party_type" data-owner="entity:User" data-target="attribute:User:party_type" x1="235.5" y1="1182" x2="201.5" y2="1442" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:prikey" data-owner="entity:admin" data-target="attribute:admin:prikey" x1="1110.5" y1="1090" x2="1144.5" y2="890" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fc" data-owner="entity:admin" data-target="attribute:admin:fc" x1="1110.5" y1="1098" x2="1144.5" y2="938" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcname" data-owner="entity:admin" data-target="attribute:admin:fcname" x1="1110.5" y1="1106" x2="1144.5" y2="986" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcaddress" data-owner="entity:admin" data-target="attribute:admin:fcaddress" x1="1110.5" y1="1114" x2="1144.5" y2="1034" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcphone" data-owner="entity:admin" data-target="attribute:admin:fcphone" x1="1110.5" y1="1122" x2="1144.5" y2="1082" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcphonem" data-owner="entity:admin" data-target="attribute:admin:fcphonem" x1="1110.5" y1="1130" x2="1144.5" y2="1130" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcemail" data-owner="entity:admin" data-target="attribute:admin:fcemail" x1="1110.5" y1="1138" x2="1144.5" y2="1178" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:fcid" data-owner="entity:admin" data-target="attribute:admin:fcid" x1="1110.5" y1="1146" x2="1144.5" y2="1226" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:enabled" data-owner="entity:admin" data-target="attribute:admin:enabled" x1="1110.5" y1="1154" x2="1144.5" y2="1274" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:open" data-owner="entity:admin" data-target="attribute:admin:open" x1="1110.5" y1="1162" x2="1144.5" y2="1322" stroke="#9ab6d3" stroke-width="1.5"/>
+<line data-line="entity:admin--attribute:admin:status" data-owner="entity:admin" data-target="attribute:admin:status" x1="1110.5" y1="1170" x2="1144.5" y2="1370" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="relationship:CONTAINS--attribute:CONTAINS:Quantity" data-owner="relationship:CONTAINS" data-target="attribute:CONTAINS:Quantity" x1="858" y1="605" x2="858" y2="504" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="relationship:PLACES:Customer:0" data-owner="entity:Customer" data-target="relationship:PLACES" x1="353.5" y1="636" x2="431" y2="636" stroke="#9ab6d3" stroke-width="1.5"/>
 <line data-line="relationship:PLACES:Orders:0" data-owner="entity:Orders" data-target="relationship:PLACES" x1="637" y1="636" x2="545" y2="636" stroke="#9ab6d3" stroke-width="1.5"/>
@@ -138,60 +138,60 @@
 <text data-text-for="attribute:Product:ProductCategory" x="1168.5" y="665" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Category</text>
 <ellipse data-element="attribute:Product:UnitPrice" cx="1175" cy="708" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
 <text data-text-for="attribute:Product:UnitPrice" x="1175" y="713" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Unit price</text>
-<rect data-element="entity:User" x="235.5" y="1026" width="135" height="120" fill="#263140" stroke="#9ab6d3"/>
-<text data-text-for="entity:User" x="303" y="1091" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">User account</text>
-<ellipse data-element="attribute:User:prikey" cx="154" cy="774" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:prikey" x="154" y="779" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
-<ellipse data-element="attribute:User:datechg" cx="149.5" cy="822" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:datechg" x="149.5" y="827" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Updated at</text>
-<ellipse data-element="attribute:User:dateadd" cx="149.5" cy="870" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:dateadd" x="149.5" y="875" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Created at</text>
-<ellipse data-element="attribute:User:name" cx="172.5" cy="918" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:name" x="172.5" y="923" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
-<ellipse data-element="attribute:User:id" cx="158" cy="966" rx="43.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:id" x="158" y="971" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Login ID</text>
-<ellipse data-element="attribute:User:pw" cx="137.5" cy="1014" rx="64" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:pw" x="137.5" y="1019" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Password hash</text>
-<ellipse data-element="attribute:User:phone" cx="168.5" cy="1062" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:phone" x="168.5" y="1067" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
-<ellipse data-element="attribute:User:phonem" cx="164.5" cy="1110" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:phonem" x="164.5" y="1115" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Mobile</text>
-<ellipse data-element="attribute:User:email" cx="162.5" cy="1158" rx="39" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:email" x="162.5" y="1163" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Email</text>
-<ellipse data-element="attribute:User:enabled" cx="160" cy="1206" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:enabled" x="160" y="1211" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Enabled</text>
-<ellipse data-element="attribute:User:open" cx="172.5" cy="1254" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:open" x="172.5" y="1259" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Open</text>
-<ellipse data-element="attribute:User:status" cx="164.5" cy="1302" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:status" x="164.5" y="1307" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
-<ellipse data-element="attribute:User:limited" cx="172.5" cy="1350" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:limited" x="172.5" y="1355" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Role</text>
-<ellipse data-element="attribute:User:party_type" cx="149.5" cy="1398" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:User:party_type" x="149.5" y="1403" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Party type</text>
-<rect data-element="entity:admin" x="975.5" y="1038" width="135" height="96" fill="#263140" stroke="#9ab6d3"/>
-<text data-text-for="entity:admin" x="1043" y="1091" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Party master</text>
-<ellipse data-element="attribute:admin:prikey" cx="1192" cy="846" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:prikey" x="1192" y="851" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
-<ellipse data-element="attribute:admin:fc" cx="1173.5" cy="894" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fc" x="1173.5" y="899" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Type</text>
-<ellipse data-element="attribute:admin:fcname" cx="1173.5" cy="942" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fcname" x="1173.5" y="947" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
-<ellipse data-element="attribute:admin:fcaddress" cx="1186" cy="990" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fcaddress" x="1186" y="995" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Address</text>
-<ellipse data-element="attribute:admin:fcphone" cx="1177.5" cy="1038" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fcphone" x="1177.5" y="1043" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
-<ellipse data-element="attribute:admin:fcphonem" cx="1181.5" cy="1086" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fcphonem" x="1181.5" y="1091" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Mobile</text>
-<ellipse data-element="attribute:admin:fcemail" cx="1183.5" cy="1134" rx="39" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fcemail" x="1183.5" y="1139" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Email</text>
-<ellipse data-element="attribute:admin:fcid" cx="1204.5" cy="1182" rx="60" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:fcid" x="1204.5" y="1187" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Reference ID</text>
-<ellipse data-element="attribute:admin:enabled" cx="1186" cy="1230" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:enabled" x="1186" y="1235" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Enabled</text>
-<ellipse data-element="attribute:admin:open" cx="1173.5" cy="1278" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:open" x="1173.5" y="1283" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Open</text>
-<ellipse data-element="attribute:admin:status" cx="1181.5" cy="1326" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
-<text data-text-for="attribute:admin:status" x="1181.5" y="1331" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
+<rect data-element="entity:User" x="235.5" y="1070" width="135" height="120" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:User" x="303" y="1135" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">User account</text>
+<ellipse data-element="attribute:User:prikey" cx="154" cy="818" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:prikey" x="154" y="823" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
+<ellipse data-element="attribute:User:datechg" cx="149.5" cy="866" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:datechg" x="149.5" y="871" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Updated at</text>
+<ellipse data-element="attribute:User:dateadd" cx="149.5" cy="914" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:dateadd" x="149.5" y="919" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Created at</text>
+<ellipse data-element="attribute:User:name" cx="172.5" cy="962" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:name" x="172.5" y="967" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<ellipse data-element="attribute:User:id" cx="158" cy="1010" rx="43.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:id" x="158" y="1015" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Login ID</text>
+<ellipse data-element="attribute:User:pw" cx="137.5" cy="1058" rx="64" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:pw" x="137.5" y="1063" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Password hash</text>
+<ellipse data-element="attribute:User:phone" cx="168.5" cy="1106" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:phone" x="168.5" y="1111" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
+<ellipse data-element="attribute:User:phonem" cx="164.5" cy="1154" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:phonem" x="164.5" y="1159" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Mobile</text>
+<ellipse data-element="attribute:User:email" cx="162.5" cy="1202" rx="39" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:email" x="162.5" y="1207" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Email</text>
+<ellipse data-element="attribute:User:enabled" cx="160" cy="1250" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:enabled" x="160" y="1255" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Enabled</text>
+<ellipse data-element="attribute:User:open" cx="172.5" cy="1298" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:open" x="172.5" y="1303" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Open</text>
+<ellipse data-element="attribute:User:status" cx="164.5" cy="1346" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:status" x="164.5" y="1351" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
+<ellipse data-element="attribute:User:limited" cx="172.5" cy="1394" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:limited" x="172.5" y="1399" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Role</text>
+<ellipse data-element="attribute:User:party_type" cx="149.5" cy="1442" rx="52" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:User:party_type" x="149.5" y="1447" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Party type</text>
+<rect data-element="entity:admin" x="975.5" y="1082" width="135" height="96" fill="#263140" stroke="#9ab6d3"/>
+<text data-text-for="entity:admin" x="1043" y="1135" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Party master</text>
+<ellipse data-element="attribute:admin:prikey" cx="1192" cy="890" rx="47.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:prikey" x="1192" y="895" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3" text-decoration="underline">Record ID</text>
+<ellipse data-element="attribute:admin:fc" cx="1173.5" cy="938" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fc" x="1173.5" y="943" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Type</text>
+<ellipse data-element="attribute:admin:fcname" cx="1173.5" cy="986" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcname" x="1173.5" y="991" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Name</text>
+<ellipse data-element="attribute:admin:fcaddress" cx="1186" cy="1034" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcaddress" x="1186" y="1039" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Address</text>
+<ellipse data-element="attribute:admin:fcphone" cx="1177.5" cy="1082" rx="33" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcphone" x="1177.5" y="1087" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Phone</text>
+<ellipse data-element="attribute:admin:fcphonem" cx="1181.5" cy="1130" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcphonem" x="1181.5" y="1135" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Mobile</text>
+<ellipse data-element="attribute:admin:fcemail" cx="1183.5" cy="1178" rx="39" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcemail" x="1183.5" y="1183" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Email</text>
+<ellipse data-element="attribute:admin:fcid" cx="1204.5" cy="1226" rx="60" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:fcid" x="1204.5" y="1231" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Reference ID</text>
+<ellipse data-element="attribute:admin:enabled" cx="1186" cy="1274" rx="41.5" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:enabled" x="1186" y="1279" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Enabled</text>
+<ellipse data-element="attribute:admin:open" cx="1173.5" cy="1322" rx="29" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:open" x="1173.5" y="1327" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Open</text>
+<ellipse data-element="attribute:admin:status" cx="1181.5" cy="1370" rx="37" ry="18" fill="#1b2734" stroke="#9ab6d3"/>
+<text data-text-for="attribute:admin:status" x="1181.5" y="1375" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">Status</text>
 <polygon data-element="relationship:PLACES" points="488,605 545,636 488,667 431,636" fill="#4a3f2a" stroke="#9ab6d3"/>
 <text data-text-for="relationship:PLACES" x="488" y="641" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="15" fill="#e6edf3">Places</text>
 <polygon data-element="relationship:HANDLES" points="673,380 737,411 673,442 609,411" fill="#4a3f2a" stroke="#9ab6d3"/>
@@ -222,7 +222,7 @@
 <text data-cardinality-for="relationship:BILLS:orderandinvoice:0" x="329.20545093352" y="243.34053779776" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
 <text data-cardinality-for="relationship:BILLED_TO:Customer:0" x="318" y="601" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">1</text>
 <text data-cardinality-for="relationship:BILLED_TO:orderandinvoice:0" x="290" y="237" text-anchor="middle" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="13" fill="#e6edf3">N</text>
-<text data-note="legend" x="24" y="1440" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">Rectangle = entity; Diamond = relationship; Ellipse = attribute; Underline = primary key; Double line = total participation</text>
-<line data-note-separator="true" x1="24" y1="1460" x2="1265" y2="1460" stroke="#9ab6d3"/>
-<text data-note="isolated" x="24" y="1468" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">User accounts and the party master have no foreign keys</text>
+<text data-note="legend" x="24" y="1512" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">Rectangle = entity; Diamond = relationship; Ellipse = attribute; Underline = primary key; Double line = total participation</text>
+<line data-note-separator="true" x1="24" y1="755" x2="1265" y2="755" stroke="#9ab6d3"/>
+<text data-note="isolated" x="24" y="773" font-family="&quot;Microsoft JhengHei&quot;, &quot;Noto Sans TC&quot;, &quot;PingFang TC&quot;, sans-serif" font-size="12" fill="#e6edf3">User accounts and the party master have no foreign keys</text>
 </svg>

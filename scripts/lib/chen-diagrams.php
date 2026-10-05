@@ -8,7 +8,7 @@ declare(strict_types=1);
  * serializes them. Every chen_check_<code> function guards one failure code; the SVG checks parse
  * the serialized SVG (never the layout arrays), so a layout bug cannot hide from its own assertion.
  * Codes: C-FIT C-CANVAS C-OVERLAP C-SIDE C-ORDER C-GROUP C-ENDPOINT C-THROUGH C-CROSS C-LABEL
- * C-PK C-MODEL C-VARIANT C-LINELEN C-DOUBLE.
+ * C-PK C-MODEL C-VARIANT C-LINELEN C-DOUBLE C-NOTE.
  */
 const CHEN_MARGIN = 24;
 const CHEN_MAX_WIDTH = 1500;
@@ -36,6 +36,18 @@ const CHEN_DOUBLE_OFFSET = 2.0;
 /* Cardinality labels keep this far from each other and from every shape; distances are box to box. */
 const CHEN_LABEL_GAP = 6;
 const CHEN_LABEL_SHAPE_GAP = 2;
+
+/*
+ * Note band for isolated entities: the bottom row moves down by CHEN_NOTE_BAND to make room. The separator
+ * rule and the note text take CHEN_NOTE_HEIGHT px (text baseline CHEN_NOTE_TEXT_DROP below the rule, 4 px of
+ * descender under it) and are centred in the gap, so the gap needs CHEN_NOTE_BAND px of free space.
+ * Measured in Chromium over HTTP (er-system-en-dark, getBoundingClientRect): a 12 px caption occupies
+ * baseline - 12.8 to baseline + 3.2, so the check uses baseline - 13 to baseline + 4. Result in er-system:
+ * lowest non-isolated shape 732, rule 755, caption 760.2-776.2, highest isolated shape 800.
+ */
+const CHEN_NOTE_BAND = 44;
+const CHEN_NOTE_HEIGHT = 22;
+const CHEN_NOTE_TEXT_DROP = 18;
 
 /* ---------------------------------------------------------------------------------------------
  * Basic helpers
@@ -227,13 +239,14 @@ function chen_entity_height(array $entity): float
     return max(CHEN_ENTITY_MIN_HEIGHT, 8.0 * (count($entity['attributes']) + 1));
 }
 
-function chen_entity(array $entity, array $spec, float $columnGap, float $rowGap): array
+/* $shift moves the entity down; the bottom row of a diagram with isolated entities makes room for the note band. */
+function chen_entity(array $entity, array $spec, float $columnGap, float $rowGap, float $shift = 0.0): array
 {
     return [
         'id' => 'entity:' . $entity['id'],
         'kind' => 'rectangle',
         'x' => $spec['grid'][0] * $columnGap,
-        'y' => $spec['grid'][1] * $rowGap,
+        'y' => $spec['grid'][1] * $rowGap + $shift,
         'w' => chen_width(chen_name($entity, 'zh'), chen_name($entity, 'en'), 15, 24),
         'h' => chen_entity_height($entity),
         'entity' => $entity,
@@ -641,12 +654,22 @@ function chen_place_entity_attributes(array $owner): array
     return [$shapes, $lines];
 }
 
-/* Entity rectangles in grid order; every non-reference entity also gets its attributes and fan lines. */
-function chen_place_entities(array $diagram, array $entities, float $columnGap, float $rowGap): array
-{
+/*
+ * Entity rectangles in grid order; every non-reference entity also gets its attributes and fan lines.
+ * Rows from $noteRow down (the isolated entities' row, or null) move down by CHEN_NOTE_BAND, so the group
+ * conflict test below already sees the reserved band.
+ */
+function chen_place_entities(
+    array $diagram,
+    array $entities,
+    float $columnGap,
+    float $rowGap,
+    ?int $noteRow
+): array {
     $placed = ['shapes' => [], 'entityShapes' => [], 'attributeLines' => []];
     foreach ($diagram['entities'] as $spec) {
-        $owner = chen_entity($entities[$spec['id']], $spec, $columnGap, $rowGap);
+        $shift = $noteRow !== null && $spec['grid'][1] >= $noteRow ? CHEN_NOTE_BAND : 0;
+        $owner = chen_entity($entities[$spec['id']], $spec, $columnGap, $rowGap, $shift);
         $placed['shapes'][] = $owner;
         $placed['entityShapes'][$spec['id']] = $owner;
         if ($owner['reference']) {
@@ -680,6 +703,118 @@ function chen_check_group(?array $conflict, string $key): void
     }
 }
 
+/* ---------------------------------------------------------------------------------------------
+ * Isolated entities and their note band
+ * ------------------------------------------------------------------------------------------- */
+
+/* Entities of the diagram that take part in none of the diagram's relationships (derived, never listed). */
+function chen_isolated_ids(array $diagram, array $relationships): array
+{
+    $connected = [];
+    foreach ($diagram['relationships'] as $id) {
+        foreach ($relationships[$id]['participants'] as $participant) {
+            $connected[$participant['entity']] = true;
+        }
+    }
+    $isolated = [];
+    foreach ($diagram['entities'] as $spec) {
+        if (!isset($connected[$spec['id']])) {
+            $isolated[] = $spec['id'];
+        }
+    }
+    return $isolated;
+}
+
+/* Grid row of the isolated entities, or null when there are none. They must sit alone in the bottom row. */
+function chen_isolated_row(array $diagram, array $isolated, string $key): ?int
+{
+    if ($isolated === []) {
+        return null;
+    }
+    $isolatedRows = [];
+    $otherRows = [];
+    foreach ($diagram['entities'] as $spec) {
+        if (in_array($spec['id'], $isolated, true)) {
+            $isolatedRows[] = $spec['grid'][1];
+        } else {
+            $otherRows[] = $spec['grid'][1];
+        }
+    }
+    $row = min($isolatedRows);
+    if (count(array_unique($isolatedRows)) !== 1 || $otherRows === [] || max($otherRows) >= $row) {
+        chen_fail('C-NOTE', $key, '孤立實體必須獨佔最下排，說明帶才放得下');
+    }
+    return $row;
+}
+
+/* Shape ids of an isolated entity's group: the entity itself and its attributes. */
+function chen_in_isolated_group(string $shapeId, array $isolated): bool
+{
+    foreach ($isolated as $entityId) {
+        if ($shapeId === 'entity:' . $entityId || str_starts_with($shapeId, 'attribute:' . $entityId . ':')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Fan lines between an isolated entity and its attributes are owned by the entity. */
+function chen_owned_by_isolated(array $line, array $isolated): bool
+{
+    foreach ($isolated as $entityId) {
+        if ($line['owner'] === 'entity:' . $entityId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* [lowest point of everything outside the isolated groups, highest point of the isolated groups]. */
+function chen_note_gap(array $shapes, array $lines, array $labels, array $isolated): array
+{
+    $above = -INF;
+    $below = INF;
+    foreach ($shapes as $shape) {
+        $box = chen_box($shape);
+        if (chen_in_isolated_group($shape['id'], $isolated)) {
+            $below = min($below, $box['y']);
+        } else {
+            $above = max($above, chen_bottom($box));
+        }
+    }
+    foreach ($lines as $line) {
+        if (chen_owned_by_isolated($line, $isolated)) {
+            $below = min($below, $line['y1'], $line['y2']);
+        } else {
+            $above = max($above, $line['y1'], $line['y2']);
+        }
+    }
+    foreach ($labels as $label) {
+        $above = max($above, chen_bottom($label['box']));
+    }
+    return [$above, $below];
+}
+
+function chen_check_note_space(float $above, float $below, string $key): void
+{
+    if (!is_finite($above) || !is_finite($below) || $below - $above < CHEN_NOTE_BAND) {
+        $message = sprintf('孤立實體與上方內容之間放不下 %dpx 的說明帶', CHEN_NOTE_BAND);
+        chen_fail('C-NOTE', $key, $message);
+    }
+}
+
+/* Separator rule and note baseline (canvas coordinates), centred in the gap above the isolated entities. */
+function chen_place_note_band(array $shapes, array $lines, array $labels, array $isolated, string $key): ?array
+{
+    if ($isolated === []) {
+        return null;
+    }
+    [$above, $below] = chen_note_gap($shapes, $lines, $labels, $isolated);
+    chen_check_note_space($above, $below, $key);
+    $rule = (int) round($above + ($below - $above - CHEN_NOTE_HEIGHT) / 2);
+    return ['rule' => $rule, 'text' => $rule + CHEN_NOTE_TEXT_DROP];
+}
+
 function chen_check_canvas_width(string $key, int $width): void
 {
     if ($width > CHEN_MAX_WIDTH) {
@@ -687,9 +822,15 @@ function chen_check_canvas_width(string $key, int $width): void
     }
 }
 
-/* Labels, extents, canvas size, then shift everything so the content starts at the margin. */
-function chen_finish_layout(array $diagram, string $key, array $placed, float $columnGap, float $rowGap): array
-{
+/* Labels, extents, canvas size, shift everything so the content starts at the margin, then the note band. */
+function chen_finish_layout(
+    array $diagram,
+    string $key,
+    array $placed,
+    float $columnGap,
+    float $rowGap,
+    array $isolated
+): array {
     $shapes = $placed['shapes'];
     $lines = array_merge($placed['attributeLines'], $placed['connectionLines']);
     $labels = chen_labels($lines, $shapes);
@@ -710,6 +851,8 @@ function chen_finish_layout(array $diagram, string $key, array $placed, float $c
         'height' => $height,
         'columnGap' => $columnGap,
         'rowGap' => $rowGap,
+        'isolated' => $isolated,
+        'band' => chen_place_note_band($shapes, $lines, $labels, $isolated, $key),
     ];
 }
 
@@ -718,13 +861,15 @@ function chen_layout(array $model, string $key): array
     $diagram = $model['diagrams'][$key];
     $entities = chen_index($model['entities']);
     $relationships = chen_index($model['relationships']);
+    $isolated = chen_isolated_ids($diagram, $relationships);
+    $noteRow = chen_isolated_row($diagram, $isolated, $key);
     /* MSO baseline: never shrink below enough room for a 40px entity-to-diamond segment. */
     $columnGap = CHEN_COLUMN_GAP_START;
     $rowGap = CHEN_ROW_GAP_START;
     $conflict = null;
     $placed = [];
     for ($attempt = 0; $attempt < CHEN_MAX_ATTEMPTS; $attempt++) {
-        $placed = chen_place_entities($diagram, $entities, $columnGap, $rowGap);
+        $placed = chen_place_entities($diagram, $entities, $columnGap, $rowGap, $noteRow);
         $conflict = chen_group_conflict(chen_groups($placed['shapes'], $diagram));
         if ($conflict === null) {
             break;
@@ -733,13 +878,14 @@ function chen_layout(array $model, string $key): array
     }
     chen_check_group($conflict, $key);
     $placed = chen_place_relationships($diagram, $relationships, $placed);
-    return chen_finish_layout($diagram, $key, $placed, $columnGap, $rowGap);
+    return chen_finish_layout($diagram, $key, $placed, $columnGap, $rowGap, $isolated);
 }
 
 /* ---------------------------------------------------------------------------------------------
  * SVG serialization
  * ------------------------------------------------------------------------------------------- */
 
+/* The note stack at the bottom of the canvas (legend, plus the reference-entity note). */
 function chen_notes(string $key, string $locale): array
 {
     $legend = $locale === 'zh'
@@ -747,17 +893,20 @@ function chen_notes(string $key, string $locale): array
         : ('Rectangle = entity; Diamond = relationship; Ellipse = attribute; '
             . 'Underline = primary key; Double line = total participation');
     $notes = [['kind' => 'legend', 'text' => $legend]];
-    if ($key === 'system') {
-        $notes[] = ['kind' => 'isolated', 'text' => $locale === 'zh'
-            ? '系統帳號與往來對象主檔沒有外鍵，不與其他實體相連'
-            : 'User accounts and the party master have no foreign keys'];
-    }
     if ($key === 'fulfillment') {
         $notes[] = ['kind' => 'reference', 'text' => $locale === 'zh'
             ? '虛線框：參照實體，屬性見訂單核心圖'
             : 'Dashed boxes: referenced entities; see the order-core diagram for their attributes'];
     }
     return $notes;
+}
+
+/* Caption of the note band. chen_check_note requires it to name every isolated entity, so it cannot drift. */
+function chen_isolated_note(string $locale): string
+{
+    return $locale === 'zh'
+        ? '系統帳號與往來對象主檔沒有外鍵，不與其他實體相連'
+        : 'User accounts and the party master have no foreign keys';
 }
 
 function chen_shape_label(array $shape, string $locale): string
@@ -919,33 +1068,47 @@ function chen_svg_cardinality(array $label, array $palette): string
     );
 }
 
-/* Legend and notes stacked at the bottom; the isolated-entity note gets a separator rule. */
+function chen_svg_note_text(string $kind, int $y, string $text, array $palette): string
+{
+    return sprintf(
+        '<text data-note="%s" x="24" y="%d" font-family="%s" font-size="12" fill="%s">%s</text>',
+        $kind,
+        $y,
+        CHEN_FONT,
+        $palette['fg'],
+        chen_escape($text)
+    );
+}
+
+/* Legend (and reference note) stacked at the bottom of the canvas. */
 function chen_svg_notes(array $layout, string $locale, array $palette): array
 {
     $notes = chen_notes($layout['key'], $locale);
     $noteY = $layout['height'] - 28 * count($notes);
     $out = [];
     foreach ($notes as $note) {
-        if ($note['kind'] === 'isolated') {
-            $out[] = sprintf(
-                '<line data-note-separator="true" x1="24" y1="%d" x2="%d" y2="%d" stroke="%s"/>',
-                $noteY - 8,
-                $layout['width'] - 24,
-                $noteY - 8,
-                $palette['line']
-            );
-        }
-        $out[] = sprintf(
-            '<text data-note="%s" x="24" y="%d" font-family="%s" font-size="12" fill="%s">%s</text>',
-            $note['kind'],
-            $noteY,
-            CHEN_FONT,
-            $palette['fg'],
-            chen_escape($note['text'])
-        );
+        $out[] = chen_svg_note_text($note['kind'], $noteY, $note['text'], $palette);
         $noteY += 28;
     }
     return $out;
+}
+
+/* The isolated-entity note: a rule across the canvas and the caption under it, above the bottom row. */
+function chen_svg_band(array $layout, string $locale, array $palette): array
+{
+    if ($layout['band'] === null) {
+        return [];
+    }
+    return [
+        sprintf(
+            '<line data-note-separator="true" x1="24" y1="%d" x2="%d" y2="%d" stroke="%s"/>',
+            $layout['band']['rule'],
+            $layout['width'] - 24,
+            $layout['band']['rule'],
+            $palette['line']
+        ),
+        chen_svg_note_text('isolated', $layout['band']['text'], chen_isolated_note($locale), $palette),
+    ];
 }
 
 function chen_svg(array $layout, string $locale, string $theme, array $model): string
@@ -962,7 +1125,7 @@ function chen_svg(array $layout, string $locale, string $theme, array $model): s
     foreach ($layout['labels'] as $label) {
         $out[] = chen_svg_cardinality($label, $palette);
     }
-    $out = array_merge($out, chen_svg_notes($layout, $locale, $palette));
+    $out = array_merge($out, chen_svg_notes($layout, $locale, $palette), chen_svg_band($layout, $locale, $palette));
     $out[] = '</svg>';
     return implode("\n", $out) . "\n";
 }
@@ -1496,6 +1659,138 @@ function chen_check_label(DOMXPath $xpath, array $shapes, array $lines): void
     chen_check_label_spacing($labels);
 }
 
+/* Entities in the SVG that own no participant line (relationship:REL:ENTITY:n), as entity ids. */
+function chen_svg_isolated_ids(array $shapes, array $lines): array
+{
+    $connected = [];
+    foreach ($lines as $line) {
+        if (str_starts_with($line['id'], 'relationship:') && !str_contains($line['id'], '--')) {
+            $connected[$line['owner']] = true;
+        }
+    }
+    $isolated = [];
+    foreach (array_keys($shapes) as $id) {
+        if (str_starts_with($id, 'entity:') && !isset($connected[$id])) {
+            $isolated[] = substr($id, strlen('entity:'));
+        }
+    }
+    return $isolated;
+}
+
+/* The note band as drawn: the rule as a segment, and the bounding box of the rule and the caption text. */
+function chen_note_band_geometry(DOMXPath $xpath, string $key): array
+{
+    $rules = $xpath->query('//*[local-name()="line" and @data-note-separator]');
+    $texts = $xpath->query('//*[local-name()="text" and @data-note="isolated"]');
+    if ($rules->length !== 1 || $texts->length !== 1) {
+        chen_fail('C-NOTE', $key, '孤立實體說明必須恰有一條分隔線與一則文字');
+    }
+    $rule = $rules->item(0);
+    $text = $texts->item(0);
+    $start = ['x' => (float) $rule->getAttribute('x1'), 'y' => (float) $rule->getAttribute('y1')];
+    $end = ['x' => (float) $rule->getAttribute('x2'), 'y' => (float) $rule->getAttribute('y2')];
+    $canvas = (float) $xpath->document->documentElement->getAttribute('width');
+    if (abs($end['y'] - $start['y']) > .01 || abs($start['x'] - 24) > 1 || abs($end['x'] - ($canvas - 24)) > 1) {
+        chen_fail('C-NOTE', $key, '分隔線必須水平並橫跨畫布（x 從 24 到寬度減 24）');
+    }
+    $baseline = (float) $text->getAttribute('y');
+    $textBox = dg_bounds(
+        (float) $text->getAttribute('x'),
+        $baseline - 13,
+        dg_independent_text_width($text->textContent, 12),
+        17
+    );
+    $top = min($start['y'] - 1, $textBox['y']);
+    $bottom = max($start['y'] + 1, chen_bottom($textBox));
+    $left = min($start['x'], $textBox['x']);
+    $right = max($end['x'], chen_right($textBox));
+    return [
+        'start' => $start,
+        'end' => $end,
+        'box' => dg_bounds($left, $top, $right - $left, $bottom - $top),
+        'text' => $text->textContent,
+    ];
+}
+
+/* C-NOTE (caption): the note text names every isolated entity, so it cannot go stale when the model changes. */
+function chen_check_note_caption(string $caption, array $isolated, array $model, string $locale, string $key): void
+{
+    $entities = chen_index($model['entities']);
+    foreach ($isolated as $id) {
+        if (stripos($caption, chen_name($entities[$id], $locale)) === false) {
+            chen_fail('C-NOTE', $key, "說明文字沒有提到孤立實體 {$id}");
+        }
+    }
+}
+
+/* C-NOTE (clearance): the band touches no shape, line or cardinality label; the rule crosses no line. */
+function chen_check_note_clear(array $band, array $shapes, array $lines, array $labels): void
+{
+    foreach ($shapes as $id => $shape) {
+        if (chen_box_distance($band['box'], chen_box($shape)) < 2) {
+            chen_fail('C-NOTE', $id, '說明帶碰到圖形');
+        }
+    }
+    foreach ($lines as $line) {
+        if (dg_segment_bounds_distance(chen_line_start($line), chen_line_end($line), $band['box']) < .75) {
+            chen_fail('C-NOTE', $line['id'], '說明帶碰到線');
+        }
+        if (dg_segments_intersect($band['start'], $band['end'], chen_line_start($line), chen_line_end($line))) {
+            chen_fail('C-NOTE', $line['id'], '分隔線穿過線段');
+        }
+    }
+    foreach ($labels as $label) {
+        if (chen_box_distance($band['box'], $label['box']) < 2) {
+            chen_fail('C-NOTE', $label['line'], '說明帶碰到基數標籤');
+        }
+    }
+}
+
+/*
+ * C-NOTE: the entities with no relationship line are the ones the model says are isolated; with none, nothing
+ * is drawn. Otherwise one rule and one caption sit strictly between the lowest point of everything outside the
+ * isolated groups and the highest point of the isolated groups, and touch nothing.
+ */
+function chen_check_note(
+    DOMXPath $xpath,
+    array $shapes,
+    array $lines,
+    array $layout,
+    array $model,
+    string $locale
+): void {
+    $key = $layout['key'];
+    $isolated = chen_svg_isolated_ids($shapes, $lines);
+    $expected = chen_isolated_ids($layout['diagram'], chen_index($model['relationships']));
+    sort($isolated);
+    sort($expected);
+    if ($isolated !== $expected) {
+        chen_fail('C-NOTE', $key, '圖上沒有關聯線的實體與模型推得的孤立實體不一致');
+    }
+    $drawn = $xpath->query('//*[@data-note-separator or @data-note="isolated"]')->length;
+    if ($isolated === []) {
+        if ($drawn !== 0) {
+            chen_fail('C-NOTE', $key, '沒有孤立實體，卻畫了說明帶');
+        }
+        return;
+    }
+    $band = chen_note_band_geometry($xpath, $key);
+    chen_check_note_caption($band['text'], $isolated, $model, $locale, $key);
+    $labels = chen_dom_labels($xpath);
+    [$above, $below] = chen_note_gap($shapes, $lines, $labels, $isolated);
+    if (!($above < $band['box']['y'] && chen_bottom($band['box']) < $below)) {
+        $message = sprintf(
+            '說明帶 %.1f 到 %.1f 不在上方內容底部 %.1f 與孤立實體頂部 %.1f 之間',
+            $band['box']['y'],
+            chen_bottom($band['box']),
+            $above,
+            $below
+        );
+        chen_fail('C-NOTE', $key, $message);
+    }
+    chen_check_note_clear($band, $shapes, $lines, $labels);
+}
+
 /* C-VARIANT (per file): every text uses the shared font at 12 px or larger; English files hold no CJK. */
 function chen_check_variant(DOMXPath $xpath, string $svg, string $key, string $locale): void
 {
@@ -1621,6 +1916,7 @@ function chen_assert_svg(string $svg, array $layout, array $model, array $schema
     chen_check_double($lines, $layout, $model, $schema);
     chen_check_pk($xpath, $layout, $model);
     chen_check_label($xpath, $shapes, $lines);
+    chen_check_note($xpath, $shapes, $lines, $layout, $model, $locale);
     chen_check_variant($xpath, $svg, $layout['key'], $locale);
     foreach (chen_attribute_entries($layout, $model, $shapes) as $entry) {
         chen_check_side($entry);
