@@ -363,7 +363,7 @@ sequenceDiagram
 前置需求：Docker Desktop。
 
 ```bash
-git clone <this repo>
+git clone https://github.com/PomeloBiscuit/Enterprise-Operations-Management-System.git
 cd Enterprise-Operations-Management-System
 docker compose up -d
 ```
