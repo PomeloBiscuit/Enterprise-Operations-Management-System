@@ -368,7 +368,7 @@ sequenceDiagram
     <div class="diagram"><pre class="mermaid">
 sequenceDiagram
     participant B as 瀏覽器
-    participant F as 訂單發票新增或編輯頁
+    participant F as src/pages/invoice/orderandinvoiceAdd.php 或 orderandinvoiceEdit.php
     participant G as src/invoice.inc.php get_invoice_snapshot()
     participant D as SQLite Orders 與 Customer
     participant I as SQLite orderandinvoice
@@ -395,14 +395,14 @@ sequenceDiagram
     <div class="diagram"><pre class="mermaid">
 sequenceDiagram
     participant B as 瀏覽器
-    participant L as 列表頁
+    participant L as src/pages/invoice/orderandinvoiceList.php
     participant S as src/search.inc.php search_enum_code()
     participant D as SQLite
     B->>L: 送出狀態關鍵字
     L->>S: 比對所有語言的列舉名稱
     alt 對應到代碼
         S-->>L: status 代碼
-        L->>D: WHERE status = :code
+        L->>D: WHERE oi.status = :searchValue（代碼）
         D-->>L: 相符資料列
     else 對應不到
         S-->>L: null

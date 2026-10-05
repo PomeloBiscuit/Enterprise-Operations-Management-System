@@ -8,7 +8,7 @@
 - **後端**：PHP 8（無框架、無 Composer、無建置步驟）
 - **資料庫**：SQLite，單檔存於 `data/fiance2024.sqlite`
 - **容器**：`php:8-apache`
-- **驗證**：`scripts/smoke.sh`，22 項可重跑的檢查，任一失敗即以非 0 結束碼退出
+- **驗證**：`scripts/smoke.sh`，41 項可重跑的檢查，任一失敗即以非 0 結束碼退出
 
 ---
 
@@ -272,6 +272,92 @@ erDiagram
 
 ---
 
+## 關鍵流程
+
+### 登入與權限檢查
+
+```mermaid
+sequenceDiagram
+    participant B as 瀏覽器
+    participant L as public/login.php
+    participant U as SQLite User 表
+    participant P as password_verify()
+    participant S as PHP session
+    participant I as public/index.php
+    participant A as src/auth.inc.php
+    B->>L: POST 帳密
+    L->>U: 依帳號查詢帳戶
+    U-->>L: 使用者與密碼雜湊
+    L->>P: 驗證密碼
+    P-->>L: 成功
+    L->>S: 建立 session
+    L-->>B: 轉址到 index.php
+    B->>I: 帶 Act 的請求
+    I->>I: 依 Act 路由白名單
+    I->>A: can_manage_users() 或 can_view_business_data()
+    alt 允許
+        A-->>I: 允許
+        I->>I: include 功能頁，頁內再檢查一次
+        I-->>B: 功能頁 HTML
+    else 拒絕
+        A-->>I: 拒絕
+        I-->>B: Act=forbidden，權限不足
+    end
+```
+
+### 開立與編輯發票
+
+```mermaid
+sequenceDiagram
+    participant B as 瀏覽器
+    participant F as src/pages/invoice/orderandinvoiceAdd.php 或 orderandinvoiceEdit.php
+    participant G as src/invoice.inc.php get_invoice_snapshot()
+    participant D as SQLite Orders 與 Customer
+    participant I as SQLite orderandinvoice
+    B->>F: 送出發票欄位
+    alt 新增
+        F->>G: 以 order_id、customer_id 取得快照
+        G->>D: 查訂單編號與顧客名稱
+        D-->>G: 開立當下的資料
+        G-->>F: order_number、customer_name
+        F->>I: INSERT 外鍵與快照
+    else 編輯且外鍵有變
+        F->>G: 重取快照
+        G->>D: 查新的訂單與顧客
+        D-->>G: 新快照
+        G-->>F: order_number、customer_name
+        F->>I: UPDATE 外鍵與新快照
+    else 編輯且外鍵沒變
+        F->>I: 讀取資料庫既有快照
+        I-->>F: 沿用 order_number、customer_name
+        F->>I: UPDATE 其他欄位
+    end
+```
+
+### 狀態搜尋
+
+```mermaid
+sequenceDiagram
+    participant B as 瀏覽器
+    participant L as src/pages/invoice/orderandinvoiceList.php
+    participant S as src/search.inc.php search_enum_code()
+    participant D as SQLite
+    B->>L: 送出狀態關鍵字
+    L->>S: 比對所有語言的列舉名稱
+    alt 對應到代碼
+        S-->>L: status 代碼
+        L->>D: WHERE oi.status = :searchValue（代碼）
+        D-->>L: 相符資料列
+    else 對應不到
+        S-->>L: null
+        L->>D: WHERE 1=0
+        D-->>L: 空結果
+    end
+    L-->>B: 列表 HTML
+```
+
+---
+
 ## 快速開始（Docker，一道指令）
 
 前置需求：Docker Desktop。
@@ -330,7 +416,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
    ```bash
    docker compose exec web bash scripts/smoke.sh
    ```
-   22 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+   41 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
    權限邊界、直接存取防護與訂單金額正確性。任一項失敗會以非 0 結束碼退出。
 
 順帶一提：試著直接開 <http://localhost:8080/src/pages/customer/CustomerAdd.php>
@@ -341,7 +427,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
 
 ## 如何驗證它是對的
 
-專案內建一支可重跑的驗證腳本，涵蓋 **22 項檢查**；任一項失敗會以非 0 結束碼退出。
+專案內建一支可重跑的驗證腳本，涵蓋 **41 項檢查**；任一項失敗會以非 0 結束碼退出。
 
 ```bash
 docker compose exec web bash scripts/smoke.sh

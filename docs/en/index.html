@@ -175,7 +175,7 @@ sequenceDiagram
     <div class="diagram"><pre class="mermaid">
 sequenceDiagram
     participant B as Browser
-    participant F as Invoice add or edit page
+    participant F as src/pages/invoice/orderandinvoiceAdd.php or orderandinvoiceEdit.php
     participant G as src/invoice.inc.php get_invoice_snapshot()
     participant D as SQLite Orders and Customer
     participant I as SQLite orderandinvoice
@@ -202,14 +202,14 @@ sequenceDiagram
     <div class="diagram"><pre class="mermaid">
 sequenceDiagram
     participant B as Browser
-    participant L as List page
+    participant L as src/pages/invoice/orderandinvoiceList.php
     participant S as src/search.inc.php search_enum_code()
     participant D as SQLite
     B->>L: Submit status keyword
     L->>S: Match every locale label
     alt Mapped to a code
         S-->>L: status code
-        L->>D: WHERE status = :code
+        L->>D: WHERE oi.status = :searchValue (code)
         D-->>L: Matching rows
     else Not mapped
         S-->>L: null
