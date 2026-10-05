@@ -6,6 +6,7 @@ return [
     // 權限 / 狀態
     'common.permission_denied' => '權限不足!',
     'common.no_data'           => '查無資料',
+    'common.record_not_found'  => '找不到這筆資料',
     'common.error_prefix'      => '錯誤：',
     'common.db_error_prefix'   => '資料庫錯誤：',
     'common.delete_fail_prefix' => '刪除失敗：',

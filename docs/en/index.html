@@ -31,7 +31,7 @@
   <section id="overview">
     <h2>System Overview</h2>
     <p>This management system covers everyday enterprise operations: employees, customers, products, orders, shipments, order invoices, and vendor-customer relationships, with create, read, update, and delete operations. The whole database is a <strong>single SQLite file</strong>; there is no database server or database credential to configure. One <code>docker compose up -d</code> command runs it locally with seed data.</p>
-    <p>The backend is plain PHP 8, with no framework, Composer, or build step. The frontend uses Bootstrap 4.3.1 and jQuery. The project includes a repeatable verification script covering 42 checks.</p>
+    <p>The backend is plain PHP 8, with no framework, Composer, or build step. The frontend uses Bootstrap 4.3.1 and jQuery. The project includes a repeatable verification script covering 43 checks.</p>
   </section>
 
   <section id="technology">
@@ -42,7 +42,7 @@
       <tr><td>Database</td><td>SQLite, stored as the single file <code>data/fiance2024.sqlite</code></td></tr>
       <tr><td>Data access</td><td>Query values use PDO prepared statements; field names and sort direction use a server-side allowlist</td></tr>
       <tr><td>Container</td><td><code>php:8-apache</code></td></tr>
-      <tr><td>Verification</td><td><code>scripts/smoke.sh</code>, 42 repeatable checks</td></tr>
+      <tr><td>Verification</td><td><code>scripts/smoke.sh</code>, 43 repeatable checks</td></tr>
     </tbody></table></div>
   </section>
 
@@ -248,7 +248,7 @@ php -S localhost:8080 -t public     # Then open http://localhost:8080/login.php<
 
   <section id="verify">
     <h2>How to Verify It Is Correct</h2>
-    <p>The project includes a repeatable verification script covering <strong>42 smoke checks</strong>; any failure exits with a non-zero status.</p>
+    <p>The project includes a repeatable verification script covering <strong>43 smoke checks</strong>; any failure exits with a non-zero status.</p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>
     <ul><li><strong>Database structure and seed data</strong>: exactly 9 tables; expected seed counts; <code>PRAGMA foreign_keys</code> is 1; <code>ON DELETE CASCADE</code> actually cascades (verified in a transaction and rolled back); PHP and SQLite time zones agree; clearing <code>orderandinvoice</code> resets the next sequence to 1; every invoice has foreign keys and non-empty snapshots.</li><li><strong>Sign-in and passwords</strong>: <code>Admin</code> / <code>123456</code> can sign in and receives <code>PHPSESSID</code>; wrong passwords are rejected; the <code>Admin</code> hash starts <code>$2y$</code> and has length 60.</li><li><strong>Permissions and direct access</strong>: all 45 feature files use their required named guards; an external user is registered with <code>limited=3</code>, can sign in, and sees only the profile; every non-exempt <code>.php</code> file under the web root displays “Permission denied!” without application content when opened while unauthenticated.</li><li><strong>Order totals</strong>: every order has <code>Contain</code> details; at least one has an item count ≥ 2; and the order amount rendered by <code>OrderList.php</code> over HTTP equals <code>SUM(quantity × unit price)</code> (omitting quantity would produce a different result, so the probe is discriminating).</li><li><strong>Injection prevention, routes, and hygiene</strong>: an SQL-injection probe submits a field value containing <code>'); DROP TABLE admin;--</code>; the string is stored literally and the <code>admin</code> table remains intact; all 18 specified <code>Act</code> routes return 2xx/3xx with no PHP error; Apache output has no <code>Deprecated</code>, <code>Warning</code>, or <code>Fatal</code>; tracked Git files contain no <code>*.sqlite</code>, <code>sess_*</code>, <code>config.inc.php</code>, or <code>*.mp3</code>.</li></ul>
   </section>

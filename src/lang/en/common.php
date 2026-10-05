@@ -2,6 +2,7 @@
 return [
     'common.permission_denied' => 'Permission denied!',
     'common.no_data'           => 'No records found',
+    'common.record_not_found'  => 'Record not found',
     'common.error_prefix'      => 'Error: ',
     'common.db_error_prefix'   => 'Database error: ',
     'common.delete_fail_prefix' => 'Deletion failed: ',

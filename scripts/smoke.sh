@@ -701,9 +701,13 @@ check_xss_reflect() {
 
 check_routes() {
     local act body status route failures=""
-    local -a acts=(100 105 110 115 160 200 210 220 230 240 250 260 265 270 300 335 375 415)
+    # 刪除／批量刪除路由需要目標或表單資料；空請求只會製造與路由可達性無關的輸入警告。
+    local -a acts=(100 105 110 115 160 200 210 230 240 250 260 265 270 300 335 375 470 480)
     for act in "${acts[@]}"; do
         route="index.php?Act=$act"
+        if [[ "$act" == "270" ]]; then
+            route+="&id=99999"
+        fi
         body="$(curl -sS -b "$COOKIE_JAR" -w $'\n%{http_code}' "$BASE_URL/$route")" || { failures+="$route:curl "; continue; }
         status="${body##*$'\n'}"
         body="${body%$'\n'*}"
@@ -715,6 +719,37 @@ check_routes() {
     done
     [[ -z "$failures" ]] || { CHECK_DETAIL="路由失敗：${failures% }"; return 1; }
     CHECK_DETAIL="18 個指定 Act 皆為 2xx/3xx"
+}
+
+check_edit_missing_id() {
+    local index act parameter needs_notice page status failures="" details=""
+    local -a acts=(105 230 270 340 380 420 460 490)
+    local -a parameters=(id EK id id id id id id)
+    local -a notices=(no yes no yes yes yes yes yes)
+
+    for index in "${!acts[@]}"; do
+        act="${acts[$index]}"
+        parameter="${parameters[$index]}"
+        needs_notice="${notices[$index]}"
+        page="$TMP_DIR/edit-missing-id-$act.html"
+        status="$(curl -sS -G -b "$COOKIE_JAR" -o "$page" -w '%{http_code}' --data-urlencode "$parameter=99999" --data-urlencode 'lang=zh-TW' "$BASE_URL/index.php?Act=$act")" \
+            || { failures+="Act=$act:curl "; continue; }
+
+        if [[ ! "$status" =~ ^2[0-9]{2}$ ]]; then
+            failures+="Act=$act:HTTP-$status "
+        elif ! grep -q '</html>' "$page"; then
+            failures+="Act=$act:缺少-html "
+        elif grep -qE 'Fatal error|Warning|Notice|Deprecated|/var/www' "$page"; then
+            failures+="Act=$act:洩漏錯誤 "
+        elif [[ "$needs_notice" == yes ]] && ! grep -qF '找不到這筆資料' "$page"; then
+            failures+="Act=$act:缺少提示 "
+        else
+            details+="Act=$act "
+        fi
+    done
+
+    [[ -z "$failures" ]] || { CHECK_DETAIL="不存在 id 編輯頁失敗：${failures% }"; return 1; }
+    CHECK_DETAIL="8 個編輯 Act 皆為 2xx、完整頁面且無 PHP 錯誤／路徑；6 個修補頁均顯示找不到這筆資料（${details% }）"
 }
 
 # WO-11：英文模式下，指定頁面的「介面文字」不得殘留 CJK 字元。
@@ -1027,6 +1062,7 @@ for check in \
     '10 check_injection' \
     'ORDER-TOTALS check_order_totals' \
     'ROUTES check_routes' \
+    'EDIT-MISSING-ID check_edit_missing_id' \
     'I18N-EN-CJK check_i18n_english_no_cjk' \
     'DIAGRAMS check_diagrams' \
     'PAGES-1 check_pages_structure' \

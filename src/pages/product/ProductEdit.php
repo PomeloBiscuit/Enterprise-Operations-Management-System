@@ -1,5 +1,5 @@
-<?php // ProductEdit.php
-require_once __DIR__ . '/../../config.inc.php'; // 引入資料庫設定檔
+<?php
+require_once __DIR__ . '/../../config.inc.php';
 require_once __DIR__ . '/../../auth.inc.php';
 require_once __DIR__ . '/../../i18n.inc.php';
 if (!can_view_business_data()) {
@@ -7,80 +7,81 @@ if (!can_view_business_data()) {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 如果是 POST 請求
+$resultsPerPage = intval($_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5);
+$ProductID = $_POST['id'] ?? $_GET['id'] ?? '';
+$row = null;
+$errorMessage = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // 取得表單欄位
-        $ProductID = $_POST['id']; // 編輯貨物編號
-        $ProductName = $_POST['ProductName']; // 編輯貨物名稱
-        $ProductCategory = $_POST['ProductCategory']; // 編輯貨物類別
-        $UnitPrice = $_POST['UnitPrice']; // 編輯單價
-        $resultsPerPage = intval($_POST['resultsPerPage'] ?? 5); // 新增此行
+        $stmt = $pdo->prepare(
+            'UPDATE Product SET ProductName = :ProductName, ProductCategory = :ProductCategory, UnitPrice = :UnitPrice WHERE ProductID = :ProductID'
+        );
+        $stmt->execute([
+            ':ProductName' => $_POST['ProductName'],
+            ':ProductCategory' => $_POST['ProductCategory'],
+            ':UnitPrice' => $_POST['UnitPrice'],
+            ':ProductID' => $ProductID,
+        ]);
 
-        // 執行資料庫 UPDATE
-        $stmt = $pdo->prepare("
-            UPDATE Product
-            SET ProductName = :ProductName, ProductCategory = :ProductCategory, UnitPrice = :UnitPrice
-            WHERE ProductID = :ProductID
-        "); // 更新貨物名稱、貨物類別、單價
-        $stmt->execute([ // 執行 SQL
-            ':ProductName' => $ProductName, // 貨物名稱
-            ':ProductCategory' => $ProductCategory, // 貨物類別
-            ':UnitPrice' => $UnitPrice, // 單價
-            ':ProductID' => $ProductID // 貨物編號
-        ]); // 執行 SQL
-        
-        header("Location: index.php?Act=390&resultsPerPage=$resultsPerPage"); // 維持顯示筆數
-        exit(); // 結束程式
-    } catch (Exception $e) { // 例外處理
-        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
-    } catch (PDOException $e) { // 例外處理
-        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
-    } 
-} else { // 如果是 GET 請求
-    $ProductID = $_GET['id']; // 取得貨物編號
-    $resultsPerPage = intval($_GET['resultsPerPage'] ?? 5); // 新增此行
+        header("Location: index.php?Act=390&resultsPerPage=$resultsPerPage");
+        exit();
+    } catch (Throwable $e) {
+        $errorMessage = user_safe_error($e);
+    }
+}
 
-    // 取得貨物資料
-    $stmt = $pdo->prepare("SELECT * FROM Product WHERE ProductID = :ProductID"); // 查詢貨物資料
-    $stmt->execute([':ProductID' => $ProductID]); // 執行 SQL
-    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $stmt->fetch(PDO::FETCH_ASSOC)); // 取得查詢結果並編碼供 HTML 輸出
+// POST 更新失敗後也重讀資料，找不到時改顯示提示而不是畫壞表單。
+$stmt = $pdo->prepare('SELECT * FROM Product WHERE ProductID = :ProductID');
+$stmt->execute([':ProductID' => $ProductID]);
+$databaseRow = $stmt->fetch(PDO::FETCH_ASSOC);
+if ($databaseRow !== false) {
+    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $databaseRow);
 }
 ?>
 
-<div class="container mt-5"> <!-- 容器 -->
-    <div class="card" style="border-radius: 15px;"> <!-- 卡片 -->
-        <div class="card-header text-center"> <!-- 卡片標題 -->
-            <h3><?php echo t('product.edit.title'); ?></h3> <!-- 標題 -->
+<div class="container mt-5">
+    <?php if ($errorMessage !== ''): ?>
+        <p><?php echo $errorMessage; ?></p>
+    <?php endif; ?>
+    <?php if ($row === null): ?>
+        <p><?php echo t('common.record_not_found'); ?></p>
+        <a href="index.php?Act=390&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+    <?php else: ?>
+        <div class="card" style="border-radius: 15px;">
+            <div class="card-header text-center">
+                <h3><?php echo t('product.edit.title'); ?></h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="resultsPerPage" value="<?php echo $resultsPerPage; ?>">
+                    <div class="form-group">
+                        <label><?php echo t('product.field.id'); ?></label>
+                        <input type="text" class="form-control" value="<?php echo $row['ProductID']; ?>" disabled>
+                        <input type="hidden" name="id" value="<?php echo $row['ProductID']; ?>">
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo t('product.field.name'); ?></label>
+                        <input type="text" name="ProductName" class="form-control" value="<?php echo $row['ProductName']; ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo t('product.field.category'); ?></label>
+                        <input type="text" name="ProductCategory" class="form-control" value="<?php echo $row['ProductCategory']; ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label><?php echo t('product.field.unit_price'); ?></label>
+                        <input type="number" step="0.01" name="UnitPrice" class="form-control" value="<?php echo $row['UnitPrice']; ?>" required>
+                    </div>
+                    <br>
+                    <div class="text-center">
+                        <a href="index.php?Act=390&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+                        <span style='display: inline-block; width: 20px;'></span>
+                        <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button>
+                        <span style='display: inline-block; width: 20px;'></span>
+                        <button type="submit" class="btn btn-primary"><?php echo t('common.update'); ?></button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="card-body"> <!-- 卡片內容 -->
-            <form method="POST"> <!-- 表單 -->
-                <input type="hidden" name="resultsPerPage" value="<?php echo $resultsPerPage; ?>"> <!-- 新增此行 -->
-                <div class="form-group"> <!-- 表單群組 -->
-                    <label><?php echo t('product.field.id'); ?></label> <!-- 標籤 -->
-                    <input type="text" class="form-control" value="<?php echo $row['ProductID']; ?>" disabled> <!-- 顯示貨物編號但不開放修改 -->
-                    <input type="hidden" name="id" value="<?php echo $row['ProductID']; ?>"> <!-- 隱藏欄位 -->
-                </div> <!-- 結束表單群組 -->
-                <div class="form-group"> <!-- 表單群組 -->
-                    <label><?php echo t('product.field.name'); ?></label> <!-- 標籤 -->
-                    <input type="text" name="ProductName" class="form-control" value="<?php echo $row['ProductName']; ?>" required> <!-- 輸入框 -->
-                </div> <!-- 結束表單群組 -->
-                <div class="form-group"> <!-- 表單群組 -->
-                    <label><?php echo t('product.field.category'); ?></label> <!-- 標籤 -->
-                    <input type="text" name="ProductCategory" class="form-control" value="<?php echo $row['ProductCategory']; ?>" required> <!-- 輸入框 -->
-                </div> <!-- 結束表單群組 -->
-                <div class="form-group"> <!-- 表單群組 -->
-                    <label><?php echo t('product.field.unit_price'); ?></label> <!-- 標籤 -->
-                    <input type="number" step="0.01" name="UnitPrice" class="form-control" value="<?php echo $row['UnitPrice']; ?>" required> <!-- 輸入框 -->
-                </div> <!-- 結束表單群組 -->
-                <br> <!-- 斷行 -->
-                <div class="text-center"> <!-- 文字置中 -->
-                    <a href="index.php?Act=390&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a> <!-- 返回按鈕 -->
-                    <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-                    <button type="reset" class="btn btn-warning"><?php echo t('common.clear'); ?></button> <!-- 清除按鈕 -->
-                    <span style='display: inline-block; width: 20px;'></span> <!-- 空白 -->
-                    <button type="submit" class="btn btn-primary"><?php echo t('common.update'); ?></button> <!-- 更新按鈕 -->
-                </div> <!-- 結束文字置中 -->
-            </form> <!-- 結束表單 -->
-        </div> <!-- 結束卡片內容 -->
-    </div> <!-- 結束卡片 -->
-</div> <!-- 結束容器 -->
+    <?php endif; ?>
+</div>

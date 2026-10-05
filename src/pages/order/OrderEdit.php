@@ -6,9 +6,14 @@ if (!can_view_business_data()) {
     exit;
 }
 
+$OrderID = $_POST['OrderID'] ?? $_GET['id'] ?? '';
+$resultsPerPage = intval($_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5);
+$row = false;
+$existingItems = [];
+$errorMessage = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {    // 如果是 POST 請求
     try {
-        $OrderID = $_POST['OrderID'];
         $CustomerID = $_POST['CustomerID'];
         $EmployeeID = $_POST['EmployeeID'];
         $OrderTime = $_POST['OrderTime'];
@@ -81,16 +86,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {    // 如果是 POST 請求
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        echo "<p>" . user_safe_error($e) . "</p>";
+        $errorMessage = user_safe_error($e);
     }
-} else {    // 如果是 GET 請求
-    $stmt = $pdo->prepare("SELECT * FROM Orders WHERE OrderID = :OrderID");
-    $stmt->execute([':OrderID' => $_GET['id']]);
-    $row = $stmt->fetch();
+}
 
-    // 既有明細
+$stmt = $pdo->prepare("SELECT * FROM Orders WHERE OrderID = :OrderID");
+$stmt->execute([':OrderID' => $OrderID]);
+$row = $stmt->fetch();
+
+if ($row !== false) {
     $containStmt = $pdo->prepare("SELECT ProductID, Quantity FROM Contain WHERE OrderID = :OrderID ORDER BY ProductID");
-    $containStmt->execute([':OrderID' => $_GET['id']]);
+    $containStmt->execute([':OrderID' => $OrderID]);
     $existingItems = $containStmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -116,9 +122,16 @@ $blankProductOptions = renderProductOptions($products);
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
     <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;"><?php echo t('order.edit.title'); ?></h3>
     <hr>
+    <?php if ($errorMessage !== ''): ?>
+        <p><?php echo $errorMessage; ?></p>
+    <?php endif; ?>
+    <?php if ($row === false): ?>
+        <p><?php echo t('common.record_not_found'); ?></p>
+        <a href="index.php?Act=430&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+    <?php else: ?>
     <form method="POST" id="orderEditForm">
         <input type="hidden" name="OrderID" value="<?php echo htmlspecialchars((string) $row['OrderID'], ENT_QUOTES, 'UTF-8'); ?>">
-<input type="hidden" name="resultsPerPage" value="<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>">
+<input type="hidden" name="resultsPerPage" value="<?php echo $resultsPerPage; ?>">
         <div class="form-group">
             <label>Order ID</label>
             <input type="text" class="form-control" value="<?php echo htmlspecialchars((string) $row['OrderID'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
@@ -216,7 +229,7 @@ $blankProductOptions = renderProductOptions($products);
         </div>
         <br>
         <div style="text-align: center;">
-<a href="index.php?Act=430&resultsPerPage=<?php echo intval($_GET['resultsPerPage'] ?? 5); ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+<a href="index.php?Act=430&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
             <span style='display: inline-block; width: 20px;'></span>
             <button type="reset" class="btn btn-warning text-white"><?php echo t('common.clear'); ?></button>
             <span style='display: inline-block; width: 20px;'></span>
@@ -374,3 +387,4 @@ document.getElementById('shipMethodSearch').addEventListener('blur', function() 
     }
 });
 </script>
+<?php endif; ?>

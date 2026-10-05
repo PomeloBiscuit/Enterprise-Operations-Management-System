@@ -8,7 +8,7 @@
 - **後端**：PHP 8（無框架、無 Composer、無建置步驟）
 - **資料庫**：SQLite，單檔存於 `data/fiance2024.sqlite`
 - **容器**：`php:8-apache`
-- **驗證**：`scripts/smoke.sh`，42 項可重跑的檢查，任一失敗即以非 0 結束碼退出
+- **驗證**：`scripts/smoke.sh`，43 項可重跑的檢查，任一失敗即以非 0 結束碼退出
 
 ---
 
@@ -416,7 +416,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
    ```bash
    docker compose exec web bash scripts/smoke.sh
    ```
-   42 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+   43 項檢查，涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
    權限邊界、直接存取防護與訂單金額正確性。任一項失敗會以非 0 結束碼退出。
 
 順帶一提：試著直接開 <http://localhost:8080/src/pages/customer/CustomerAdd.php>
@@ -427,7 +427,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
 
 ## 如何驗證它是對的
 
-專案內建一支可重跑的驗證腳本，涵蓋 **42 項檢查**；任一項失敗會以非 0 結束碼退出。
+專案內建一支可重跑的驗證腳本，涵蓋 **43 項檢查**；任一項失敗會以非 0 結束碼退出。
 
 ```bash
 docker compose exec web bash scripts/smoke.sh

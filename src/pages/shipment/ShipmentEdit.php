@@ -6,6 +6,10 @@ if (!can_view_business_data()) {
     exit;
 }
 
+$ShipmentID = $_POST['ShipmentID'] ?? $_GET['id'] ?? '';
+$row = false;
+$errorMessage = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("
@@ -29,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         header("Location: index.php?Act=470");
         exit();
-    } catch (PDOException $e) {
-        echo "<p>" . user_safe_error($e) . "</p>";
+    } catch (Throwable $e) {
+        $errorMessage = user_safe_error($e);
     }
-} else {
-    $stmt = $pdo->prepare("SELECT * FROM Shipment WHERE ShipmentID = :ShipmentID");
-    $stmt->execute([':ShipmentID' => $_GET['id']]);
-    $row = $stmt->fetch();
 }
+
+$stmt = $pdo->prepare("SELECT * FROM Shipment WHERE ShipmentID = :ShipmentID");
+$stmt->execute([':ShipmentID' => $ShipmentID]);
+$row = $stmt->fetch();
 
 // Fetch employees and orders for selection
 $employees = $pdo->query("SELECT EmployeeID, EmployeeName FROM Employee")->fetchAll(PDO::FETCH_ASSOC);
@@ -46,6 +50,13 @@ $orders = $pdo->query("SELECT OrderID FROM Orders")->fetchAll(PDO::FETCH_ASSOC);
 <div style='background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 100%;'>
     <h3 style="text-align: center; font-family: 'Noto Sans TC', 'Times New Roman', serif;"><?php echo t('shipment.edit.title'); ?></h3>
     <hr>
+    <?php if ($errorMessage !== ''): ?>
+        <p><?php echo $errorMessage; ?></p>
+    <?php endif; ?>
+    <?php if ($row === false): ?>
+        <p><?php echo t('common.record_not_found'); ?></p>
+        <a href="index.php?Act=470" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+    <?php else: ?>
     <form method="POST">
         <input type="hidden" name="ShipmentID" value="<?php echo $row['ShipmentID']; ?>">
         <div class="form-group">
@@ -213,3 +224,4 @@ document.getElementById('shipMethodSearch').addEventListener('blur', function() 
     }
 });
 </script>
+<?php endif; ?>

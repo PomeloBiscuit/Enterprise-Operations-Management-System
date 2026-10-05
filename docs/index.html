@@ -42,7 +42,7 @@
     </p>
     <p>
       後端是純 PHP 8，沒有框架、沒有 Composer、沒有建置步驟；前端用 Bootstrap 4.3.1 與
-      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 42 項檢查。
+      jQuery。專案內建一支可重跑的驗證腳本，涵蓋 43 項檢查。
     </p>
   </section>
 
@@ -57,7 +57,7 @@
           <tr><td>資料庫</td><td>SQLite，單檔存於 <code>data/fiance2024.sqlite</code></td></tr>
           <tr><td>資料存取</td><td>查詢值使用 PDO prepared statement；欄位名與排序方向使用伺服器端白名單</td></tr>
           <tr><td>容器</td><td><code>php:8-apache</code></td></tr>
-          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，42 項可重跑檢查</td></tr>
+          <tr><td>驗證</td><td><code>scripts/smoke.sh</code>，43 項可重跑檢查</td></tr>
         </tbody>
       </table>
     </div>
@@ -464,7 +464,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
       <li>
         <strong>跑一次驗證腳本</strong>（約 20 秒）——
         <code>docker compose exec web bash scripts/smoke.sh</code>，
-        42 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
+        43 項檢查涵蓋 schema、外鍵級聯、時區、登入、密碼雜湊、SQL injection 探針、
         權限邊界、直接存取防護與訂單金額正確性。
       </li>
     </ol>
@@ -479,7 +479,7 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php<
   <section id="verify">
     <h2>如何驗證它是對的</h2>
     <p>
-      專案內建一支可重跑的驗證腳本，涵蓋 <strong>42 項檢查</strong>；任一項失敗會以
+      專案內建一支可重跑的驗證腳本，涵蓋 <strong>43 項檢查</strong>；任一項失敗會以
       非 0 結束碼退出。
     </p>
     <pre><code>docker compose exec web bash scripts/smoke.sh</code></pre>

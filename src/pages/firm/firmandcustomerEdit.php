@@ -1,119 +1,66 @@
 <?php
-     require_once __DIR__ . '/../../auth.inc.php';
-     require_once __DIR__ . '/../../i18n.inc.php';
-     if (can_view_business_data()) {
-          $EK = intval($_GET['EK']);
-          if (empty($_POST['btadd'])) {
-               try {
-                    // $EK 已過 intval()，本身不可注入，但一併改成參數綁定，全模組寫法一致。
-                    $sql="select * from admin where prikey = :prikey and
-                    enabled>0 order by fcname";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute([':prikey' => $EK]);
-                    $result = $stmt;
-               } catch (PDOException $e) {
-                    echo user_safe_error($e);
-          }
-          if ($row=$result->fetch()) {
+require_once __DIR__ . '/../../auth.inc.php';
+require_once __DIR__ . '/../../i18n.inc.php';
+if (!can_view_business_data()) {
+    echo "<p align='center'>" . t('common.permission_denied') . '</p>';
+    exit;
+}
 
-               $L_editTitle = t('firm.edit.title');
-               $L_blankHint = t('firm.notice.blank_page');
-               $L_fc = t('firm.field.fc');
-               $L_name = t('field.name');
-               $L_address = t('field.address');
-               $L_phone = t('field.phone');
-               $L_mobile = t('field.mobile');
-               $L_email = t('firm.field.email');
-               $L_id = t('firm.field.id');
-               $L_edit = t('firm.action.edit');
-               $L_clear = t('common.clear');
+$EK = (int) ($_POST['EK'] ?? $_GET['EK'] ?? 0);
+$row = false;
+$errorMessage = '';
 
-               echo "
-               <form method=post action=index.php?Act=$Act&EK=$EK>
-               <h3>$L_editTitle</h3><h5>$L_blankHint</h5><hr>
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $stmt = $pdo->prepare(
+            'UPDATE admin SET fc = :fc, fcname = :fcname, fcaddress = :fcaddress, fcphone = :fcphone, fcphonem = :fcphonem, fcemail = :fcemail, fcid = :fcid WHERE prikey = :prikey'
+        );
+        $stmt->execute([
+            ':fc' => $_POST['fc'],
+            ':fcname' => $_POST['fcname'],
+            ':fcaddress' => $_POST['fcaddress'],
+            ':fcphone' => $_POST['fcphone'],
+            ':fcphonem' => $_POST['fcphonem'],
+            ':fcemail' => $_POST['fcemail'],
+            ':fcid' => $_POST['fcid'],
+            ':prikey' => $EK,
+        ]);
+        header('Location: index.php?Act=200');
+        exit();
+    } catch (Throwable $e) {
+        $errorMessage = user_safe_error($e);
+    }
+}
 
-               <div class=\"table-responsive\">
-               <table class=\"table table-bordered table-hover\">
-                    <tr>
-                         <td>$L_fc*
-                         <td><input type='text' name=fc
-                         value='{$row['fc']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>$L_name*
-                         <td><input type='text' name=fcname
-                         value='{$row['fcname']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>$L_address*
-                         <td><input type='text' name=fcaddress
-                         value='{$row['fcaddress']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>$L_phone
-                         <td><input type='text' name=fcphone
-                         value='{$row['fcphone']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>$L_mobile
-                         <td><input type='text' name=fcphonem
-                         value='{$row['fcphonem']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>$L_email
-                         <td><input type='text' name=fcemail
-                         value='{$row['fcemail']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>$L_id
-                         <td><input type='text' name=fcid
-                         value='{$row['fcid']}'
-                         class=\"form-control\">
-                    <tr>
-                         <td>
-                         <td>
-                         <input type='submit' name=btadd value='$L_edit'
-                              class=\"btn btn-default\">
-                         <input type='reset' value='$L_clear'
-                              class=\"btn btn-default\">
+// POST 更新失敗後重讀原始資料；不存在時不畫表單。
+$stmt = $pdo->prepare('SELECT * FROM admin WHERE prikey = :prikey AND enabled > 0 ORDER BY fcname');
+$stmt->execute([':prikey' => $EK]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
+?>
 
-          </table>
-          </div>
-          </form>
-          ";
-          }
-
-     } else {
-          try {
-               // fc* 欄位走參數綁定修補注入；prikey 亦綁定（已過 intval()），寫法一致。
-               $aa="update admin set
-                    fc        = :fc,
-                    fcname    = :fcname,
-                    fcaddress = :fcaddress,
-                    fcphone   = :fcphone,
-                    fcphonem  = :fcphonem,
-                    fcemail   = :fcemail,
-                    fcid      = :fcid
-                    where prikey = :prikey
-                    ";
-               $stmt = $pdo->prepare($aa);
-               $stmt->execute([
-                    ':fc'        => $_POST['fc'],
-                    ':fcname'    => $_POST['fcname'],
-                    ':fcaddress' => $_POST['fcaddress'],
-                    ':fcphone'   => $_POST['fcphone'],
-                    ':fcphonem'  => $_POST['fcphonem'],
-                    ':fcemail'   => $_POST['fcemail'],
-                    ':fcid'      => $_POST['fcid'],
-                    ':prikey'    => $EK,
-               ]);
-          } catch (PDOException $e) {
-               echo "<p>" . user_safe_error($e) . "</p>";
-               //exit();
-          }
-          header("refresh:1;url=index.php?Act=200");
-          }
-     } else {
-          echo "<br><br><br><br><p align=center>" . t('common.permission_denied');
-     }
-     ?>
+<?php if ($errorMessage !== ''): ?>
+    <p><?php echo $errorMessage; ?></p>
+<?php endif; ?>
+<?php if ($row === false): ?>
+    <p><?php echo t('common.record_not_found'); ?></p>
+    <a href="index.php?Act=200" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+<?php else: ?>
+    <form method="post" action="index.php?Act=230&amp;EK=<?php echo $EK; ?>">
+        <input type="hidden" name="EK" value="<?php echo $EK; ?>">
+        <h3><?php echo t('firm.edit.title'); ?></h3>
+        <h5><?php echo t('firm.notice.blank_page'); ?></h5>
+        <hr>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <tr><td><?php echo t('firm.field.fc'); ?>*</td><td><input type="text" name="fc" value="<?php echo htmlspecialchars((string) $row['fc'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td><?php echo t('field.name'); ?>*</td><td><input type="text" name="fcname" value="<?php echo htmlspecialchars((string) $row['fcname'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td><?php echo t('field.address'); ?>*</td><td><input type="text" name="fcaddress" value="<?php echo htmlspecialchars((string) $row['fcaddress'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td><?php echo t('field.phone'); ?></td><td><input type="text" name="fcphone" value="<?php echo htmlspecialchars((string) $row['fcphone'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td><?php echo t('field.mobile'); ?></td><td><input type="text" name="fcphonem" value="<?php echo htmlspecialchars((string) $row['fcphonem'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td><?php echo t('firm.field.email'); ?></td><td><input type="text" name="fcemail" value="<?php echo htmlspecialchars((string) $row['fcemail'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td><?php echo t('firm.field.id'); ?></td><td><input type="text" name="fcid" value="<?php echo htmlspecialchars((string) $row['fcid'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control"></td></tr>
+                <tr><td></td><td><button type="submit" name="btadd" value="1" class="btn btn-default"><?php echo t('firm.action.edit'); ?></button> <button type="reset" class="btn btn-default"><?php echo t('common.clear'); ?></button></td></tr>
+            </table>
+        </div>
+    </form>
+<?php endif; ?>

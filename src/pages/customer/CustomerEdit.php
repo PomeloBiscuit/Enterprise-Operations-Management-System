@@ -7,6 +7,11 @@ if (!can_view_business_data()) {
     exit;
 }
 
+$resultsPerPage = intval($_POST['resultsPerPage'] ?? $_GET['resultsPerPage'] ?? 5);
+$CustomerID = $_POST['id'] ?? $_GET['id'] ?? '';
+$row = null;
+$errorMessage = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
     try {
         // 取得表單欄位
@@ -14,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
         $CustomerName = $_POST['CustomerName']; // 取得 POST 表單欄位
         $CustomerPhoneNumber = $_POST['CustomerPhoneNumber']; // 取得 POST 表單欄位
         $CustomerAddress = $_POST['CustomerAddress']; // 取得 POST 表單欄位
-        $resultsPerPage = intval($_POST['resultsPerPage'] ?? 5); // 取得 POST 表單欄位
 
         // 執行資料庫 UPDATE
         $stmt = $pdo->prepare("
@@ -36,23 +40,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
 
         header("Location: index.php?Act=300&resultsPerPage=$resultsPerPage"); // 導向顧客列表
         exit(); // 結束程式
-    } catch (Exception $e) { // 若有錯誤
-        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
-    } catch (PDOException $e) { // 若有錯誤
-        echo "<p>" . user_safe_error($e) . "</p>"; // 顯示錯誤訊息
+    } catch (Throwable $e) { // 若有錯誤
+        $errorMessage = user_safe_error($e);
     } // 結束執行
-} else { // 若非 POST 表單送出
-    $CustomerID = $_GET['id']; // 取得 GET 參數
-    $resultsPerPage = intval($_GET['resultsPerPage'] ?? 5); // 取得 GET 參數
+}
 
-    // 取得顧客資料
-    $stmt = $pdo->prepare("SELECT * FROM Customer WHERE CustomerID = :CustomerID"); // SQL 語法
-    $stmt->execute([':CustomerID' => $CustomerID]); // 執行 SQL 語法
-    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $stmt->fetch(PDO::FETCH_ASSOC)); // 取得第一筆資料並編碼供 HTML 輸出
+// 不論 GET 或 POST 更新失敗都重新讀取，避免使用未定義或不存在的資料畫表單。
+$stmt = $pdo->prepare("SELECT * FROM Customer WHERE CustomerID = :CustomerID");
+$stmt->execute([':CustomerID' => $CustomerID]);
+$databaseRow = $stmt->fetch(PDO::FETCH_ASSOC);
+if ($databaseRow !== false) {
+    $row = array_map(static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'), $databaseRow);
 }
 ?> <!-- 結束 PHP 區塊 -->
 
 <div class="container mt-5"> <!-- 容器 -->
+    <?php if ($errorMessage !== ''): ?>
+        <p><?php echo $errorMessage; ?></p>
+    <?php endif; ?>
+    <?php if ($row === null): ?>
+        <p><?php echo t('common.record_not_found'); ?></p>
+        <a href="index.php?Act=300&resultsPerPage=<?php echo $resultsPerPage; ?>" class="btn btn-secondary"><?php echo t('common.back'); ?></a>
+    <?php else: ?>
     <div class="card" style="border-radius: 15px;"> <!-- 卡片 -->
         <div class="card-header text-center"> <!-- 卡片標題 -->
             <h3><?php echo t('customer.edit.title'); ?></h3> <!-- 標題 -->
@@ -84,4 +93,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { // 若是 POST 表單送出
             </form> <!-- 表單結束 -->
         </div> <!-- 卡片內容結束 -->
     </div> <!-- 卡片結束 -->
+    <?php endif; ?>
 </div> <!-- 容器結束 -->

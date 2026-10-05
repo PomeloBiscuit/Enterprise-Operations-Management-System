@@ -43,18 +43,6 @@ parameters:
 			path: src/pages/customer/CustomerEdit.php
 
 		-
-			message: '#^Variable \$resultsPerPage might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/pages/customer/CustomerEdit.php
-
-		-
-			message: '#^Variable \$row might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: src/pages/customer/CustomerEdit.php
-
-		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -85,18 +73,6 @@ parameters:
 			path: src/pages/employee/EmployeeEdit.php
 
 		-
-			message: '#^Variable \$resultsPerPage might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/pages/employee/EmployeeEdit.php
-
-		-
-			message: '#^Variable \$row might not be defined\.$#'
-			identifier: variable.undefined
-			count: 3
-			path: src/pages/employee/EmployeeEdit.php
-
-		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -121,21 +97,9 @@ parameters:
 			path: src/pages/firm/firmandcustomerDel.php
 
 		-
-			message: '#^Variable \$Act might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/pages/firm/firmandcustomerEdit.php
-
-		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
-			path: src/pages/firm/firmandcustomerEdit.php
-
-		-
-			message: '#^Variable \$result might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
 			path: src/pages/firm/firmandcustomerEdit.php
 
 		-
@@ -205,21 +169,9 @@ parameters:
 			path: src/pages/order/OrderDelBatch.php
 
 		-
-			message: '#^Variable \$existingItems might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/pages/order/OrderEdit.php
-
-		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 13
-			path: src/pages/order/OrderEdit.php
-
-		-
-			message: '#^Variable \$row might not be defined\.$#'
-			identifier: variable.undefined
-			count: 10
 			path: src/pages/order/OrderEdit.php
 
 		-
@@ -262,18 +214,6 @@ parameters:
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
-			path: src/pages/product/ProductEdit.php
-
-		-
-			message: '#^Variable \$resultsPerPage might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/pages/product/ProductEdit.php
-
-		-
-			message: '#^Variable \$row might not be defined\.$#'
-			identifier: variable.undefined
-			count: 5
 			path: src/pages/product/ProductEdit.php
 
 		-
@@ -340,12 +280,6 @@ parameters:
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 4
-			path: src/pages/shipment/ShipmentEdit.php
-
-		-
-			message: '#^Variable \$row might not be defined\.$#'
-			identifier: variable.undefined
-			count: 9
 			path: src/pages/shipment/ShipmentEdit.php
 
 		-
