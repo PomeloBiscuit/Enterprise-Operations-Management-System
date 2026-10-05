@@ -364,12 +364,15 @@
                     $lineCount = min($lineCount, count($seedProductIds));
                     // array_rand 傳回隨機「鍵」，這裡用值當鍵才能取到 ProductID
                     $pickedKeys = (array) array_rand(array_flip($seedProductIds), $lineCount);
-                    foreach ($pickedKeys as $pickedProductId) {
+                    // 第一張訂單的數量固定為 2、1、3：smoke 的 ORDER-TOTALS 需要至少一筆數量大於 1，
+                    // 才分辨得出「漏乘數量」；全用 rand(1, 5) 時約有 0.8% 機率三筆都是 1 而誤報。
+                    $fixedQuantities = ($seedIdx === 0) ? [2, 1, 3] : [];
+                    foreach (array_values($pickedKeys) as $lineIdx => $pickedProductId) {
                          try {
                               $containInsert->execute([
                                    ':OrderID'   => $seedOrderId,
                                    ':ProductID' => $pickedProductId,
-                                   ':Quantity'  => rand(1, 5),
+                                   ':Quantity'  => $fixedQuantities[$lineIdx] ?? rand(1, 5),
                               ]);
                          } catch (PDOException $e) {
                               echo "<p>Error inserting into Contain: " . $e->getMessage();
