@@ -433,6 +433,14 @@ php -S localhost:8080 -t public     # 然後開 http://localhost:8080/login.php
 docker compose exec web bash scripts/smoke.sh
 ```
 
+靜態檢查是獨立關卡，不計入上面的 smoke 檢查數。執行：
+
+```bash
+docker compose exec -T web bash scripts/lint.sh
+```
+
+第一次執行會下載並驗證 PHPStan 2.2.17 與 PHP_CodeSniffer 4.0.4 的官方 PHAR；之後只會重用雜湊正確的快取檔。腳本依序檢查所有 PHP 的語法、PHPStan 與 PHP_CodeSniffer。
+
 檢查內容分為四類：
 
 **資料庫結構與種子資料**
