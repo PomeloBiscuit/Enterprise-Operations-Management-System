@@ -1,0 +1,403 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
+			identifier: whitespace.fileEnd
+			count: 1
+			path: public/login.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/login.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: public/register.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/pages/customer/CustomerAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/customer/CustomerDel.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/customer/CustomerDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/customer/CustomerEdit.php
+
+		-
+			message: '#^Variable \$resultsPerPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/customer/CustomerEdit.php
+
+		-
+			message: '#^Variable \$row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: src/pages/customer/CustomerEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/customer/CustomerList.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/pages/employee/EmployeeAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/employee/EmployeeDel.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/employee/EmployeeDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/employee/EmployeeEdit.php
+
+		-
+			message: '#^Variable \$resultsPerPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/employee/EmployeeEdit.php
+
+		-
+			message: '#^Variable \$row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/pages/employee/EmployeeEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/employee/EmployeeList.php
+
+		-
+			message: '#^Variable \$Act might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerDel.php
+
+		-
+			message: '#^Variable \$Act might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/firm/firmandcustomerEdit.php
+
+		-
+			message: '#^Variable \$result might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerList.php
+
+		-
+			message: '#^Variable \$result might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/firm/firmandcustomerList.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: src/pages/invoice/orderandinvoiceAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/invoice/orderandinvoiceDel.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/invoice/orderandinvoiceDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 6
+			path: src/pages/invoice/orderandinvoiceEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/invoice/orderandinvoiceList.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 14
+			path: src/pages/order/OrderAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/order/OrderDel.php
+
+		-
+			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
+			identifier: whitespace.fileEnd
+			count: 1
+			path: src/pages/order/OrderDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/order/OrderDelBatch.php
+
+		-
+			message: '#^Variable \$existingItems might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/order/OrderEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 13
+			path: src/pages/order/OrderEdit.php
+
+		-
+			message: '#^Variable \$row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 10
+			path: src/pages/order/OrderEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/order/OrderList.php
+
+		-
+			message: '#^Variable \$totalPages might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/order/OrderList.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: src/pages/product/ProductAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/product/ProductDel.php
+
+		-
+			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
+			identifier: whitespace.fileEnd
+			count: 1
+			path: src/pages/product/ProductDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/product/ProductDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/product/ProductEdit.php
+
+		-
+			message: '#^Variable \$resultsPerPage might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/product/ProductEdit.php
+
+		-
+			message: '#^Variable \$row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 5
+			path: src/pages/product/ProductEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/product/ProductList.php
+
+		-
+			message: '#^Variable \$totalPages might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/product/ProductList.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/profile/profile.php
+
+		-
+			message: '#^Variable \$user might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/profile/profile.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/profile/profileDelete.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/profile/profileEdit.php
+
+		-
+			message: '#^Variable \$user might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/profile/profileEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 11
+			path: src/pages/shipment/ShipmentAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/shipment/ShipmentDel.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/shipment/ShipmentDelBatch.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: src/pages/shipment/ShipmentEdit.php
+
+		-
+			message: '#^Variable \$row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 9
+			path: src/pages/shipment/ShipmentEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/shipment/ShipmentList.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/user/adminAdd.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/user/adminDel.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/user/adminDelBatch.php
+
+		-
+			message: '#^Variable \$Act might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/user/adminEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/user/adminEdit.php
+
+		-
+			message: '#^Variable \$result might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/user/adminEdit.php
+
+		-
+			message: '#^Variable \$pdo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/pages/user/adminList.php
+
+		-
+			message: '#^Variable \$totalPages might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: src/pages/user/adminList.php

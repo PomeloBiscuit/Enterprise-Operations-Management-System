@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/lib/diagram-geometry.php';
@@ -170,12 +171,22 @@ function dg_route_foreign_keys(array $foreignKeys, array $layout): array
 {
     $routeOrder = array_keys($foreignKeys);
     usort($routeOrder, static function (int $left, int $right) use ($foreignKeys, $layout): int {
-        $leftSource = $layout['fields']["{$foreignKeys[$left]['fromTable']}.{$foreignKeys[$left]['fromColumn']}"];
-        $leftTarget = $layout['fields']["{$foreignKeys[$left]['toTable']}.{$foreignKeys[$left]['toColumn']}"];
-        $rightSource = $layout['fields']["{$foreignKeys[$right]['fromTable']}.{$foreignKeys[$right]['fromColumn']}"];
-        $rightTarget = $layout['fields']["{$foreignKeys[$right]['toTable']}.{$foreignKeys[$right]['toColumn']}"];
+        $leftSource = $layout['fields'][
+            "{$foreignKeys[$left]['fromTable']}.{$foreignKeys[$left]['fromColumn']}"
+        ];
+        $leftTarget = $layout['fields'][
+            "{$foreignKeys[$left]['toTable']}.{$foreignKeys[$left]['toColumn']}"
+        ];
+        $rightSource = $layout['fields'][
+            "{$foreignKeys[$right]['fromTable']}.{$foreignKeys[$right]['fromColumn']}"
+        ];
+        $rightTarget = $layout['fields'][
+            "{$foreignKeys[$right]['toTable']}.{$foreignKeys[$right]['toColumn']}"
+        ];
         $leftDistance = abs(($leftSource['y'] + $leftSource['height']) - ($leftTarget['y'] + $leftTarget['height']));
-        $rightDistance = abs(($rightSource['y'] + $rightSource['height']) - ($rightTarget['y'] + $rightTarget['height']));
+        $rightDistance = abs(
+            ($rightSource['y'] + $rightSource['height']) - ($rightTarget['y'] + $rightTarget['height'])
+        );
         return [$rightDistance, $leftSource['y'], $left] <=> [$leftDistance, $rightSource['y'], $right];
     });
     $laneRanks = array_flip($routeOrder);
@@ -514,8 +525,10 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
 {
     $dom = dg_dom($svg);
     $root = $dom->documentElement;
-    if ($root === null || !$root->hasAttribute('width') || !$root->hasAttribute('height')
-        || !$root->hasAttribute('viewBox')) {
+    if (
+        $root === null || !$root->hasAttribute('width') || !$root->hasAttribute('height')
+        || !$root->hasAttribute('viewBox')
+    ) {
         dg_fail('R-CANVAS', 'SVG 缺少明確 width、height 或 viewBox');
     }
     $fields = dg_xpath($dom, '//*[@data-kind="field"]');
@@ -637,8 +650,10 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
             }
         }
     }
-    if (dg_xpath($dom, '//*[@data-kind="legend-cascade"]')->length !== 1
-        || dg_xpath($dom, '//*[@data-kind="legend-restrict"]')->length !== 1) {
+    if (
+        dg_xpath($dom, '//*[@data-kind="legend-cascade"]')->length !== 1
+        || dg_xpath($dom, '//*[@data-kind="legend-restrict"]')->length !== 1
+    ) {
         dg_fail('R-DELETE', '缺少 CASCADE 或 RESTRICT 圖例');
     }
     foreach ($routePoints as $pathIndex => $points) {
@@ -708,22 +723,28 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
         dg_fail('R-CANVAS', "畫布寬度 $width 超過 1400px");
     }
     $extents = dg_visible_svg_extents($dom, $routePoints);
-    if (abs($extents['left'] - DG_MARGIN) > 1 || abs($extents['top'] - DG_MARGIN) > 1
+    if (
+        abs($extents['left'] - DG_MARGIN) > 1 || abs($extents['top'] - DG_MARGIN) > 1
         || abs($width - $extents['right'] - DG_MARGIN) > 1
-        || abs($height - $extents['bottom'] - DG_MARGIN) > 1) {
+        || abs($height - $extents['bottom'] - DG_MARGIN) > 1
+    ) {
         dg_fail('R-CANVAS', '可見內容未維持四邊 24±1px 留白');
     }
     foreach ($fieldBounds as $key => $bounds) {
-        if ($bounds['x'] < DG_MARGIN - 1 || $bounds['y'] < DG_MARGIN - 1
+        if (
+            $bounds['x'] < DG_MARGIN - 1 || $bounds['y'] < DG_MARGIN - 1
             || $bounds['x'] + $bounds['width'] > $width - DG_MARGIN + 1
-            || $bounds['y'] + $bounds['height'] > $height - DG_MARGIN + 1) {
+            || $bounds['y'] + $bounds['height'] > $height - DG_MARGIN + 1
+        ) {
             dg_fail('R-CANVAS', "$key 不在畫布 24±1px 留白內");
         }
     }
     foreach ($routePoints as $points) {
         foreach ($points as $point) {
-            if ($point['x'] < DG_MARGIN - 1 || $point['x'] > $width - DG_MARGIN + 1
-                || $point['y'] < DG_MARGIN - 1 || $point['y'] > $height - DG_MARGIN + 1) {
+            if (
+                $point['x'] < DG_MARGIN - 1 || $point['x'] > $width - DG_MARGIN + 1
+                || $point['y'] < DG_MARGIN - 1 || $point['y'] > $height - DG_MARGIN + 1
+            ) {
                 dg_fail('R-CANVAS', '外鍵路徑超出畫布 24±1px 留白');
             }
         }
@@ -785,13 +806,19 @@ function dg_self_test(): void
         }
     }
     $crosses = dg_segments_intersect(
-        ['x' => 0, 'y' => 0], ['x' => 10, 'y' => 10], ['x' => 0, 'y' => 10], ['x' => 10, 'y' => 0]
+        ['x' => 0, 'y' => 0],
+        ['x' => 10, 'y' => 10],
+        ['x' => 0, 'y' => 10],
+        ['x' => 10, 'y' => 0]
     );
     if (!$crosses) {
         throw new RuntimeException('self-test crossing segments failed');
     }
     $parallel = dg_segments_intersect(
-        ['x' => 0, 'y' => 0], ['x' => 10, 'y' => 0], ['x' => 0, 'y' => 2], ['x' => 10, 'y' => 2]
+        ['x' => 0, 'y' => 0],
+        ['x' => 10, 'y' => 0],
+        ['x' => 0, 'y' => 2],
+        ['x' => 10, 'y' => 2]
     );
     if ($parallel) {
         throw new RuntimeException('self-test parallel segments failed');
@@ -842,17 +869,20 @@ function dg_main(array $arguments): void
     foreach ($chen as $file => $svg) {
         file_put_contents("$outputDir/$file", $svg);
     }
-    printf("DIAGRAMS PASS tables=%d fields=%d primaryKeys=%d foreignKeys=%d width=%d height=%d\n",
+    printf(
+        "DIAGRAMS PASS tables=%d fields=%d primaryKeys=%d foreignKeys=%d width=%d height=%d\n",
         count($schema['tables']),
         count($layout['fields']),
         count(array_filter($layout['fields'], static fn(array $field): bool => $field['pk'])),
         count($schema['foreignKeys']),
         $layout['width'],
-        $layout['height']);
+        $layout['height']
+    );
 }
 
 try {
-    dg_main($argv);
+    $arguments = $_SERVER['argv'] ?? [];
+    dg_main(is_array($arguments) ? $arguments : []);
 } catch (Throwable $error) {
     fwrite(STDERR, $error->getMessage() . "\n");
     exit(1);

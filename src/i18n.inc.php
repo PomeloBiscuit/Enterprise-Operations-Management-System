@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 介面多國語言（i18n）機制 —— 純 PHP，無 Composer、無套件、無 gettext。
  *

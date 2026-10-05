@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /** Shared, dependency-free geometry helpers for generated data-model diagrams. */
@@ -48,8 +49,10 @@ function dg_segments_intersect(array $a, array $b, array $c, array $d): bool
 
 function dg_segment_intersects_bounds(array $start, array $end, array $bounds): bool
 {
-    if ($start['x'] > $bounds['x'] && $start['x'] < $bounds['x'] + $bounds['width']
-        && $start['y'] > $bounds['y'] && $start['y'] < $bounds['y'] + $bounds['height']) {
+    if (
+        $start['x'] > $bounds['x'] && $start['x'] < $bounds['x'] + $bounds['width']
+        && $start['y'] > $bounds['y'] && $start['y'] < $bounds['y'] + $bounds['height']
+    ) {
         return true;
     }
     $x = $bounds['x'];

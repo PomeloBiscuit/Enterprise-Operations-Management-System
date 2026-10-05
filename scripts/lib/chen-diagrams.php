@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -1407,9 +1408,11 @@ function chen_check_endpoint(array $line, array $shapes): void
 {
     $owner = $shapes[$line['owner']] ?? null;
     $target = $shapes[$line['target']] ?? null;
-    if ($owner === null || $target === null
+    if (
+        $owner === null || $target === null
         || chen_boundary_error($owner, $line['x1'], $line['y1']) > .5
-        || chen_boundary_error($target, $line['x2'], $line['y2']) > .5) {
+        || chen_boundary_error($target, $line['x2'], $line['y2']) > .5
+    ) {
         chen_fail('C-ENDPOINT', $line['id'], '線端未落在真正邊框');
     }
 }
@@ -1795,8 +1798,10 @@ function chen_check_note(
 function chen_check_variant(DOMXPath $xpath, string $svg, string $key, string $locale): void
 {
     foreach ($xpath->query('//*[local-name()="text"]') as $text) {
-        if ($text->getAttribute('font-family') !== html_entity_decode(CHEN_FONT, ENT_QUOTES, 'UTF-8')
-            || (float) $text->getAttribute('font-size') < 12) {
+        if (
+            $text->getAttribute('font-family') !== html_entity_decode(CHEN_FONT, ENT_QUOTES, 'UTF-8')
+            || (float) $text->getAttribute('font-size') < 12
+        ) {
             chen_fail('C-VARIANT', $key, '文字字型或字級不符');
         }
     }

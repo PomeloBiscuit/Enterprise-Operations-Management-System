@@ -26,6 +26,9 @@ sess_*
 # Node modules (if used later)
 node_modules/
 
+# Downloaded static-analysis PHARs (verified and recreated by scripts/lint.sh)
+tools/
+
 # 內部作業文件（不對外公開，另行備份）
 # 注意：內部文件放在 _ops/，不是 docs/ —— docs/ 保留給對外的 GitHub Pages 介紹頁。
 CLAUDE.md
