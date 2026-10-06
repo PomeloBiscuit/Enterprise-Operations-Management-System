@@ -4,6 +4,19 @@ declare(strict_types=1);
 
 /** Shared, dependency-free geometry helpers for generated data-model diagrams. */
 
+/**
+ * XPath queries may expose namespace nodes alongside SVG elements.  Diagram
+ * validation only accepts elements because it reads SVG attributes from them.
+ */
+function dg_require_element(DOMNode|DOMNameSpaceNode|null $node): DOMElement
+{
+    if (!$node instanceof DOMElement) {
+        throw new RuntimeException('SVG XPath result is not an element');
+    }
+
+    return $node;
+}
+
 function dg_bounds(float $x, float $y, float $width, float $height): array
 {
     return ['x' => $x, 'y' => $y, 'width' => $width, 'height' => $height];

@@ -1186,6 +1186,7 @@ function chen_dom_shapes(DOMDocument $dom): array
 {
     $shapes = [];
     foreach ((new DOMXPath($dom))->query('//*[@data-element and @data-element != "canvas"]') as $node) {
+        $node = dg_require_element($node);
         $id = $node->getAttribute('data-element');
         $shapes[$id] = match ($node->localName) {
             'rect' => chen_dom_rect($id, $node),
@@ -1200,6 +1201,7 @@ function chen_dom_lines(DOMDocument $dom): array
 {
     $lines = [];
     foreach ((new DOMXPath($dom))->query('//*[local-name()="line" and @data-line]') as $node) {
+        $node = dg_require_element($node);
         $lines[] = [
             'id' => $node->getAttribute('data-line'),
             'owner' => $node->getAttribute('data-owner'),
@@ -1364,6 +1366,7 @@ function chen_text_id(DOMElement $text): string
 function chen_check_fit_spaces(DOMXPath $xpath): void
 {
     foreach ($xpath->query('//*[local-name()="text"]') as $text) {
+        $text = dg_require_element($text);
         if (str_contains($text->textContent, '  ')) {
             chen_fail('C-FIT', chen_text_id($text), '文字含連續空白，SVG 會合併成一個');
         }
@@ -1375,6 +1378,7 @@ function chen_check_fit(DOMXPath $xpath, array $shapes, float $width): void
 {
     chen_check_fit_spaces($xpath);
     foreach ($xpath->query('//*[local-name()="text" and @data-text-for]') as $text) {
+        $text = dg_require_element($text);
         $id = $text->getAttribute('data-text-for');
         $shape = $shapes[$id] ?? null;
         $textWidth = dg_independent_text_width($text->textContent, (float) $text->getAttribute('font-size'));
@@ -1383,6 +1387,7 @@ function chen_check_fit(DOMXPath $xpath, array $shapes, float $width): void
         }
     }
     foreach ($xpath->query('//*[local-name()="text" and @data-note]') as $text) {
+        $text = dg_require_element($text);
         if (dg_independent_text_width($text->textContent, 12) > $width - 48) {
             chen_fail('C-FIT', $text->getAttribute('data-note'), '圖例或圖說放不進畫布');
         }
@@ -1582,6 +1587,7 @@ function chen_check_pk(DOMXPath $xpath, array $layout, array $model): void
     $entities = chen_index($model['entities']);
     $underlined = [];
     foreach ($xpath->query('//*[local-name()="text" and @text-decoration="underline"]') as $text) {
+        $text = dg_require_element($text);
         $underlined[] = $text->getAttribute('data-text-for');
     }
     $expected = [];
@@ -1602,6 +1608,7 @@ function chen_dom_labels(DOMXPath $xpath): array
 {
     $labels = [];
     foreach ($xpath->query('//*[local-name()="text" and @data-cardinality-for]') as $text) {
+        $text = dg_require_element($text);
         $x = (float) $text->getAttribute('x');
         $y = (float) $text->getAttribute('y') - 5;
         $labels[] = [
@@ -1688,8 +1695,8 @@ function chen_note_band_geometry(DOMXPath $xpath, string $key): array
     if ($rules->length !== 1 || $texts->length !== 1) {
         chen_fail('C-NOTE', $key, '孤立實體說明必須恰有一條分隔線與一則文字');
     }
-    $rule = $rules->item(0);
-    $text = $texts->item(0);
+    $rule = dg_require_element($rules->item(0));
+    $text = dg_require_element($texts->item(0));
     $start = ['x' => (float) $rule->getAttribute('x1'), 'y' => (float) $rule->getAttribute('y1')];
     $end = ['x' => (float) $rule->getAttribute('x2'), 'y' => (float) $rule->getAttribute('y2')];
     $canvas = (float) $xpath->document->documentElement->getAttribute('width');
@@ -1798,6 +1805,7 @@ function chen_check_note(
 function chen_check_variant(DOMXPath $xpath, string $svg, string $key, string $locale): void
 {
     foreach ($xpath->query('//*[local-name()="text"]') as $text) {
+        $text = dg_require_element($text);
         if (
             $text->getAttribute('font-family') !== html_entity_decode(CHEN_FONT, ENT_QUOTES, 'UTF-8')
             || (float) $text->getAttribute('font-size') < 12

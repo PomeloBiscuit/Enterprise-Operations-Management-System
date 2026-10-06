@@ -322,7 +322,7 @@
                          'EmployeeID' => rand(1, 10),
                          'OrderTime' => $randomOrderTime,
                          'ShipDate' => $randomShipDate,
-                         'TrackingNumber' => 'TN' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                         'TrackingNumber' => 'TN' . str_pad((string) $i, 3, '0', STR_PAD_LEFT),
                          'ShipMethod' => (rand(0, 1) ? 'Air' : (rand(0, 1) ? 'Sea' : 'Land'))
                     ];
 
@@ -367,7 +367,7 @@
                     // 第一張訂單的數量固定為 2、1、3：smoke 的 ORDER-TOTALS 需要至少一筆數量大於 1，
                     // 才分辨得出「漏乘數量」；全用 rand(1, 5) 時約有 0.8% 機率三筆都是 1 而誤報。
                     $fixedQuantities = ($seedIdx === 0) ? [2, 1, 3] : [];
-                    foreach (array_values($pickedKeys) as $lineIdx => $pickedProductId) {
+                    foreach ($pickedKeys as $lineIdx => $pickedProductId) {
                          try {
                               $containInsert->execute([
                                    ':OrderID'   => $seedOrderId,

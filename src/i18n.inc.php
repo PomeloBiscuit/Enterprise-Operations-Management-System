@@ -123,7 +123,7 @@ function i18n_switch_url(string $locale): string
 {
     $uri = $_SERVER['REQUEST_URI'] ?? 'index.php';
     $path = strtok($uri, '?');
-    if ($path === false || $path === '') {
+    if ($path === false) {
         $path = 'index.php';
     }
 

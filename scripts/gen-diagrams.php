@@ -488,6 +488,7 @@ function dg_visible_svg_extents(DOMDocument $dom, array $routePoints): array
         $extents['bottom'] = max($extents['bottom'], $bottom);
     };
     foreach (dg_xpath($dom, '//*[@data-kind]') as $element) {
+        $element = dg_require_element($element);
         $kind = $element->getAttribute('data-kind');
         if ($kind === 'background' || $kind === 'fk') {
             continue;
@@ -540,6 +541,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
     }
     $seenTables = [];
     foreach ($tables as $table) {
+        $table = dg_require_element($table);
         $seenTables[] = $table->attributes->getNamedItem('data-table')->nodeValue;
     }
     sort($seenTables, SORT_STRING);
@@ -549,6 +551,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
     }
     $tableBounds = [];
     foreach ($tables as $table) {
+        $table = dg_require_element($table);
         $tableBounds[$table->getAttribute('data-table')] = dg_element_bounds($table);
     }
     $expectedFields = [];
@@ -560,6 +563,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
     $seenFields = [];
     $fieldBounds = [];
     foreach ($fields as $field) {
+        $field = dg_require_element($field);
         $key = $field->getAttribute('data-table') . '.' . $field->getAttribute('data-column');
         $seenFields[] = $key;
         $fieldBounds[$key] = dg_element_bounds($field);
@@ -572,6 +576,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
     $textOrder = [];
     $underlined = [];
     foreach ($fieldNames as $name) {
+        $name = dg_require_element($name);
         $key = $name->getAttribute('data-table') . '.' . $name->getAttribute('data-column');
         $textOrder[$name->getAttribute('data-table')][] = $name->getAttribute('data-column');
         if ($name->hasAttribute('text-decoration')) {
@@ -606,6 +611,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
     $actualForeignKeys = [];
     $routePoints = [];
     foreach ($paths as $path) {
+        $path = dg_require_element($path);
         $from = $path->getAttribute('data-from');
         $to = $path->getAttribute('data-to');
         $actualForeignKeys[] = "$from>$to";
@@ -643,8 +649,8 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
             }
             for ($segment = 0; $segment < count($route) - 1; $segment++) {
                 if (dg_segment_intersects_bounds($route[$segment], $route[$segment + 1], $clearance)) {
-                    $from = $paths->item($routeIndex)->getAttribute('data-from');
-                    $target = $paths->item($tipIndex)->getAttribute('data-to');
+                    $from = dg_require_element($paths->item($routeIndex))->getAttribute('data-from');
+                    $target = dg_require_element($paths->item($tipIndex))->getAttribute('data-to');
                     dg_fail('R-ARROW', "$from 進入 $target 箭頭尖端下方淨空");
                 }
             }
@@ -657,7 +663,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
         dg_fail('R-DELETE', '缺少 CASCADE 或 RESTRICT 圖例');
     }
     foreach ($routePoints as $pathIndex => $points) {
-        $path = $paths->item($pathIndex);
+        $path = dg_require_element($paths->item($pathIndex));
         $except = [$path->getAttribute('data-from') => true, $path->getAttribute('data-to') => true];
         foreach ($fieldBounds as $key => $bounds) {
             if (isset($except[$key])) {
@@ -701,8 +707,8 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
                         ? dg_ranges_overlap($p['x'], $q['x'], $r['x'], $s['x'])
                         : ($vertical && dg_ranges_overlap($p['y'], $q['y'], $r['y'], $s['y']));
                     if ($overlap) {
-                        $left = $paths->item($i)->getAttribute('data-from');
-                        $right = $paths->item($j)->getAttribute('data-from');
+                        $left = dg_require_element($paths->item($i))->getAttribute('data-from');
+                        $right = dg_require_element($paths->item($j))->getAttribute('data-from');
                         dg_fail('R-ROUTE', "$left 與 $right 有重疊的共線線段");
                     }
                 }
@@ -750,6 +756,7 @@ function dg_assert_variant(string $svg, array $schema, array $model, string $loc
         }
     }
     foreach (dg_xpath($dom, '//*[local-name()="text"]') as $text) {
+        $text = dg_require_element($text);
         $font = $text->getAttribute('font-family');
         $size = (float) $text->getAttribute('font-size');
         $titleFont = html_entity_decode(DG_TITLE_FONT, ENT_QUOTES | ENT_XML1, 'UTF-8');

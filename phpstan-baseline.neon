@@ -7,6 +7,12 @@ parameters:
 			path: public/login.php
 
 		-
+			message: '#^Offset ''btemplogin'' on non\-empty\-array\<mixed\> in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: public/login.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -17,6 +23,12 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: public/register.php
+
+		-
+			message: '#^Dead catch \- PDOException is already caught above\.$#'
+			identifier: catch.alreadyCaught
+			count: 1
+			path: src/pages/customer/CustomerAdd.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -43,10 +55,22 @@ parameters:
 			path: src/pages/customer/CustomerEdit.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/customer/CustomerList.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
 			path: src/pages/customer/CustomerList.php
+
+		-
+			message: '#^Dead catch \- PDOException is already caught above\.$#'
+			identifier: catch.alreadyCaught
+			count: 1
+			path: src/pages/employee/EmployeeAdd.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -71,6 +95,18 @@ parameters:
 			identifier: variable.undefined
 			count: 2
 			path: src/pages/employee/EmployeeEdit.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/employee/EmployeeList.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 2
+			path: src/pages/employee/EmployeeList.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -115,6 +151,12 @@ parameters:
 			path: src/pages/firm/firmandcustomerList.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/invoice/orderandinvoiceAdd.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 5
@@ -139,10 +181,34 @@ parameters:
 			path: src/pages/invoice/orderandinvoiceEdit.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/invoice/orderandinvoiceList.php
+
+		-
+			message: '#^Offset ''amount''\|''customer_name''\|''invoice_number''\|''order_id''\|''order_number'' on array\{order_id\: ''oi\.order_id'', order_number\: ''oi\.order_number'', invoice_number\: ''oi\.invoice_number'', customer_name\: ''oi\.customer_name'', amount\: ''oi\.amount''\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/pages/invoice/orderandinvoiceList.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between '''' and '''' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/pages/invoice/orderandinvoiceList.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: src/pages/invoice/orderandinvoiceList.php
+
+		-
+			message: '#^Parameter \#1 \$string of function str_pad expects string, int\<0, 999999\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/pages/order/OrderAdd.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -175,6 +241,18 @@ parameters:
 			path: src/pages/order/OrderEdit.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/order/OrderList.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 2
+			path: src/pages/order/OrderList.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -185,6 +263,12 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: src/pages/order/OrderList.php
+
+		-
+			message: '#^Dead catch \- PDOException is already caught above\.$#'
+			identifier: catch.alreadyCaught
+			count: 1
+			path: src/pages/product/ProductAdd.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -217,6 +301,18 @@ parameters:
 			path: src/pages/product/ProductEdit.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/product/ProductList.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 2
+			path: src/pages/product/ProductList.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -247,6 +343,24 @@ parameters:
 			path: src/pages/profile/profileDelete.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/profile/profileEdit.php
+
+		-
+			message: '#^Offset ''南投''\|''嘉義''\|''宜蘭''\|''屏東''\|''彰化''\|''新竹''\|''桃園''\|''澎湖''\|''烏坵''\|''臺中''\|''臺北''\|''臺南''\|''臺東''\|''花蓮''\|''苗栗''\|''金門''\|''雲林''\|''馬祖''\|''高雄'' on array\{臺北\: ''Taipei'', 桃園\: ''Taoyuan'', 新竹\: ''Hsinchu'', 花蓮\: ''Hualien'', 宜蘭\: ''Yilan'', 苗栗\: ''Miaoli'', 臺中\: ''Taichung'', 彰化\: ''Changhua'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/pages/profile/profileEdit.php
+
+		-
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 3
+			path: src/pages/profile/profileEdit.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -257,6 +371,12 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: src/pages/profile/profileEdit.php
+
+		-
+			message: '#^Parameter \#1 \$string of function str_pad expects string, int\<0, 999999\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/pages/shipment/ShipmentAdd.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -283,10 +403,34 @@ parameters:
 			path: src/pages/shipment/ShipmentEdit.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/shipment/ShipmentList.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between '''' and '''' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/pages/shipment/ShipmentList.php
+
+		-
 			message: '#^Variable \$pdo might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: src/pages/shipment/ShipmentList.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/user/adminAdd.php
+
+		-
+			message: '#^Offset ''南投''\|''嘉義''\|''宜蘭''\|''屏東''\|''彰化''\|''新竹''\|''桃園''\|''澎湖''\|''烏坵''\|''臺中''\|''臺北''\|''臺南''\|''臺東''\|''花蓮''\|''苗栗''\|''金門''\|''雲林''\|''馬祖''\|''高雄'' on array\{臺北\: ''Taipei'', 桃園\: ''Taoyuan'', 新竹\: ''Hsinchu'', 花蓮\: ''Hualien'', 宜蘭\: ''Yilan'', 苗栗\: ''Miaoli'', 臺中\: ''Taichung'', 彰化\: ''Changhua'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/pages/user/adminAdd.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
@@ -307,6 +451,12 @@ parameters:
 			path: src/pages/user/adminDelBatch.php
 
 		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/user/adminEdit.php
+
+		-
 			message: '#^Variable \$Act might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -323,6 +473,18 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: src/pages/user/adminEdit.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/pages/user/adminList.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 2
+			path: src/pages/user/adminList.php
 
 		-
 			message: '#^Variable \$pdo might not be defined\.$#'
